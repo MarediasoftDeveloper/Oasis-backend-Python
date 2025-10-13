@@ -1,2 +1,0 @@
-1. Facebook account for Signup with facebook
-2. Apple developer account for Signup with Apple

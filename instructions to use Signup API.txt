@@ -1,9 +1,0 @@
-1. if "oasis/api/register/" on this url response you got is code "201 created" and 
-{
-    "id": 3,
-    "username": "",
-    "email": "myemail@gmail.com",
-    "password": ""
-}
-then store the email redirect the user to email authentication screen.
-  
