@@ -1,0 +1,8 @@
+1. signup with email
+2. signup with google
+3. signup with facebook
+4. signup with Apple
+
+
+
+1. account registration and login karne k baad 1 option or dena profile picture customize karne ka theek hai.

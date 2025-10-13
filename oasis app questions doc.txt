@@ -1,0 +1,31 @@
+1. Explain the flow of the whole application according to the perspective of Venue, User/Customer, and Admin explain for each seperatley.
+
+2. Explain the role of points who can buy and sell the coins?
+
+3. What are the daily stamps?
+
+4. Role and rules of badges which type of users can the badges? and which badge will be assign on the completion of which task?
+
+5. How Users can make friends on oasis? for-example:"by sending request and accepting friend requests or directly etc."
+
+6. In rewards what type of rewards will be assign?
+
+7. How users can get points explain every way to get points?
+
+8. Rewards will be assign on daily basis or monthly or weekly or on the basis of completing tasks only?
+
+9. describe what features you want for the venue?
+
+10. do you need advertisment option?
+
+11. Points or Coins or Stamps describe the difference between them and the work behaviour of all seperatley.
+
+12. 1000 points = 10.00 NZD means 100 points = 1.00 NZD right?
+
+13. How users will passed the level of badges and every badge has a different value or every badge is equal to 20 points?
+
+14. Scanning QR code will assign badge to users or it will give 20 points to the scanner. 
+
+
+#Second phase questions 
+15. Do you want to make resturants able to send signup request directly from app or you want to add manually add resturants or venues  

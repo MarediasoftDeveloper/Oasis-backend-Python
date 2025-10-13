@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Oasis - Verification Code</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #298c99 0%, #1a6b75 100%);
+            min-height: 100vh;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #298c99 0%, #1a6b75 100%);
+            padding: 40px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .wave {
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 60px;
+        }
+        
+        .wave path {
+            fill: #ffffff;
+        }
+        
+        .logo-container {
+            background: rgba(255, 255, 255, 0.2);
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .app-name {
+            color: #ffffff;
+            font-size: 32px;
+            font-weight: bold;
+            margin: 0;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            margin-bottom: 15px;
+        }
+        
+        .content {
+            padding: 50px 30px;
+            text-align: center;
+        }
+        
+        .greeting {
+            font-size: 24px;
+            color: #2d2d2d;
+            margin: 0 0 15px;
+            font-weight: 600;
+        }
+        
+        .message {
+            font-size: 16px;
+            color: #666666;
+            line-height: 1.6;
+            margin: 0 0 35px;
+        }
+        
+        .otp-container {
+            background: linear-gradient(135deg, #f4be64 0%, #e16b43 100%);
+            border-radius: 16px;
+            padding: 30px;
+            margin: 30px auto;
+            max-width: 400px;
+            box-shadow: 0 10px 40px rgba(225, 107, 67, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .otp-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(-30px, -30px); }
+        }
+        
+        .otp-label {
+            font-size: 14px;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 0 0 15px;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+        
+        .otp-code {
+            font-size: 48px;
+            font-weight: bold;
+            color: #ffffff;
+            letter-spacing: 12px;
+            margin: 0;
+            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            font-family: 'Courier New', monospace;
+        }
+        
+        .expiry-notice {
+            margin: 25px 0;
+            padding: 15px;
+            background-color: #fff8f0;
+            border-left: 4px solid #f4be64;
+            border-radius: 8px;
+            text-align: left;
+        }
+        
+        .expiry-notice p {
+            margin: 0;
+            color: #666666;
+            font-size: 14px;
+        }
+        
+        .expiry-notice strong {
+            color: #e16b43;
+        }
+        
+        .security-note {
+            background-color: #f8f9ff;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 30px 0;
+            text-align: left;
+        }
+        
+        .security-note h3 {
+            color: #298c99;
+            font-size: 16px;
+            margin: 0 0 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .security-note h3::before {
+            content: '🔒';
+            margin-right: 8px;
+            font-size: 18px;
+        }
+        
+        .security-note p {
+            color: #666666;
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 0;
+        }
+        
+        .footer {
+            background-color: #f5f5f5;
+            padding: 30px 20px;
+            text-align: center;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .footer p {
+            color: #999999;
+            font-size: 13px;
+            line-height: 1.6;
+            margin: 5px 0;
+        }
+        .logo-pin{
+            width:100%;
+            height:100%;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+        }
+        .logo-pin img{
+            width: 140px;
+            aspect-ratio:1/0.7;
+            margin:auto auto;
+        }
+        .social-links {
+            margin: 20px 0 10px;
+        }
+        
+        .social-links a {
+            display: inline-block;
+            width: 36px;
+            height: 36px;
+            margin: 0 8px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #298c99 0%, #1a6b75 100%);
+            color: #ffffff;
+            text-decoration: none;
+            line-height: 36px;
+            font-weight: bold;
+            transition: transform 0.3s;
+        }
+        
+        .social-links a:hover {
+            transform: translateY(-3px);
+        }
+        
+        @media only screen and (max-width: 600px) {
+            .content {
+                padding: 40px 20px;
+            }
+            
+            .greeting {
+                font-size: 22px;
+            }
+            
+            .otp-code {
+                font-size: 36px;
+                letter-spacing: 8px;
+            }
+            
+            .otp-container {
+                padding: 25px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo-container">
+                <div class="logo-pin"><img src="https://static.wixstatic.com/media/ff0498_d76ab093a9b74c21aa9fc6d4c0eca251~mv2.png/v1/fill/w_436,h_290,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/1.png" alt=""></div>
+            </div>
+            <h1 class="app-name">My Oasis</h1>
+          
+        </div>
+        
+        <!-- Content -->
+        <div class="content">
+            <h2 class="greeting">Welcome To Oasis! 👋</h2>
+            <p class="message">
+                We received a request to verify your Email. Enter the code below to continue your journey with My Oasis.
+            </p>
+            
+            <!-- OTP Container -->
+            <div class="otp-container">
+                <p class="otp-label">Your Verification Code</p>
+                <p class="otp-code">{{otp}}</p>
+            </div>
+            
+            <!-- Expiry Notice -->
+            <div class="expiry-notice">
+                <p>⏰ This code will expire in <strong>10 minutes</strong>. Please use it soon!</p>
+            </div>
+            
+            <!-- Security Note -->
+            <div class="security-note">
+                <h3>Security Reminder</h3>
+                <p>
+                    Never share this code with anyone. My Oasis will never ask you for this code via phone, email, or social media. 
+                    If you didn't request this code, please ignore this email or contact our support team.
+                </p>
+            </div>
+            
+            <p class="message" style="margin-top: 30px;">
+                Need help? We're here for you! Reach out to our support team anytime at 
+                <a href="mailto:support@myoasis.com" style="color: #298c99; text-decoration: none; font-weight: 600;">support@myoasis.com</a>
+            </p>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <div class="social-links">
+                <a href="#">f</a>
+                <a href="#">𝕏</a>
+                <a href="#">in</a>
+                <a href="#">ig</a>
+            </div>
+            <p><strong>My Oasis</strong> - Your Personal Escape</p>
+            <p>© 2025 My Oasis. All rights reserved.</p>
+            <p style="margin-top: 15px;">
+                You're receiving this email because you requested a verification code.<br>
+                If you have any questions, visit our <a href="#" style="color: #298c99; text-decoration: none;">Help Center</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
