@@ -56,7 +56,7 @@ REST_FRAMEWORK = {
 }
 
 
-GOOGLE_CLIENT_ID= "250940469968-sipobtb589ca96nmntbajh802rmlcbig.apps.googleusercontent.com" # for android
+GOOGLE_CLIENT_ID= config('GOOGLE_CLIENT_ID') # for android
 
 
 from datetime import timedelta
