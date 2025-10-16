@@ -1,6 +1,6 @@
 from rest_framework.serializers import ModelSerializer, EmailField
 from rest_framework import serializers
-from app.Models.customers import Customer
+from app.models import Customer
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.hashers import make_password, check_password
 

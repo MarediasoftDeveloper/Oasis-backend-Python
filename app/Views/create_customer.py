@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from rest_framework import generics 
-from app.Models.customers import Customer
+from app.models import Customer
 from app.Serializers.customer_signup_serializer import Customer_Serializer 
 from rest_framework import status
 import random
@@ -17,7 +17,7 @@ class Create_Customer(generics.CreateAPIView):
         
         if response.status_code == status.HTTP_201_CREATED:
             customer_id = response.data.get('id')
-            return redirect('send-otp', customer_id)
-            
+            return redirect('send-and-validate-otp', customer_id)
+
 
         return response

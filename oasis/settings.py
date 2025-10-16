@@ -20,16 +20,23 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-_cp(fo)_hu7bgdu2!gmp4ga5@6-(*zf)#t+#y_uhbi*oj7!#sw'
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
-ALLOWED_HOSTS = []
+DEBUG = config("DEBUG", default=False, cast=bool)
+
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="").split(",")
+
+# Optional: trust your Railway domain for CSRF
+CSRF_TRUSTED_ORIGINS = [
+    f"https://{host}" for host in ALLOWED_HOSTS if host not in ["localhost", "127.0.0.1"]
+]
 
 
-# Email backend (use this in development)
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+
+
 
 # Application definition
 
@@ -41,8 +48,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'app',
+    'staff',
+    'venue',
     'rest_framework',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 
@@ -50,14 +60,14 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
-    ),
 }
 
 
-GOOGLE_CLIENT_ID= config('GOOGLE_CLIENT_ID') # for android
+GOOGLE_CLIENT_ID_ANDROID= config('GOOGLE_CLIENT_ID_ANDROID') # for android
+GOOGLE_CLIENT_ID_APPLE= config('GOOGLE_CLIENT_ID_APPLE') # for apple
 
+
+GOOGLE_CLIENT_IDS = [GOOGLE_CLIENT_ID_ANDROID, GOOGLE_CLIENT_ID_APPLE]
 
 from datetime import timedelta
 
@@ -65,11 +75,14 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'AUTH_HEADER_TYPES': ('Bearer',),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
 }
 
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -109,6 +122,9 @@ DATABASES = {
 }
 
 
+
+AUTH_USER_MODEL = 'app.Customer'
+
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
@@ -128,6 +144,10 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+
+# Let WhiteNoise compress and cache static files efficiently
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
@@ -139,16 +159,13 @@ USE_I18N = True
 
 USE_TZ = True
 
-
-# SMTP configuration
-EMAIL_HOST = 'smtp.gmail.com'       # Gmail SMTP server
-EMAIL_PORT = 587                    # TLS port
-EMAIL_USE_TLS = True                # Use TLS encryption
-EMAIL_USE_SSL = False               # Do not use SSL with TLS
-EMAIL_HOST_USER = 'marediasoftm10@gmail.com'    # Your email address
-EMAIL_HOST_PASSWORD = 'twqy hmsj rnkh eatc'   # App password (not your real password)
-DEFAULT_FROM_EMAIL = 'noreply@myoasis.com'
-
+EMAIL_HOST ='smtp.gmail.com'       # Gmail SMTP server
+EMAIL_PORT =587                    # TLS port
+EMAIL_USE_TLS =True                # Use TLS encryption
+EMAIL_USE_SSL =False  # Do not use SSL with TLS
+EMAIL_HOST_USER =config('EMAIL_HOST_USER')    # Your email address
+EMAIL_HOST_PASSWORD =config('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL ='noreply@myoasis.com'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 

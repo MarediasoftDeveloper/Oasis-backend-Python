@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework import generics 
-from app.Models.customers import Customer
+from app.models import Customer
 from app.Serializers.customer_signup_serializer import Customer_Serializer 
 # Create your views here.
 
