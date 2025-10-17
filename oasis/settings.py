@@ -24,8 +24,8 @@ SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-# DEBUG = config("DEBUG", default=False, cast=bool)
-DEBUG= True
+DEBUG = config("DEBUG", default=False, cast=bool)
+# DEBUG= True
 
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="").split(",")
 
@@ -164,8 +164,8 @@ EMAIL_HOST ='smtp.gmail.com'       # Gmail SMTP server
 EMAIL_PORT =587                    # TLS port
 EMAIL_USE_TLS =True                # Use TLS encryption
 EMAIL_USE_SSL =False  # Do not use SSL with TLS
-EMAIL_HOST_USER =config('EMAIL_HOST_USER')    # Your email address
-EMAIL_HOST_PASSWORD =config('EMAIL_HOST_PASSWORD')
+EMAIL_HOST_USER ='marediasoftm10@gmail.com'    # Your email address
+EMAIL_HOST_PASSWORD ='twqy hmsj rnkh eatc'
 DEFAULT_FROM_EMAIL ='noreply@myoasis.com'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
