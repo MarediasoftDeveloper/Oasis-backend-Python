@@ -7,6 +7,7 @@ import random
 from django.utils.crypto import get_random_string
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from app.Permissions.send_by_customer_only import Request_By_Customer_Only
 
 def generate_referral_code():
     """
@@ -26,7 +27,7 @@ def generate_referral_code():
 
 class Send_Invite(APIView):
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, Request_By_Customer_Only]
 
     def get(self, request):
         user = request.user

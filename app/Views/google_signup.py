@@ -11,41 +11,47 @@ from google.auth.transport import requests
 User = get_user_model()
 
 class Google_Signup(APIView):
-    """
-    Google Sign-In endpoint for both Android & iOS.
-    POST { "id_token": "<google_id_token>" }
-    """
+   
 
-    def post(self, request):
-        token = request.data.get("id_token")
-        if not token:
+   def post(self, request):
+        id_token_value = request.data.get("id_token")
+        if not id_token_value:
             return Response({"error": "ID token is required"}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            # Verify the token with Google's public keys
+            #  Verify token with Google — only your Web Client ID is needed
             idinfo = id_token.verify_oauth2_token(
-                token, requests.Request(), audience=settings.GOOGLE_CLIENT_IDS
+                id_token_value,
+                requests.Request(),
+                settings.GOOGLE_WEB_CLIENT_ID,  # <— use Web Client ID only
             )
 
-            # Ensure the token is issued by Google accounts
+            # Ensure it's issued by Google
             if idinfo["iss"] not in ["accounts.google.com", "https://accounts.google.com"]:
-                raise ValueError("Invalid issuer.")
+                return Response({"error": "Invalid issuer"}, status=status.HTTP_400_BAD_REQUEST)
 
+            # Extract user info
             email = idinfo.get("email")
             name = idinfo.get("name", "")
             picture = idinfo.get("picture", "")
 
             if not email:
-                return Response({"error": "Email not found in token"}, status=400)
+                return Response({"error": "Email not found in token"}, status=status.HTTP_400_BAD_REQUEST)
 
-            # Create or update user
-            user, created = User.objects.get_or_create(email=email, defaults={"username": email})
+            #  Create or fetch user
+            user, created = User.objects.get_or_create(
+                email=email,
+                defaults={"username": email.split("@")[0]},
+            )
+
+            # Update name fields for new users
             if created:
-                user.first_name = name.split()[0] if name else ""
-                user.last_name = " ".join(name.split()[1:]) if len(name.split()) > 1 else ""
+                parts = name.split()
+                user.first_name = parts[0] if parts else ""
+                user.last_name = " ".join(parts[1:]) if len(parts) > 1 else ""
                 user.save()
 
-            # Generate JWT tokens
+            #  Generate JWT tokens
             refresh = RefreshToken.for_user(user)
 
             return Response(
@@ -68,4 +74,5 @@ class Google_Signup(APIView):
             # Token invalid or expired
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            return Response({"error": "Authentication failed", "details": str(e)}, status=400)
+            # Catch any other errors
+            return Response({"error": "Authentication failed", "details": str(e)}, status=status.HTTP_400_BAD_REQUEST)

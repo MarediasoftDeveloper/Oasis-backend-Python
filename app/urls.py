@@ -28,7 +28,7 @@ from rest_framework_simplejwt.views import (
 urlpatterns = [
     path('register/', create_customer.Create_Customer.as_view(), name="Signup"),
     path('registration-complete/<int:pk>/', update_customer.Update_Customer.as_view(), name="update"),
-    path('sent-validate-otp/<int:id>/', Send_and_Validate_mail.as_view(), name="send-and-validate-otp"),
+    path('sent-validate-otp/<int:id>/', Send_and_Validate_mail.as_view(), name="send-and-validate-otp"),    
     path('auth/login/', login.Login.as_view(), name='login'),
     path('auth/logout/', logout.Logout.as_view(), name='logout'),
     

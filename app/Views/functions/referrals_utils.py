@@ -1,7 +1,7 @@
 from app.Models.earned_points import Earned_Points
 from app.models import Customer_profile
 from staff.models.set_refferal_points import Set_Refferal_Points
-
+from app.Models.points_spent import Points_Spent
 
 def get_reward_points():
     """Fetch the current reward point configuration."""
@@ -13,6 +13,12 @@ def record_earned_points(sender, receiver, points):
     """Create Earned_Points records for both sender and receiver."""
     Earned_Points.objects.create(customer=sender, points_earned=points)
     Earned_Points.objects.create(customer=receiver, points_earned=points)
+
+
+
+def record_spent_points(customer, points):
+    """Create Earned_Points records for both sender and receiver."""
+    Points_Spent.objects.create(customer=customer, points_spent=points)
 
 
 def update_customer_profiles(sender, receiver, points):

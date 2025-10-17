@@ -23,6 +23,10 @@ class Send_and_Validate_mail(APIView):
     
     def get(self, request, id):
         customer = get_object_or_404(Customer, id=id)
+        
+        if customer.is_verified:
+             return Response({"message": "Your Email is already verified!"})
+        
         otp = generate_otp()
         save_otp = OTP_Code.objects.create(customer=customer, otp=make_password(otp))
         serializer = Customer_Serializer(customer, many=False)
@@ -51,7 +55,9 @@ class Send_and_Validate_mail(APIView):
 
     def post(self, request, id):
         customer = get_object_or_404(Customer, id=id)
-        print(customer)
+        if customer.is_verified:
+             return Response({"message": "Your Email is already verified!"})
+        
         get_otp = OTP_Code.objects.filter(customer=customer).latest('created_at')
         entered_opt = request.data.get('otp')
         try:

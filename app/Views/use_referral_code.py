@@ -4,10 +4,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from ..Models.referrals import Referrals
 from .functions.referrals_utils import get_reward_points, record_earned_points, update_customer_profiles
-
+from app.Permissions.send_by_customer_only import Request_By_Customer_Only
 
 class UseReferralCode(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, Request_By_Customer_Only]
 
     def post(self, request):
         code = request.data.get("referral_code")
