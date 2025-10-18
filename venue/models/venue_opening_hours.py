@@ -19,3 +19,6 @@ class Venue_Opening_Hours(models.Model):
             self.venue.user_role = '2'
             self.venue.save()  # Save the related venue object
         super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.venue

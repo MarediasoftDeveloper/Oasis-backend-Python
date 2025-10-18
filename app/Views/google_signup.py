@@ -6,12 +6,13 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from google.oauth2 import id_token
 from google.auth.transport import requests
-
+from rest_framework.permissions import AllowAny
 
 User = get_user_model()
 
 class Google_Signup(APIView):
-   
+    
+   permission_classes=[AllowAny]
 
    def post(self, request):
         id_token_value = request.data.get("id_token")

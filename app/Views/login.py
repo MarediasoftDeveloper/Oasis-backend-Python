@@ -4,17 +4,19 @@ from app.models import Customer
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.hashers import check_password
 from rest_framework_simplejwt.tokens import RefreshToken
-
+from rest_framework.permissions import AllowAny
 
 
 class Login(APIView):   
+
+    permission_classes=[AllowAny]
 
     def post(self, request):
 
         data = request.data.get('credentials')
         email = data.get('email')
         password = data.get('password')
-        referral_code = data.get('referral_code')
+        referral_code = data.get('referral_code', "")
         if not email or not password:
             return Response({'error':"Credentials not provided!"})
         else:

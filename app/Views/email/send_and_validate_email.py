@@ -12,7 +12,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.conf import settings
 from django.contrib.auth.hashers import make_password, check_password
-
+from rest_framework.permissions import AllowAny
 # Create your views here.
 def generate_otp():
     return str(random.randint(100000, 999999))
@@ -51,6 +51,7 @@ def Send_Otp_Mail(id):
 
 class Validate_mail(APIView):
 
+    permission_classes = [AllowAny]
 
     def post(self, request, id):
         customer = get_object_or_404(Customer, id=id)
