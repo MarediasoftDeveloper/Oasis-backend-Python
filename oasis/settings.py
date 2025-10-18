@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 from decouple import config
+import dj_database_url
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -56,13 +57,14 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
 ]
 
-
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
 }
-
 
 
 
@@ -120,6 +122,18 @@ DATABASES = {
     }
 }
 
+# Get DATABASE_URL from environment (Railway sets this automatically)
+DATABASE_URL = config('DATABASE_URL', default=None)
+
+# If DATABASE_URL exists, use PostgreSQL (normal Django backend)
+if DATABASE_URL:
+    DATABASES['default'] = dj_database_url.parse(
+        DATABASE_URL,
+        conn_max_age=600,
+        ssl_require=True,
+    )
+    # Force the engine to standard PostgreSQL backend
+    DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql'
 
 
 AUTH_USER_MODEL = 'app.Customer'

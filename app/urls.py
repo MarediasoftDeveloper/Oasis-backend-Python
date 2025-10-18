@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from .Views import create_customer, update_customer, use_referral_code
-from .Views.email.send_and_validate_email import Send_and_Validate_mail
+from .Views.email.send_and_validate_email import Validate_mail
 from .Views import google_signup , login, logout, get_user, send_invite
 
 from rest_framework_simplejwt.views import (
@@ -28,7 +28,7 @@ from rest_framework_simplejwt.views import (
 urlpatterns = [
     path('register/', create_customer.Create_Customer.as_view(), name="Signup"),
     path('registration-complete/<int:pk>/', update_customer.Update_Customer.as_view(), name="update"),
-    path('sent-validate-otp/<int:id>/', Send_and_Validate_mail.as_view(), name="send-and-validate-otp"),    
+    path('validate-otp/<int:id>/', Validate_mail.as_view(), name="validate-otp"),    
     path('auth/login/', login.Login.as_view(), name='login'),
     path('auth/logout/', logout.Logout.as_view(), name='logout'),
     

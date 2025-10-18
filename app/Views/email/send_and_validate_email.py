@@ -18,15 +18,11 @@ def generate_otp():
     return str(random.randint(100000, 999999))
 
 
-class Send_and_Validate_mail(APIView):
-    
-    
-    def get(self, request, id):
+
+def Send_Otp_Mail(id):
         customer = get_object_or_404(Customer, id=id)
         
-        if customer.is_verified:
-             return Response({"message": "Your Email is already verified!"})
-        
+      
         otp = generate_otp()
         save_otp = OTP_Code.objects.create(customer=customer, otp=make_password(otp))
         serializer = Customer_Serializer(customer, many=False)
@@ -50,7 +46,10 @@ class Send_and_Validate_mail(APIView):
         msg.send()
 
 
-        return Response({"customer": serializer.data})
+        return True
+
+
+class Validate_mail(APIView):
 
 
     def post(self, request, id):
