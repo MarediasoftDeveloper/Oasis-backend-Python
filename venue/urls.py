@@ -15,11 +15,20 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from .Views import login
+from .Views import oasis_venue_home 
+from .Views.badges_crud import Badges_Crud 
+from .Views.badges_category_crud import Badges_Category_Crud 
+from rest_framework.routers import DefaultRouter
 
-
+router = DefaultRouter()
+router.register(r'badges-category', Badges_Category_Crud, basename='badge_category')
+router.register(r'badges', Badges_Crud, basename='badges')
 
 
 urlpatterns = [
-    # path('user/', get_user.Get_User.as_view(), name='get_user'),
+    path('', oasis_venue_home.Oasis_Venue_Home.as_view(), name='home'),
+    path('auth/login/', login.Login.as_view(), name='login'),
+    path('', include(router.urls))
 ]   

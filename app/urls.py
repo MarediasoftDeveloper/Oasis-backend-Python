@@ -15,15 +15,23 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
-from .Views import create_customer, update_customer, use_referral_code
+from django.urls import path, include
+from .Views import create_customer, oasis_home, update_customer, use_referral_code
 from .Views.email.send_and_validate_email import Validate_mail
-from .Views import google_signup , login, logout, get_user, send_invite
+from .Views import google_signup , login, logout, send_invite
+from rest_framework.routers import DefaultRouter
+from .Views.oasis_select_interest_crud import Oasis_Select_Interest_CRUD
+from .Views.oasis_interests_serializer import Oasis_Interest_CRUD
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
+
+router = DefaultRouter()
+router.register(r'customer-interests', Oasis_Select_Interest_CRUD, basename='customer-interests')
+router.register(r'interests', Oasis_Interest_CRUD, basename='interests')
+
 
 urlpatterns = [
     path('register/', create_customer.Create_Customer.as_view(), name="Signup"),
@@ -34,15 +42,15 @@ urlpatterns = [
     
     path('auth/google/', google_signup.Google_Signup.as_view(), name='google-auth'),
    
-    path('user/', get_user.Get_User.as_view(), name='get_user'), #for testing
+    path('user/', oasis_home.Oasis_Home.as_view(), name='get_user'), #for testing
 
 
     path('send-invite/', send_invite.Send_Invite.as_view(), name='send_invite'), #Invite user and send a refferal code
-    path('used-referral-code/', use_referral_code.UseReferralCode.as_view(), name='use_referral_code'), #Invite user and send a refferal code
+    # path('used-referral-code/', use_referral_code.UseReferralCode.as_view(), name='use_referral_code'), #Invite user and send a refferal code
 
 
     # jwt token 
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-
+    path('', include(router.urls)),  #  Include DRF ViewSet routes
 ]   

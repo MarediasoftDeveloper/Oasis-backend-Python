@@ -13,7 +13,7 @@ class Request_By_Customer_Only(BasePermission):
         user = request.user
         if not user or not user.is_authenticated:
             return False
-        if user.user_role in ['1','2']:
+        if user.user_role in ['2','3']:
             return False
         return True
 

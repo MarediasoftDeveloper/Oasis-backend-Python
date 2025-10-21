@@ -1,0 +1,29 @@
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from app.models import Customer_profile, Customer
+from app.Serializers.customer_info_serializer import CustomerProfileSerializer
+from venue.Serializers.venue_info_serializer import VenueInfoSerializer
+from venue.models.venue_info import Venue_Info
+
+class Oasis_Home(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        user_info, _ = Customer_profile.objects.get_or_create(customer=user)
+        info_serializer = CustomerProfileSerializer(user_info, context={'request': request})
+        
+        venues_list = Venue_Info.objects.all()
+        venues_list_serialize = VenueInfoSerializer(venues_list, many=True)
+
+
+
+        return Response({
+            'user': {
+                'id': user.id,
+                'email': user.email,
+                **info_serializer.data,  # merge serialized profile data safely
+                'venue_list':venues_list_serialize.data  # merge serialized profile data safely
+            }
+        })

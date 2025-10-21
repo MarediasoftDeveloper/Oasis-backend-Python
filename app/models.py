@@ -20,6 +20,7 @@ class Customer(AbstractUser):
     password = models.CharField(max_length=500, blank=True, null=True)
     user_role = models.CharField(max_length=15, choices=USER_ROLES, default='1')
     is_verified = models.BooleanField(default=False)
+    
 
     USERNAME_FIELD = 'username'        # 🔹 use email for login
     REQUIRED_FIELDS = ['email']            # 🔹 no extra required fields
@@ -32,7 +33,7 @@ class Customer(AbstractUser):
 class Customer_profile(models.Model):
 
     customer = models.OneToOneField(AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='customer_profile')
-    profile_picture = models.ImageField(upload_to=customer_upload_path, null=True, blank=True)
+    profile_picture = models.ImageField(upload_to=customer_upload_path, null=True, blank=True, default="media/user_default_img/user.png")
     bio = models.CharField(max_length=500, null=True, blank=True)
     is_private = models.BooleanField(default=False)
     total_redeemed_points = models.PositiveIntegerField(default=0)

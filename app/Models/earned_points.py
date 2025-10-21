@@ -7,7 +7,7 @@ class Earned_Points(models.Model):
 
     customer = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE)
     points_earned = models.PositiveIntegerField()
-    earned_on = models.DateTimeField(auto_now=True)
+    earned_on = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"earned {self.customer.username}-{self.earned_on}"

@@ -16,12 +16,13 @@ def record_earned_points(sender, receiver, points):
 
 
 
+
 def record_spent_points(customer, points):
     """Create Earned_Points records for both sender and receiver."""
     Points_Spent.objects.create(customer=customer, points_spent=points)
 
 
-def update_customer_profiles(sender, receiver, points):
+def update_customer_profiles_after_refferal_completion(sender, receiver, points):
     """Update both users’ total redeemed points."""
     sender_profile, _ = Customer_profile.objects.get_or_create(customer=sender)
     receiver_profile, _ = Customer_profile.objects.get_or_create(customer=receiver)
@@ -31,3 +32,14 @@ def update_customer_profiles(sender, receiver, points):
 
     receiver_profile.total_redeemed_points += points
     receiver_profile.save()
+
+
+def add_points_to_user(customer, points):
+
+    Earned_Points.objects.create(customer=customer, points_earned=points)
+    customer_profile, _ = Customer_profile.objects.get_or_create(customer=customer)
+
+    customer_profile.total_redeemed_points += points
+    customer_profile.save()
+
+    

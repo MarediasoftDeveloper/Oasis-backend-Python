@@ -25,7 +25,11 @@ class Create_Customer(generics.CreateAPIView):
                 return Response(
                     {
                         "message": "Customer created successfully. OTP sent to your email.",
-                        "customer": response.data
+                        "customer": {
+                            "id":response.data.get('id'),
+                            "username":response.data.get('username'),
+                            "email":response.data.get('email')
+                        }
                     },
                     status=status.HTTP_201_CREATED
                 )
