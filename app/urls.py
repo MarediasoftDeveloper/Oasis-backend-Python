@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from .Views import create_customer, oasis_home, update_customer, use_referral_code
 from .Views.email.send_and_validate_email import Validate_mail
-from .Views import google_signup , login, logout, send_invite
+from .Views import google_signup , login, logout, send_invite, rewards_get_retrieve
 from rest_framework.routers import DefaultRouter
 from .Views.oasis_select_interest_crud import Oasis_Select_Interest_CRUD
 from .Views.oasis_interests_serializer import Oasis_Interest_CRUD
@@ -42,11 +42,15 @@ urlpatterns = [
     
     path('auth/google/', google_signup.Google_Signup.as_view(), name='google-auth'),
    
-    path('user/', oasis_home.Oasis_Home.as_view(), name='get_user'), #for testing
+    path('user/', oasis_home.Oasis_Home.as_view(), name='get_user'),
 
 
     path('send-invite/', send_invite.Send_Invite.as_view(), name='send_invite'), #Invite user and send a refferal code
-    # path('used-referral-code/', use_referral_code.UseReferralCode.as_view(), name='use_referral_code'), #Invite user and send a refferal code
+    
+
+    path('rewards/', rewards_get_retrieve.RewardsGetView.as_view(), name='get-rewards'), #get rewards
+    path('rewards/<int:pk>/', rewards_get_retrieve.RewardsRetrieveView.as_view(), name='retrieve-rewards'), #get rewards
+
 
 
     # jwt token 

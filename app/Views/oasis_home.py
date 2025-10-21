@@ -13,17 +13,12 @@ class Oasis_Home(APIView):
         user = request.user
         user_info, _ = Customer_profile.objects.get_or_create(customer=user)
         info_serializer = CustomerProfileSerializer(user_info, context={'request': request})
-        
-        venues_list = Venue_Info.objects.all()
-        venues_list_serialize = VenueInfoSerializer(venues_list, many=True)
-
-
+   
 
         return Response({
-            'user': {
+            'customer': {
                 'id': user.id,
                 'email': user.email,
                 **info_serializer.data,  # merge serialized profile data safely
-                'venue_list':venues_list_serialize.data  # merge serialized profile data safely
             }
         })

@@ -2,7 +2,7 @@ from django.db import models
 from oasis import settings
 from .badges import Badges
 from .qr_info_model import QR_Info
-from .badges import Badges
+from .badge_category import Badge_Category
 
 STATUS_CHOICES = [
     ('pending', 'Pending'),
@@ -25,7 +25,7 @@ class Rewards(models.Model):
     ended_at = models.DateField(null=True, blank=True)
     created_at=models.DateField(auto_now_add=True)
     is_ended = models.BooleanField(default=False)
-    rewards_for_badge_holder = models.ForeignKey(Badges, on_delete=models.CASCADE)
+    rewards_for_badge_holder = models.ForeignKey(Badge_Category, on_delete=models.CASCADE, null=True, blank=True)
     
 
     def __str__(self):

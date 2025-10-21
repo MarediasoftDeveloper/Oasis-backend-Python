@@ -20,11 +20,13 @@ from .Views import login
 from .Views import oasis_venue_home 
 from .Views.badges_crud import Badges_Crud 
 from .Views.badges_category_crud import Badges_Category_Crud 
+from .Views.venues_crud import Venues_Crud
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
 router.register(r'badges-category', Badges_Category_Crud, basename='badge_category')
 router.register(r'badges', Badges_Crud, basename='badges')
+router.register(r'venues-crud', Venues_Crud, basename='venues')
 
 
 urlpatterns = [
