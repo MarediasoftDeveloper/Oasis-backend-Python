@@ -2,12 +2,12 @@ from django.shortcuts import render
 from rest_framework import generics 
 from app.models import Customer
 from app.Serializers.customer_signup_serializer import Customer_Serializer 
-# Create your views here.
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated
+
+
 
 class Update_Customer(generics.UpdateAPIView):
 
+    permission_classes=[IsAuthenticated]
     queryset = Customer.objects.all()
     serializer_class = Customer_Serializer
-    permission_classes=[AllowAny]
-

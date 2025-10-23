@@ -18,6 +18,7 @@ class Oasis_Home(APIView):
         return Response({
             'customer': {
                 'id': user.id,
+                'username': user.username,
                 'email': user.email,
                 **info_serializer.data,  # merge serialized profile data safely
             }

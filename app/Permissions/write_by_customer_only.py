@@ -1,6 +1,7 @@
 from rest_framework.permissions import BasePermission, SAFE_METHODS
 
-class WriteByAdminAndVenueOnly(BasePermission):
+
+class WriteByCustomerOnly(BasePermission):
   
     def has_object_permission(self, request, view, obj):
         user = request.user
@@ -9,9 +10,5 @@ class WriteByAdminAndVenueOnly(BasePermission):
         if request.method in SAFE_METHODS:
             return True
 
-        # Admins can edit everything
-        if user.is_superuser:
-            return True
-
         # Venues can edit only their own objects
-        return user.user_role == "2" and obj.venue == user
+        return user.user_role == "1" and obj.customer == user

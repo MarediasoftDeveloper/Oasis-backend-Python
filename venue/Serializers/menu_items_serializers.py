@@ -1,10 +1,13 @@
 from rest_framework import serializers
 from venue.models.menu import Menu_Items
+from venue.Serializers.menu_category import FoodMenuCategorySerializer
 
 class MenuItemsSerializer(serializers.ModelSerializer):
+    menu_category = FoodMenuCategorySerializer()
     class Meta:
         model = Menu_Items
         fields = '__all__'
+        
 
     def validate_item_name(self, value):
         """Ensure item name is not empty."""

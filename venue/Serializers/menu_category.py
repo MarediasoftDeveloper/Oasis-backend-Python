@@ -1,7 +1,16 @@
 from rest_framework import serializers
 from venue.models.menu_categories import Food_Menu_Category
+from app.Serializers.customer_signup_serializer import Customer_Serializer
+from app.models import Customer
 
 class FoodMenuCategorySerializer(serializers.ModelSerializer):
+    venue = Customer_Serializer(read_only=True)
+    venue_id = serializers.PrimaryKeyRelatedField(
+        queryset=Customer.objects.all(),
+        source='venue',
+        write_only=True
+    )
+
     class Meta:
         model = Food_Menu_Category
         fields = '__all__'

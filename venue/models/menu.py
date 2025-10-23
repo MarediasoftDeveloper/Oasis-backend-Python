@@ -3,7 +3,7 @@ from .menu_categories import Food_Menu_Category
 
 
 def venue_file_upload_path(instance, filename):
-    return f'uploads/{instance.venue_name}/menu/{filename}'
+    return f'uploads/{instance.menu_category.venue.id}/menu/{filename}'
 
 class Menu_Items(models.Model):
     item_image = models.ImageField(upload_to=venue_file_upload_path, null=True, blank=True)

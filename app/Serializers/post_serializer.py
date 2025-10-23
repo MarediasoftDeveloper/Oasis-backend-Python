@@ -15,10 +15,12 @@ class PostSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, data):
-        """Ensure categories are present."""
-        categories = data.get('categories')
-        if not categories or len(categories) == 0:
-            raise serializers.ValidationError({"categories": "At least one category must be selected."})
+        request = self.context.get('request')
+        if request.method =='POST':
+            categories = data.get('categories')
+            if not categories or len(categories) == 0:
+                raise serializers.ValidationError({"categories": "At least one category must be selected."})
+        
         return data
 
     def create(self, validated_data):

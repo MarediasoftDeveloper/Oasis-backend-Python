@@ -1,7 +1,9 @@
 from rest_framework import serializers
 from venue.models.venue_opening_hours import Venue_Opening_Hours
+from app.Serializers.customer_signup_serializer import Customer_Serializer
 
 class VenueOpeningHoursSerializer(serializers.ModelSerializer):
+    venue = Customer_Serializer()
     class Meta:
         model = Venue_Opening_Hours
         fields = '__all__'
@@ -17,19 +19,20 @@ class VenueOpeningHoursSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, data):
-        """
-        Basic validation: all day fields should be non-empty.
-        (You can later add time-format checks if needed.)
-        """
-        days = [
-            'monday', 'tuesday', 'wednesday', 'thursday',
-            'friday', 'saturday', 'sunday'
-        ]
+        request = self.context.get('request')
+        
+        # Only run this validation on POST requests
+        if request and request.method == 'POST':
+            days = [
+                'monday', 'tuesday', 'wednesday', 'thursday',
+                'friday', 'saturday', 'sunday'
+            ]
 
-        for day in days:
-            value = data.get(day)
-            if not value or not str(value).strip():
-                raise serializers.ValidationError({day: f"{day.capitalize()} hours cannot be empty."})
+            for day in days:
+                value = data.get(day)
+                if not value or not str(value).strip():
+                    raise serializers.ValidationError({day: f"{day.capitalize()} hours cannot be empty."})
+
         return data
 
     def create(self, validated_data):

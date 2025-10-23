@@ -18,10 +18,11 @@ from django.contrib import admin
 from django.urls import path, include
 from .Views import create_customer, oasis_home, update_customer, use_referral_code
 from .Views.email.send_and_validate_email import Validate_mail
-from .Views import google_signup , login, logout, send_invite, rewards_get_retrieve
+from .Views import google_signup , login, logout, send_invite, rewards_get_retrieve, update_customer_info, raffles_get_retrieve, venue_menu_list
 from rest_framework.routers import DefaultRouter
 from .Views.oasis_select_interest_crud import Oasis_Select_Interest_CRUD
 from .Views.oasis_interests_serializer import Oasis_Interest_CRUD
+from .Views.posts_crud import Post_Crud
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -31,6 +32,7 @@ from rest_framework_simplejwt.views import (
 router = DefaultRouter()
 router.register(r'customer-interests', Oasis_Select_Interest_CRUD, basename='customer-interests')
 router.register(r'interests', Oasis_Interest_CRUD, basename='interests')
+router.register(r'posts', Post_Crud, basename='post_crud')
 
 
 urlpatterns = [
@@ -43,6 +45,7 @@ urlpatterns = [
     path('auth/google/', google_signup.Google_Signup.as_view(), name='google-auth'),
    
     path('user/', oasis_home.Oasis_Home.as_view(), name='get_user'),
+    path('customer-info/<int:customer>', update_customer_info.Update_Customer_Info.as_view(), name='customer-info'),
 
 
     path('send-invite/', send_invite.Send_Invite.as_view(), name='send_invite'), #Invite user and send a refferal code
@@ -51,6 +54,10 @@ urlpatterns = [
     path('rewards/', rewards_get_retrieve.RewardsGetView.as_view(), name='get-rewards'), #get rewards
     path('rewards/<int:pk>/', rewards_get_retrieve.RewardsRetrieveView.as_view(), name='retrieve-rewards'), #get rewards
 
+    path('raffles/', raffles_get_retrieve.RafflesGetView.as_view(), name='get-raffles'), #get raffles
+    path('raffles/<int:pk>/', raffles_get_retrieve.RafflesRetrieveView.as_view(), name='retrieve-raffles'), #get raffles
+
+    path('get-menu-list/<int:pk>/', venue_menu_list.Venue_Menu_List.as_view(), name='venue_menu'), #get raffles
 
 
     # jwt token 
