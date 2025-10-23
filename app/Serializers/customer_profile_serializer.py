@@ -3,15 +3,13 @@ from app.models import Customer_profile
 from app.Serializers.customer_signup_serializer import Customer_Serializer
 
 class CustomerProfileSerializer(serializers.ModelSerializer):
-    profile_picture_url = serializers.SerializerMethodField(read_only=True)
+    # profile_picture_url = serializers.SerializerMethodField(read_only=True)
     customer = Customer_Serializer()
     class Meta:
         model = Customer_profile
         fields = [
-            'id',
             'customer',
             'profile_picture',
-            'profile_picture_url',
             'bio',
             'is_private',
             'total_redeemed_points',

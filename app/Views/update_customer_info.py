@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import generics 
 from app.models import Customer_profile
-from app.Serializers.customer_info_serializer import CustomerProfileSerializer
+from app.Serializers.customer_profile_serializer import CustomerProfileSerializer
 from app.Permissions.write_by_customer_only import WriteByCustomerOnly
 from rest_framework.permissions import IsAuthenticated
 

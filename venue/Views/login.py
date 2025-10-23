@@ -45,7 +45,7 @@ class Login(APIView):
 
 
             return Response({
-                'customer': venue_data,
+                'venue': venue_data,
                 'access_token': str(refresh.access_token),
                 'refresh_token': str(refresh),
             }, status=200)
