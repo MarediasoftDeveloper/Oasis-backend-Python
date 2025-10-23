@@ -23,6 +23,7 @@ from rest_framework.routers import DefaultRouter
 from .Views.oasis_select_interest_crud import Oasis_Select_Interest_CRUD
 from .Views.oasis_interests_serializer import Oasis_Interest_CRUD
 from .Views.posts_crud import Post_Crud
+from .Views.customer_feed import Customer_Feed
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -58,6 +59,8 @@ urlpatterns = [
     path('raffles/<int:pk>/', raffles_get_retrieve.RafflesRetrieveView.as_view(), name='retrieve-raffles'), #get raffles
 
     path('get-menu-list/<int:pk>/', venue_menu_list.Venue_Menu_List.as_view(), name='venue_menu'), #get raffles
+    
+    path('feed/', Customer_Feed.as_view(), name='feed'), #get feed
 
 
     # jwt token 
