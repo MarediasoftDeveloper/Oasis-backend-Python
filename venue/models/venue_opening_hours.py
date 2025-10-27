@@ -5,7 +5,7 @@ from oasis import settings
 
 class Venue_Opening_Hours(models.Model):
     
-    venue = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='venue')
+    venue = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, limit_choices_to={'user_role':'2'}, related_name='venue')
     monday = models.CharField(max_length=50, help_text="if closed so write closed else mention timings")
     tuesday = models.CharField(max_length=50,help_text="if closed so write closed else mention timings")
     wednesday = models.CharField(max_length=50, help_text="if closed so write closed else mention timings")

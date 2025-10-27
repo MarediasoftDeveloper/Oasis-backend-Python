@@ -12,7 +12,7 @@ class Raffles(models.Model):
     start_date = models.DateField()
     created_at = models.DateField(auto_now_add=True)
     is_ended = models.BooleanField(default=False)
-    venue = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    venue = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,limit_choices_to={'user_role':'2'})
     num_of_winners = models.PositiveIntegerField(default=1)
 
     def __str__(self):

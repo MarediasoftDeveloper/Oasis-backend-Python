@@ -6,7 +6,7 @@ from oasis.settings import AUTH_USER_MODEL
 
 class Challenge_Achiever(models.Model):
 
-    customer_taken = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE)
+    customer_taken = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE,limit_choices_to={'user_role':'1'})
     challenge = models.ForeignKey(Challenges, on_delete=models.CASCADE)
     scanned_at = models.DateTimeField(auto_now_add=True)
 

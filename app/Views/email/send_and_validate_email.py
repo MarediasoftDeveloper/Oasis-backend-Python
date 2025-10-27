@@ -19,20 +19,21 @@ def generate_otp():
 
 
 
-def Send_Otp_Mail(id):
+def Send_Otp_Mail(id, top_message, subject):
         customer = get_object_or_404(Customer, id=id)
         
       
         otp = generate_otp()
         save_otp = OTP_Code.objects.create(customer=customer, otp=make_password(otp))
         
-        subject = "My Oasis - Your Email Verification Code"
+        subject = f"My Oasis - {subject}"
         from_email = settings.DEFAULT_FROM_EMAIL
         to = [customer.email]
 
         # Render HTML content
         html_content = render_to_string('emails/oasis_otp_email.html', {
-            'otp': otp
+            'top_message':top_message,
+            'otp': otp,
         })
 
         # # Optional plain-text fallback

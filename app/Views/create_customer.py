@@ -19,7 +19,8 @@ class Create_Customer(generics.CreateAPIView):
         
         if response.status_code == status.HTTP_201_CREATED:
             customer_id = response.data.get('id')
-            mail_sent = Send_Otp_Mail(customer_id)
+            top_email_msg = 'We received a request to verify your Email. Enter the code below to continue your journey with My Oasis.'
+            mail_sent = Send_Otp_Mail(customer_id, top_email_msg, subject='Your Email Verification Code')
         
             if mail_sent:
                 return Response(

@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from app.models import Customer
+from app.models import Customer, Customer_profile
+from app.Serializers.customer_profile_serializer import CustomerProfileSerializer
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.hashers import check_password
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -22,16 +23,15 @@ class Login(APIView):
             return Response({'error':"Credentials not provided!"})
     
         try:
-            customer = Customer.objects.get(email=email)
+            customer = Customer.objects.get(email=email, user_role='1')
 
             if not check_password(password, customer.password):
                 return Response({'error': 'One or more information is incorrect!'}, status=401)
 
-            customer_data = {
-                'id': customer.id,
-                'username': customer.username,
-                'email': customer.email,
-            }
+            customer_profile, _ = Customer_profile.objects.get_or_create(customer=customer)
+            serialized = CustomerProfileSerializer(customer_profile)
+            
+            customer_data = {**serialized.data}
 
             if referral_code:  # Only include if provided
                 error_or_message = UseReferralCode(customer.id, referral_code)
@@ -45,7 +45,7 @@ class Login(APIView):
             
 
             return Response({
-                'customer': customer_data,
+                **customer_data,
                 'access_token': str(refresh.access_token),
                 'refresh_token': str(refresh),
             }, status=200)

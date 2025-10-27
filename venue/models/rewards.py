@@ -15,7 +15,7 @@ def rewards_file_upload_path(instance, filename):
 
 class Rewards(models.Model):
     image = models.ImageField(upload_to=rewards_file_upload_path, null=True, blank=True)
-    venue = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE) 
+    venue = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, limit_choices_to={'user_role':'2'}) 
     title = models.CharField(max_length=150) 
     condition = models.CharField(max_length=250, null=True, blank=True) 
     stock = models.PositiveIntegerField(default=50)

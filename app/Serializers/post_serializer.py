@@ -1,8 +1,11 @@
 from rest_framework import serializers
 from app.Models.posts import Post
+from app.Serializers.interests_serializer import InterestSerializer
 from django.utils.text import slugify
 
+
 class PostSerializer(serializers.ModelSerializer):
+    categories = InterestSerializer(many=True)
     class Meta:
         model = Post
         fields = '__all__'

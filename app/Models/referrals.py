@@ -5,9 +5,9 @@ from oasis.settings import AUTH_USER_MODEL
 
 class Referrals(models.Model):
 
-    referral_code_sender = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="invite_sender")
+    referral_code_sender = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="invite_sender", limit_choices_to={'user_role':'1'})
     referral_code = models.CharField(max_length=9, unique=True)
-    referral_code_user = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True, related_name='invite_getter')
+    referral_code_user = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True, related_name='invite_getter', limit_choices_to={'user_role':'1'})
     is_used = models.BooleanField(default=False)
     created_at = models.DateField(auto_now_add=True)
 

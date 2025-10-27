@@ -9,8 +9,10 @@ from .models.challenges import Challenges
 from .models.rewards import Rewards
 from .models.raffles import Raffles
 from .models.qr_info_model import QR_Info
+from .models.venue_badges import Venue_Badges
 
 # Register your models here.
+admin.site.register(Venue_Badges)
 admin.site.register(Venue_Info)
 admin.site.register(Venue_Opening_Hours)
 admin.site.register(Food_Menu_Category)

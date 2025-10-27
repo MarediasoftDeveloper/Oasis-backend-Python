@@ -6,7 +6,7 @@ from oasis.settings import AUTH_USER_MODEL
 
 class Rewards_Achiever(models.Model):
 
-    customer_taken = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE)
+    customer_taken = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE, limit_choices_to={'user_role':'1'})
     reward = models.ForeignKey(Rewards, on_delete=models.CASCADE)
     achieved_at = models.DateField(auto_now_add=True)
 
