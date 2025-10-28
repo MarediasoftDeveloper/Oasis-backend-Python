@@ -12,12 +12,12 @@ class PostSerializer(serializers.ModelSerializer):
         many=True,
         write_only=True
     )
-    
+
     class Meta:
         model = Post
         fields = '__all__'
-        read_only_fields = ['user', 'slug', 'date']  # auto-handled fields
-     
+        read_only_fields = ['user', 'slug', 'date']
+
     def validate_image(self, value):
         """Ensure an image is provided."""
         if not value:
@@ -26,22 +26,26 @@ class PostSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         request = self.context.get('request')
-        if request.method =='POST':
-            categories_ids = data.get('categories_ids')
-            if not categories_ids or len(categories_ids) == 0:
-                raise serializers.ValidationError({"categories": "At least one category must be selected."})
-        
+        if request.method == 'POST':
+            category_ids = data.get('category_ids')
+            if not category_ids or len(category_ids) == 0:
+                raise serializers.ValidationError(
+                    {"categories": "At least one category must be selected."}
+                )
         return data
 
     def create(self, validated_data):
-        """Create a new post with a generated slug and category handling."""
-        categories_ids = validated_data.pop('categories', [])
+        """Create a new post with slug and categories."""
+        category_ids = validated_data.pop('category_ids', [])
         instance = Post.objects.create(**validated_data)
-        if not categories_ids:
+
+        # Default category if none
+        if not category_ids:
             instance.categories.add(1)
         else:
-            instance.categories.add(categories_ids)
-        # Generate a unique slug
+            instance.categories.set(category_ids)
+
+        # Generate unique slug
         base_slug = slugify(instance.caption or f"post-{instance.user.id}")
         slug = base_slug
         count = 1
@@ -50,22 +54,20 @@ class PostSerializer(serializers.ModelSerializer):
             count += 1
         instance.slug = slug
         instance.save()
-
-        # Set categories (ManyToMany)
-        instance.categories.set(categories_ids)
         return instance
 
     def update(self, instance, validated_data):
-        """Update post with category handling."""
-        categories = validated_data.pop('categories', None)
+        """Update post and handle category updates."""
+        category_ids = validated_data.pop('category_ids', None)
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
 
-        if categories is not None:
-            instance.categories.set(categories)
+        if category_ids is not None:
+            instance.categories.set(category_ids)
 
         return instance
+
 
     def delete(self, instance):
         """Allow deletion with future custom logic."""
