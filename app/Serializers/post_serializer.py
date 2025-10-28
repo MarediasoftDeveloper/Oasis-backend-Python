@@ -44,17 +44,11 @@ class PostSerializer(serializers.ModelSerializer):
             instance.categories.add(1)
         else:
             instance.categories.set(category_ids)
-
-        # Generate unique slug
-        base_slug = slugify(instance.caption or f"post-{instance.user.id}")
-        slug = base_slug
-        count = 1
-        while Post.objects.filter(slug=slug).exists():
-            slug = f"{base_slug}-{count}"
-            count += 1
-        instance.slug = slug
+       
         instance.save()
         return instance
+
+       
 
     def update(self, instance, validated_data):
         """Update post and handle category updates."""
