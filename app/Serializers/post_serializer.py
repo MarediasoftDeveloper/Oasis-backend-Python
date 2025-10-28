@@ -6,13 +6,18 @@ from django.utils.text import slugify
 
 
 class PostSerializer(serializers.ModelSerializer):
+    categories = InterestSerializer(many=True, read_only=True)
+    category_ids = serializers.PrimaryKeyRelatedField(
+        queryset=Customer_Interest.objects.all(),
+        many=True,
+        write_only=True
+    )
     
     class Meta:
         model = Post
         fields = '__all__'
         read_only_fields = ['user', 'slug', 'date']  # auto-handled fields
-        
-
+     
     def validate_image(self, value):
         """Ensure an image is provided."""
         if not value:
