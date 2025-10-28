@@ -11,7 +11,7 @@ class Post(models.Model):
     image = models.ImageField(upload_to=customer_upload_path)
     caption = models.CharField(max_length=350, null=True, blank=True)
     date = models.DateField(auto_now=True)
-    categories = models.ManyToManyField(Customer_Interest, ) 
+    categories = models.ManyToManyField(Customer_Interest, blank=True) 
     slug = models.SlugField(unique=True, blank=True, editable=False)
 
     def save(self, *args, **kwargs):

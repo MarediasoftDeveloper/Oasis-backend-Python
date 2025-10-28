@@ -56,7 +56,7 @@ class Forgot_Password(APIView):
 
         except Exception as e:
             logger.error(f"Error sending OTP to {email}: {str(e)}")
-            return Response(
+            return Response(    
                 {"success": False, "error": "Sorry! Something went wrong. Please try again later."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )

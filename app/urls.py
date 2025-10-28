@@ -26,6 +26,7 @@ from .Views.posts_crud import Post_Crud
 from .Views.customer_feed import Customer_Feed
 from .Views.email.resend_otp import Resent_OTP_For_Email_Verify, Resent_OTP_For_Password_Reset
 from .Views.forgot_password import Forgot_Password
+from .Views.earned_badges_by_user import Earned_Badges_By_User, Earned_Badges_By_User_Retrieve
 from .Views.email.forgot_password_email_validate import Validate_forgot_Password_mail
 
 from rest_framework_simplejwt.views import (
@@ -69,6 +70,10 @@ urlpatterns = [
     path('forgot-password/', Forgot_Password.as_view(), name='forgot-password'), #forgot password
     path('forgot-password/resent-otp/<int:id>/', Resent_OTP_For_Password_Reset.as_view(), name='forgot-password-resent-otp'), #forgot password
     path('forgot-password/validate-otp/<int:id>/', Validate_forgot_Password_mail.as_view(), name="forgot-password-validate-otp"),    
+
+    path('earned-badges/', Earned_Badges_By_User.as_view(), name="earned-badges"),    
+    path('earned-badges/<int:pk>/', Earned_Badges_By_User_Retrieve.as_view(), name="earned-badges-retrieve"),    
+   
 
     # jwt token 
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),

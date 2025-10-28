@@ -1,15 +1,17 @@
 from rest_framework import serializers
 from app.Models.posts import Post
 from app.Serializers.interests_serializer import InterestSerializer
+from app.Models.interests import Customer_Interest
 from django.utils.text import slugify
 
 
 class PostSerializer(serializers.ModelSerializer):
-    categories = InterestSerializer(many=True)
+    
     class Meta:
         model = Post
         fields = '__all__'
-        read_only_fields = ['slug', 'date']  # auto-handled fields
+        read_only_fields = ['user', 'slug', 'date']  # auto-handled fields
+        
 
     def validate_image(self, value):
         """Ensure an image is provided."""
@@ -30,7 +32,10 @@ class PostSerializer(serializers.ModelSerializer):
         """Create a new post with a generated slug and category handling."""
         categories = validated_data.pop('categories', [])
         instance = Post.objects.create(**validated_data)
-
+        if not categories:
+            instance.categories.add(1)
+        else:
+            instance.categories.add(categories)
         # Generate a unique slug
         base_slug = slugify(instance.caption or f"post-{instance.user.id}")
         slug = base_slug

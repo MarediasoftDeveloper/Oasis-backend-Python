@@ -4,7 +4,7 @@ from app.Serializers.customer_signup_serializer import Customer_Serializer
 from app.models import Customer
 
 class FoodMenuCategorySerializer(serializers.ModelSerializer):
-    venue = Customer_Serializer(read_only=True)
+    venue = Customer_Serializer(read_only=True) 
     venue_id = serializers.PrimaryKeyRelatedField(
         queryset=Customer.objects.all(),
         source='venue',
