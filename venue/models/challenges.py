@@ -3,8 +3,8 @@ from oasis import settings
 from .badges import Badges
 from .venue_badges import Venue_Badges
 from .qr_info_model import QR_Info
-
-
+from django.utils import timezone
+from datetime import time
 
 
 STATUS_CHOICES = [
@@ -27,9 +27,11 @@ class Challenges(models.Model):
     badge = models.ForeignKey(Venue_Badges, on_delete=models.CASCADE)  
     qr_code = models.ForeignKey(QR_Info, on_delete=models.CASCADE)          
     created_at=models.DateField(auto_now_add=True)
+    created_time=models.TimeField(auto_now_add=True)
     is_approved = models.CharField(max_length=50, choices=STATUS_CHOICES, default='pending')
     is_ended = models.BooleanField(default=False)
-    
+    open_time = models.TimeField(null=True, blank=True)
+    close_time = models.TimeField(null=True, blank=True)
     
 
     def __str__(self):

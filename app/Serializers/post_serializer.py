@@ -27,20 +27,20 @@ class PostSerializer(serializers.ModelSerializer):
     def validate(self, data):
         request = self.context.get('request')
         if request.method =='POST':
-            categories = data.get('categories')
-            if not categories or len(categories) == 0:
+            categories_ids = data.get('categories_ids')
+            if not categories_ids or len(categories_ids) == 0:
                 raise serializers.ValidationError({"categories": "At least one category must be selected."})
         
         return data
 
     def create(self, validated_data):
         """Create a new post with a generated slug and category handling."""
-        categories = validated_data.pop('categories', [])
+        categories_ids = validated_data.pop('categories', [])
         instance = Post.objects.create(**validated_data)
-        if not categories:
+        if not categories_ids:
             instance.categories.add(1)
         else:
-            instance.categories.add(categories)
+            instance.categories.add(categories_ids)
         # Generate a unique slug
         base_slug = slugify(instance.caption or f"post-{instance.user.id}")
         slug = base_slug
@@ -52,7 +52,7 @@ class PostSerializer(serializers.ModelSerializer):
         instance.save()
 
         # Set categories (ManyToMany)
-        instance.categories.set(categories)
+        instance.categories.set(categories_ids)
         return instance
 
     def update(self, instance, validated_data):

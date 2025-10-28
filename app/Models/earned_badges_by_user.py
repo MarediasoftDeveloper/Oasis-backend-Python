@@ -8,7 +8,8 @@ class Earned_Badges(models.Model):
 
     user = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE)
     badge = models.ForeignKey(Badges, on_delete=models.CASCADE)
-    date= models.DateTimeField(auto_now_add=True)
+    date= models.DateField(auto_now_add=True,null=True, blank=True)
+    time= models.TimeField(auto_now_add=True, null=True, blank=True)
 
     def __str__(self):
         return f"{self.user}-{self.badge}"

@@ -17,6 +17,7 @@ class Venue_Info(models.Model):
     venue_name = models.CharField(max_length=100)
     venue_logo = models.ImageField(upload_to=venue_file_upload_path, null=True, blank=True)
     venue_cover_photo = models.ImageField(upload_to=venue_file_upload_path, null=True, blank=True)
+    venue_description = models.CharField(max_length=1000, null=True, blank=True)
     address = models.CharField(max_length=300)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     phone = models.CharField(max_length=14)

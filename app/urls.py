@@ -23,6 +23,7 @@ from rest_framework.routers import DefaultRouter
 from .Views.oasis_select_interest_crud import Oasis_Select_Interest_CRUD
 from .Views.oasis_interests_serializer import Oasis_Interest_CRUD
 from .Views.posts_crud import Post_Crud
+from .Views.user_stamps import User_Stamps
 from .Views.customer_feed import Customer_Feed
 from .Views.email.resend_otp import Resent_OTP_For_Email_Verify, Resent_OTP_For_Password_Reset
 from .Views.forgot_password import Forgot_Password
@@ -73,7 +74,9 @@ urlpatterns = [
 
     path('earned-badges/', Earned_Badges_By_User.as_view(), name="earned-badges"),    
     path('earned-badges/<int:pk>/', Earned_Badges_By_User_Retrieve.as_view(), name="earned-badges-retrieve"),    
-   
+    
+    path('stamps/', User_Stamps.as_view(), name="stamps"),    
+
 
     # jwt token 
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
