@@ -177,13 +177,13 @@ USE_I18N = True
 
 USE_TZ = True
 
-EMAIL_HOST ='smtp.gmail.com'       # Gmail SMTP server
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST ='smtp.sendgrid.net'       # Gmail SMTP server
 EMAIL_PORT =587                    # TLS port
 EMAIL_USE_TLS =True                # Use TLS encryption
-EMAIL_USE_SSL =False  # Do not use SSL with TLS
-EMAIL_HOST_USER =config('EMAIL_HOST_USER')    # Your email address
-EMAIL_HOST_PASSWORD =config('EMAIL_HOST_PASSWORD')
-DEFAULT_FROM_EMAIL ='noreply@myoasis.com'
+EMAIL_HOST_USER ="apikey"   # Your email address
+EMAIL_HOST_PASSWORD =config('SENDGRID_API_KEY')
+DEFAULT_FROM_EMAIL =config('EMAIL_HOST_USER')
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 

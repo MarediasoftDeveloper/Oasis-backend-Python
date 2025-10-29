@@ -9,23 +9,12 @@ from django.utils import timezone
 from datetime import datetime
 
 
-class User_Stamps(APIView):
+class User_Badges_Record(APIView):
 
     permission_classes=[IsAuthenticated]
 
-    def get(self, request):
+    def get(self, request, id):
+       
 
-        current_month = datetime.now().month
-        current_year = datetime.now().year
-
-        stamps = Earned_Badges.objects.filter(
-            user=request.user,
-            date__month=current_month,
-            date__year=current_year
-        )
-
-        serialized = Earned_Badges_By_User_Serializer(stamps, many=True)
-
-
-        return Response({"stamps":serialized.data})
+        pass
 

@@ -1,13 +1,10 @@
 from rest_framework.views import APIView
-from django.shortcuts import render
 from django.core.mail import EmailMultiAlternatives
 import random
-from rest_framework.decorators import api_view
 from django.shortcuts import get_object_or_404
 from app.models import Customer 
 from rest_framework.response import Response
 from app.Models.otp_requests import OTP_Code
-from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.conf import settings
 from django.contrib.auth.hashers import make_password, check_password

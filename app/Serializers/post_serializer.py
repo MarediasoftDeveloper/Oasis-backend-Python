@@ -1,7 +1,9 @@
 from rest_framework import serializers
 from app.Models.posts import Post
 from app.Serializers.interests_serializer import InterestSerializer
+from app.Serializers.customer_signup_serializer import Customer_Serializer
 from app.Models.interests import Customer_Interest
+from app.Serializers.customer_profile_serializer import CustomerProfileSerializer
 from django.utils.text import slugify
 
 
@@ -13,10 +15,12 @@ class PostSerializer(serializers.ModelSerializer):
         write_only=True
     )
 
+    # user = CustomerProfileSerializer(source="user.customer_profile", read_only=True)
+    user = Customer_Serializer(read_only=True)
     class Meta:
         model = Post
         fields = '__all__'
-        read_only_fields = ['user', 'slug', 'date']
+        read_only_fields = ['user', 'slug', 'date', 'time']
 
     def validate_image(self, value):
         """Ensure an image is provided."""

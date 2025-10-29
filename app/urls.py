@@ -29,6 +29,8 @@ from .Views.email.resend_otp import Resent_OTP_For_Email_Verify, Resent_OTP_For_
 from .Views.forgot_password import Forgot_Password
 from .Views.earned_badges_by_user import Earned_Badges_By_User, Earned_Badges_By_User_Retrieve
 from .Views.email.forgot_password_email_validate import Validate_forgot_Password_mail
+from .Views.user_badge_records import User_Badges_Record
+from .Views.frienships import Friendship_Crud
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -39,6 +41,7 @@ router = DefaultRouter()
 router.register(r'customer-interests', Oasis_Select_Interest_CRUD, basename='customer-interests')
 router.register(r'interests', Oasis_Interest_CRUD, basename='interests')
 router.register(r'posts', Post_Crud, basename='post_crud')
+router.register(r'friendships', Friendship_Crud, basename='friendship_crud')
 
 
 urlpatterns = [
@@ -76,6 +79,7 @@ urlpatterns = [
     path('earned-badges/<int:pk>/', Earned_Badges_By_User_Retrieve.as_view(), name="earned-badges-retrieve"),    
     
     path('stamps/', User_Stamps.as_view(), name="stamps"),    
+    path('badges-record/<int:id>/', User_Badges_Record.as_view(), name="user_badge_record"),    
 
 
     # jwt token 
