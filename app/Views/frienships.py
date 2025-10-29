@@ -16,7 +16,10 @@ class Friendship_Crud(viewsets.ModelViewSet):
     
     def list(self, request, *args, **kwargs):
         queryset = Friendships.objects.filter(
-            Q(request_sender=request.user) | Q(request_getter=request.user)
+            Q(request_sender=request.user, status='accepted') | Q(request_getter=request.user, status='accepted')
         )
         serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        if serializer.data:
+            return Response(serializer.data)
+
+        return Response({"error_msg":"you have 0 friends!"})
