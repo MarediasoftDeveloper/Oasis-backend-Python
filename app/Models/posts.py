@@ -10,8 +10,7 @@ class Post(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     image = models.ImageField(upload_to=customer_upload_path)
     caption = models.CharField(max_length=350, null=True, blank=True)
-    date = models.DateField(auto_now=True, null=True, blank=True)
-    time = models.TimeField(auto_now=True,null=True, blank=True)
+    date = models.DateTimeField(auto_now=True)
     categories = models.ManyToManyField(Customer_Interest, blank=True) 
     slug = models.SlugField(unique=True, blank=True, editable=False)
 

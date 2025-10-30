@@ -1,14 +1,17 @@
 from rest_framework import serializers
 from app.Models.raffles_entry import Raffles_Entry
+from django.utils import timezone
+
 
 class RafflesEntrySerializer(serializers.ModelSerializer):
     class Meta:
         model = Raffles_Entry
         fields = '__all__'
+        read_only_fields=['user']
 
     def validate(self, data):
         """Ensure a user can't join the same raffle multiple times."""
-        user = data.get('user')
+        user = self.context['request'].user
         raffle = data.get('raffle')
 
         # Only check on creation
@@ -16,7 +19,24 @@ class RafflesEntrySerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({
                 "raffle": "This user has already joined this raffle."
             })
+        if raffle.is_ended:
+            raise serializers.ValidationError({
+                "raffle": "This raffle has reached its deadline for entries please select another raffle!"
+            })
+        
+        if raffle.start_at > timezone.now():
+                raise serializers.ValidationError({
+                    "raffle": "The raffle has not started yet."
+                })
+
+        # Check if the raffle has ended (ended_at <= current time)
+        if raffle.ended_at < timezone.now():
+            raise serializers.ValidationError({
+                "raffle": "This raffle has ended. You can no longer join."
+                })
         return data
+        
+   
 
     def create(self, validated_data):
         """Create a new raffle entry."""

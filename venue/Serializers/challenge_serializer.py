@@ -1,42 +1,38 @@
 from rest_framework import serializers
 from venue.models.challenges import Challenges
 
+
 class ChallengesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Challenges
         fields = '__all__'
+    
+    # Custom validation to check if the starting date is before the ending date
+    def validate(self, data):
+        """Ensure that the ending date is after the starting date."""
+        starting_date = data.get('starting_date')
+        ending_date = data.get('ending_date')
+        
+        if ending_date and starting_date and ending_date < starting_date:
+            raise serializers.ValidationError("Ending date cannot be before the starting date.")
+        
+        return data
 
-    def validate_title(self, value):
-        """Ensure challenge title is not empty."""
-        if not value or not value.strip():
-            raise serializers.ValidationError("Title cannot be empty.")
+    def validate_daily_times(self, value, field_name):
+        """Ensure daily_open_time and daily_close_time are within valid range."""
+        if value:
+            if value.hour < 0 or value.hour >= 24 or value.minute < 0 or value.minute >= 60:
+                raise serializers.ValidationError(f"{field_name} must be a valid time (HH:MM format).")
         return value
 
-    def validate(self, data):
-        """Minimal logical checks."""
-        start = data.get('starting_date')
-        end = data.get('ending_date')
-        cool_down = data.get('cool_down_hours')
-        daily_cap = data.get('daily_cap')
+    def validate_daily_open_time(self, value):
+        """Validate that daily open time is a valid time."""
+        return self.validate_daily_times(value, "daily_open_time")
 
-        # Ensure end date is not before start date
-        if start and end and end < start:
-            raise serializers.ValidationError({
-                'ending_date': 'Ending date cannot be earlier than starting date.'
-            })
+    def validate_daily_close_time(self, value):
+        """Validate that daily close time is a valid time."""
+        return self.validate_daily_times(value, "daily_close_time")
 
-        # Ensure positive numbers
-        if cool_down is not None and cool_down <= 0:
-            raise serializers.ValidationError({
-                'cool_down_hours': 'Cool down hours must be greater than 0.'
-            })
-
-        if daily_cap is not None and daily_cap <= 0:
-            raise serializers.ValidationError({
-                'daily_cap': 'Daily cap must be greater than 0.'
-            })
-
-        return data
 
     def create(self, validated_data):
         """Create a new Challenge."""

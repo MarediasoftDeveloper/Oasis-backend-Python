@@ -30,6 +30,8 @@ from .Views.forgot_password import Forgot_Password
 from .Views.earned_badges_by_user import Earned_Badges_By_User, Earned_Badges_By_User_Retrieve
 from .Views.email.forgot_password_email_validate import Validate_forgot_Password_mail
 from .Views.user_badge_records import User_Badges_Record
+from .Views.user_raffle_entry import User_Raffles_Entry
+from .Views.get_friends import Get_Friends
 from .Views.frienships import Friendship_Crud
 
 from rest_framework_simplejwt.views import (
@@ -80,6 +82,11 @@ urlpatterns = [
     
     path('stamps/', User_Stamps.as_view(), name="stamps"),    
     path('badges-record/<int:id>/', User_Badges_Record.as_view(), name="user_badge_record"),    
+
+
+    path('friends/', Get_Friends.as_view(), name="get-friends"),    
+    path('raffles-entry/', User_Raffles_Entry.as_view(), name="raffles-entry"),    
+
 
 
     # jwt token 

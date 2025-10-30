@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from app.Models.rewards_achiever import Rewards_Achiever
+from django.utils import timezone
 
 class RewardsAchieverSerializer(serializers.ModelSerializer):
     class Meta:
@@ -16,6 +17,18 @@ class RewardsAchieverSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({
                 "reward": "This reward has already been achieved by this customer."
             })
+
+        if reward.start_at > timezone.now():
+                raise serializers.ValidationError({
+                    "reward": "The reward has not started yet."
+                })
+
+        # Check if the raffle has ended (ended_at <= current time)
+        if reward.ended_at < timezone.now():
+            raise serializers.ValidationError({
+                "reward": "This reward has ended. You can no longer join."
+            })
+
         return data
 
     def create(self, validated_data):

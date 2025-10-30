@@ -7,8 +7,7 @@ class Points_Spent(models.Model):
 
     customer = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE,limit_choices_to={'user_role':'1'})
     points_spent = models.PositiveIntegerField()
-    spent_on = models.DateField(auto_now_add=True,null=True, blank=True)
-    spent_time = models.TimeField(auto_now_add=True, null=True, blank=True)
-
+    spent_on = models.DateTimeField(auto_now_add=True)
+ 
     def __str__(self):
         return f"spent {self.customer.username}-{self.spent_on}"

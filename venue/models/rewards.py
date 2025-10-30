@@ -21,9 +21,9 @@ class Rewards(models.Model):
     stock = models.PositiveIntegerField(default=50)
     required_points_for_reward=models.PositiveIntegerField(default=50)
     is_approved = models.CharField(max_length=50, choices=STATUS_CHOICES, default='pending')
-    started_at = models.DateField()
-    ended_at = models.DateField(null=True, blank=True)
-    created_at=models.DateField(auto_now_add=True)
+    started_at = models.DateTimeField()
+    ended_at = models.DateTimeField(null=True, blank=True)
+    created_at=models.DateTimeField(auto_now_add=True)
     is_ended = models.BooleanField(default=False)
     rewards_for_badge_holder = models.ForeignKey(Badge_Category, on_delete=models.CASCADE, null=True, blank=True)
     
