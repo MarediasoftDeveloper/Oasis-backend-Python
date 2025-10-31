@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from rest_framework import generics 
 from app.models import Customer
+from app.models import Customer_profile
 from app.Serializers.customer_signup_serializer import Customer_Serializer 
 from rest_framework import status
 import random
@@ -21,7 +22,7 @@ class Create_Customer(generics.CreateAPIView):
             customer_id = response.data.get('id')
             top_email_msg = 'We received a request to verify your Email. Enter the code below to continue your journey with My Oasis.'
             mail_sent = Send_Otp_Mail(customer_id, top_email_msg, subject='Your Email Verification Code')
-        
+            
             if mail_sent:
                 return Response(
                     {
