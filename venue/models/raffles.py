@@ -1,9 +1,11 @@
 from django.db import models
 from oasis import settings
 
-
+def raffle_file_upload_path(instance, filename):
+    return f'uploads/{instance.title}/{filename}'
 
 class Raffles(models.Model):
+    image = models.ImageField(upload_to=raffle_file_upload_path, default='raffle_default/raffle.png')
     title = models.CharField(max_length=100)
     description = models.CharField(max_length=300, null=True, blank=True)
     rewards = models.CharField(max_length=250, null=True, blank=True)

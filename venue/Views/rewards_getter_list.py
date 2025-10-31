@@ -4,15 +4,15 @@ from venue.models.rewards import Rewards
 from venue.Serializers.rewards_serializer import RewardsSerializer
 from app.Models.rewards_achiever import Rewards_Achiever
 from rest_framework.permissions import IsAuthenticated
-from app.Permissions.send_by_customer_only import Request_By_Customer_Only
+from venue.Permissions.venue_only_permission import Request_By_Venue_Only
 from rest_framework.response import Response
 
-class RewardsGetView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated, Request_By_Customer_Only]
+class MyRewardsGetView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated, Request_By_Venue_Only]
     serializer_class = RewardsSerializer
 
     def list(self, request, *args, **kwargs):
-        queryset = Rewards.objects.filter(is_approved='approved')
+        queryset = Rewards.objects.filter(venue=request.user, is_approved='approved')
         data=[]
         rewards_count = len(queryset)
         serialized=self.get_serializer(queryset)
@@ -35,10 +35,12 @@ class RewardsGetView(generics.ListAPIView):
         })
 
 
-class RewardsRetrieveView(generics.RetrieveAPIView):
-    permission_classes = [IsAuthenticated, Request_By_Customer_Only]
-    queryset = Rewards.objects.filter(is_approved='approved')
+class MyRewardsRetrieveView(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated, Request_By_Venue_Only]
     serializer_class = RewardsSerializer
+
+    def get_queryset(self):
+        return Rewards.objects.filter(venue=self.request.user, is_approved='approved')
 
     def retrieve(self, request, *args, **kwargs):
         # Get the reward instance

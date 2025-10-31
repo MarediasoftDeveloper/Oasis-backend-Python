@@ -33,6 +33,7 @@ from .Views.user_badge_records import User_Badges_Record
 from .Views.user_raffle_entry import User_Raffles_Entry
 from .Views.get_friends import Get_Friends
 from .Views.frienships import Friendship_Crud
+from .Views.get_raffle_participant_list import Raffles_Participant_List
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -85,8 +86,9 @@ urlpatterns = [
 
 
     path('friends/', Get_Friends.as_view(), name="get-friends"),    
-    path('raffles-entry/', User_Raffles_Entry.as_view(), name="raffles-entry"),    
 
+    path('raffles-entry/', User_Raffles_Entry.as_view(), name="raffles-entry"),    
+    path('raffles-participant/<int:id>', Raffles_Participant_List.as_view(), name="raffles-participant-list"),    
 
 
     # jwt token 

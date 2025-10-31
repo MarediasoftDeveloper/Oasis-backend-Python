@@ -1,3 +1,5 @@
 .env
 ve/
 docs
+media/
+db.sqlite3

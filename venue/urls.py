@@ -26,6 +26,8 @@ from .Views.raffles_crud_for_venue import Raffles_Crud_for_Venue
 from .Views.menu_category import Menu_Category_View
 from .Views.menu_items import Menu_Items_View
 from .Views.venue_opening_hours_crud import Venue_Opening_Hours_View
+from .Views.withdraw_raffle import Withdraw_of_Raffle
+from .Views.rewards_getter_list import MyRewardsGetView, MyRewardsRetrieveView
 from .Views.venue_badges_crud import Venue_Badge_CRUD, Venue_Badge_CRUD_Retrieve
 from rest_framework.routers import DefaultRouter
 
@@ -46,5 +48,8 @@ urlpatterns = [
     path('venue-badges/', Venue_Badge_CRUD.as_view(), name='venue-badges'),
     path('venue-badges/<int:venue_id>/', Venue_Badge_CRUD_Retrieve.as_view(), name='venue-badges-retrieve'),
     path('auth/login/', login.Login.as_view(), name='login'),
+    path('withdraw-raffle/', Withdraw_of_Raffle.as_view(), name='withdraw-raffle'),
+    path('get-my-reward/', MyRewardsGetView.as_view(), name='getmyreward'),
+    path('retrieve-my-reward/<int:pk>/', MyRewardsRetrieveView.as_view(), name='retrievemyreward'),
     path('', include(router.urls))
 ]   

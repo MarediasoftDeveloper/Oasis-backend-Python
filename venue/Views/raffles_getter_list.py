@@ -4,15 +4,15 @@ from venue.models.raffles import Raffles
 from app.Models.raffles_entry import Raffles_Entry
 from venue.Serializers.raffles_serializer import RafflesSerializer
 from rest_framework.permissions import IsAuthenticated
-from app.Permissions.send_by_customer_only import Request_By_Customer_Only
+from venue.Permissions.venue_only_permission import Request_By_Venue_Only
 from rest_framework.response import Response
 
-class RafflesGetView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated, Request_By_Customer_Only]
+class MyRafflesGetView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated, Request_By_Venue_Only]
     serializer_class = RafflesSerializer
 
     def list(self, request, *args, **kwargs):
-        queryset = Raffles.objects.all()
+        queryset = Raffles.objects.filter(venue=request.user)
         data=[]
         raffles_count = len(queryset)
         serialized=self.get_serializer(queryset)
@@ -37,23 +37,26 @@ class RafflesGetView(generics.ListAPIView):
 
 
 
-class RafflesRetrieveView(generics.RetrieveAPIView):
-    permission_classes = [IsAuthenticated, Request_By_Customer_Only]
-    queryset = Raffles.objects.all()
+class MyRafflesRetrieveView(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated, Request_By_Venue_Only]
     serializer_class = RafflesSerializer
+
+    def get_queryset(self):
+        return Raffles.objects.filter(venue=self.request.user)
 
     def retrieve(self, request, *args, **kwargs):
         # Get the raffle instance
         raffle = self.get_object()
 
         # Count how many times this raffle has been achieved
-        raffle_achieve_count = Raffles_Entry.objects.filter(raffle=raffle).count()
+        raffle_achieve = Raffles_Entry.objects.filter(raffle=raffle)
 
         # Serialize the raffle
         serialized_raffle = self.get_serializer(raffle).data
 
         # Add the achieved count to the serialized raffle
-        serialized_raffle["participants"] = raffle_achieve_count
+        serialized_raffle["participants"] = raffle_achieve.count()
+        serialized_raffle["winner"] = raffle_achieve.filter(is_winner=True).count()
 
         # Return the response with the serialized data and achieved count
         return Response(serialized_raffle)
