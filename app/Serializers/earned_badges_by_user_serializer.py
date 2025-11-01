@@ -6,13 +6,13 @@ from venue.Serializers.badges_serializer import BadgesSerializer
 class Earned_Badges_By_User_Serializer(ModelSerializer):
     # Optional read-only fields for more descriptive responses
     badge = BadgesSerializer(read_only=True)
-
+   
     class Meta:
         model = Earned_Badges
         fields = [
             'id',
             'user',
             'badge',
-            'date',
+            'date', 
         ]
         read_only_fields = ['date']

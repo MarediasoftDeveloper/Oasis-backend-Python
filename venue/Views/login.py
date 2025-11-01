@@ -6,6 +6,8 @@ from django.contrib.auth.hashers import check_password
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny
 from app.Views.email.send_and_validate_email import Send_Otp_Mail
+from venue.models.venue_info import Venue_Info
+from venue.Serializers.venue_info_serializer import VenueInfoSerializer
 
 class Login(APIView):   
 
@@ -28,19 +30,20 @@ class Login(APIView):
                 return Response({'error': 'One or more information is incorrect!'}, status=401)
 
             if not venue.is_verified:
-                Send_Otp_Mail(venue.id)
+                top_email_msg = 'We received a request to verify your Email. Enter the code below to continue your journey with My Oasis.'
+                mail_sent = Send_Otp_Mail(venue.id, top_email_msg, subject='Your Email Verification Code')
                 return Response({'error':"Your email is not verified, Please check our mail on your registered email to verify!"})
 
             if not check_password(password, venue.password):
                 return Response({'error': 'One or more information is incorrect!'}, status=401)
 
             refresh = RefreshToken.for_user(venue)
-
+            serialized = VenueInfoSerializer(Venue_Info.objects.get(venue=venue))
             # Build customer data dynamically
             venue_data = {
                 'id': venue.id,
-                'username': venue.username,
                 'email': venue.email,
+                'venue_info':{**serialized.data}
             }
 
 

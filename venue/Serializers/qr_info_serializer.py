@@ -25,7 +25,7 @@ class QRInfoSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         """Create QR_Info entry."""
-        return QR_Info.objects.create(**validated_data)
+        return QR_Info(**validated_data)
 
     def update(self, instance, validated_data):
         """Update QR_Info entry."""

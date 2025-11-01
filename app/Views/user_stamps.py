@@ -10,13 +10,11 @@ from datetime import datetime
 
 
 class User_Stamps(APIView):
-
     permission_classes=[IsAuthenticated]
 
-    def get(self, request):
-
-        current_month = datetime.now().month
-        current_year = datetime.now().year
+    def post(self, request):
+        current_month = request.data.get('month')
+        current_year = request.data.get('year')
 
         stamps = Earned_Badges.objects.filter(
             user=request.user,
@@ -25,7 +23,5 @@ class User_Stamps(APIView):
         )
 
         serialized = Earned_Badges_By_User_Serializer(stamps, many=True)
-
-
-        return Response({"stamps":serialized.data})
+        return Response({"stamps": serialized.data})
 

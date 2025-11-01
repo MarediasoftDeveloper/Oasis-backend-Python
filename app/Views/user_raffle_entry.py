@@ -8,7 +8,7 @@ from app.Models.raffles_entry import Raffles_Entry
 class User_Raffles_Entry(generics.CreateAPIView):
     permission_classes = [IsAuthenticated, Request_By_Customer_Only]
     queryset = Raffles_Entry.objects.all()
-    serializer_class = RafflesEntrySerializer
+    serializer_class = RafflesEntrySerializer   
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)

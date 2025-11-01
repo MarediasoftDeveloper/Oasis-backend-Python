@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from django.core.mail import EmailMultiAlternatives
 import random
 from django.shortcuts import get_object_or_404
-from app.models import Customer 
+from app.models import Customer , Customer_profile
 from rest_framework.response import Response
 from app.Models.otp_requests import OTP_Code
 from django.template.loader import render_to_string
@@ -18,7 +18,6 @@ def generate_otp():
 
 def Send_Otp_Mail(id, top_message, subject):
         customer = get_object_or_404(Customer, id=id)
-        
       
         otp = generate_otp()
         save_otp = OTP_Code.objects.create(customer=customer, otp=make_password(otp))

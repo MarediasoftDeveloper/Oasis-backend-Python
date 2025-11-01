@@ -6,6 +6,7 @@ class ChallengesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Challenges
         fields = '__all__'
+        read_only_fields=['venue']
     
     # Custom validation to check if the starting date is before the ending date
     def validate(self, data):
@@ -36,7 +37,9 @@ class ChallengesSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         """Create a new Challenge."""
-        return Challenges.objects.create(**validated_data)
+        challenge = Challenges(**validated_data)
+        
+        return challenge
 
     def update(self, instance, validated_data):
         """Update an existing Challenge."""

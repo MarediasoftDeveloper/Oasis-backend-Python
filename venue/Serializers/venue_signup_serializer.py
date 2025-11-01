@@ -1,16 +1,15 @@
 from rest_framework.serializers import ModelSerializer, EmailField
 from rest_framework import serializers
-from app.models import Customer, Customer_profile
+from app.models import Customer
+from venue.models.venue_info import Venue_Info
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.hashers import make_password, check_password
 from app.Views.email.send_and_validate_email import Send_Otp_Mail
 from rest_framework.response import Response
 
-class Customer_Serializer(ModelSerializer):
-    password = serializers.CharField(write_only=True, required=False, allow_blank=True)
-    age = serializers.IntegerField(min_value=0, allow_null=True, required=False, write_only=True)
-    gender = serializers.CharField(write_only=True, required=False, allow_blank=True)
-
+class Venue_SignUp_Serializer(ModelSerializer):
+    password = serializers.CharField(write_only=True, required=True)
+    venue_name = serializers.CharField(write_only=True, required=True)
     def validate_email(self, value):
         request = self.context.get('request')
         instance = getattr(self, 'instance', None)
@@ -41,36 +40,29 @@ class Customer_Serializer(ModelSerializer):
                 raise serializers.ValidationError("This email is already registered.")
 
         return value  # ensure return in all paths
+    
                 
     class Meta:
         model = Customer
-        fields = ['id','username', 'email', 'password', 'first_name', 'last_name', 'age', 'gender']
+        fields = ['id','username', 'email', 'password', 'venue_name']
 
     def create(self, validated_data):
-        password = validated_data.pop('password', None)
+        password = validated_data.pop('password')
+        venue_name = validated_data.pop('venue_name')
         instance = Customer(**validated_data)
 
         if password:
             instance.set_password(password)  # Hash if updated
-
+            instance.user_role = '2'  # user role set to venue
         instance.save()
-        customer_profile = Customer_profile.objects.create(customer=instance)
-        
+        venue_profile = Venue_Info.objects.create(venue=instance, venue_name=venue_name)
         return instance
 
     def update(self, instance, validated_data):
         password = validated_data.pop('password', None)
-        age = validated_data.pop('age', None)
-        gender = validated_data.pop('gender', None)
-
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         if password:
             instance.set_password(password)  # Hash if updated
         instance.save()
-        customer_profile = Customer_profile.objects.get(customer=instance)
-        customer_profile.age=age 
-        customer_profile.gender=gender
-        customer_profile.save()
-        
         return instance

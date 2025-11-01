@@ -9,6 +9,12 @@ USER_ROLES =[
     ('3', 'staff'),
 ]
 
+GENDERS =[
+    ('male', 'Male'),
+    ('female', 'Female'),
+    ('other', 'Other'),
+]
+
 def customer_upload_path(instance, filename):
     return f'media/customer/{instance.customer.id}-{instance.customer.username}/{filename}'
 
@@ -36,6 +42,8 @@ class Customer_profile(models.Model):
     profile_picture = models.ImageField(upload_to=customer_upload_path, null=True, blank=True, default="media/user_default_img/user.png")
     bio = models.CharField(max_length=500, null=True, blank=True)
     is_private = models.BooleanField(default=False)
+    age= models.PositiveIntegerField(null=True, blank=True)
+    gender= models.CharField(max_length=12, choices=GENDERS, null=True, blank=True)
     total_redeemed_points = models.PositiveIntegerField(default=0)
 
 
