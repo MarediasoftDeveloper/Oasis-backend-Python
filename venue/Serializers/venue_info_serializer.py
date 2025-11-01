@@ -5,7 +5,7 @@ from venue.Serializers.venue_signup_serializer import Venue_SignUp_Serializer
 
 
 class VenueInfoSerializer(serializers.ModelSerializer):
-    venue= Venue_SignUp_Serializer
+    venue= Venue_SignUp_Serializer()
     class Meta:
         model = Venue_Info
         fields = '__all__'

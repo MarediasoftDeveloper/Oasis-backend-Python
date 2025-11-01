@@ -12,8 +12,7 @@ class Customer_Feed(APIView):
 
     def get(self, request):
         
-        user = request.user
-        public_profiles_ids = Customer_profile.objects.filter(customer=user, is_private=False).values_list('customer', flat=True)
+        public_profiles_ids = Customer_profile.objects.filter(is_private=False).values_list('customer', flat=True)
         customer_posts = Post.objects.filter(user__id__in=public_profiles_ids)
         venue_posts = Post.objects.filter(user__user_role='2')
         serialized_customer_posts = PostSerializer(customer_posts, many=True)

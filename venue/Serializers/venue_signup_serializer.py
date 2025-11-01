@@ -10,6 +10,7 @@ from rest_framework.response import Response
 class Venue_SignUp_Serializer(ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
     venue_name = serializers.CharField(write_only=True, required=True)
+    
     def validate_email(self, value):
         request = self.context.get('request')
         instance = getattr(self, 'instance', None)
