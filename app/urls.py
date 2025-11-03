@@ -24,7 +24,7 @@ from .Views.oasis_select_interest_crud import Oasis_Select_Interest_CRUD
 from .Views.oasis_interests_serializer import Oasis_Interest_CRUD
 from .Views.posts_crud import Post_Crud
 from .Views.user_stamps import User_Stamps
-from .Views.customer_feed import Customer_Feed
+from .Views.customer_feed import Customer_Feed, Customer_Feed_Retrieve
 from .Views.email.resend_otp import Resent_OTP_For_Email_Verify, Resent_OTP_For_Password_Reset
 from .Views.forgot_password import Forgot_Password
 from .Views.earned_badges_by_user import Earned_Badges_By_User, Earned_Badges_By_User_Retrieve
@@ -34,6 +34,7 @@ from .Views.user_raffle_entry import User_Raffles_Entry
 from .Views.get_friends import Get_Friends
 from .Views.frienships import Friendship_Crud
 from .Views.get_raffle_participant_list import Raffles_Participant_List
+from .Views.challenge_get_retrieve import ChallengeGetView, ChallengeRetrieveView
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -70,9 +71,13 @@ urlpatterns = [
     path('raffles/', raffles_get_retrieve.RafflesGetView.as_view(), name='get-raffles'), #get raffles
     path('raffles/<int:pk>/', raffles_get_retrieve.RafflesRetrieveView.as_view(), name='retrieve-raffles'), #get raffles
 
+    path('challenges/', ChallengeGetView.as_view(), name='get-challenge'), #get raffles
+    path('challenges/<int:pk>/', ChallengeRetrieveView.as_view(), name='retrieve-challenge'), #get raffles
+
     path('get-menu-list/<int:pk>/', venue_menu_list.Venue_Menu_List.as_view(), name='venue_menu'), #get raffles
     
     path('feed/', Customer_Feed.as_view(), name='feed'), #get feed
+    path('feed/<str:slug>/', Customer_Feed_Retrieve.as_view(), name='feed-retrieve'), #get feed
     
     path('forgot-password/', Forgot_Password.as_view(), name='forgot-password'), #forgot password
     path('forgot-password/resent-otp/<int:id>/', Resent_OTP_For_Password_Reset.as_view(), name='forgot-password-resent-otp'), #forgot password

@@ -1,6 +1,8 @@
 from rest_framework.views import APIView
+from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from app.Permissions.send_by_customer_only import Request_By_Customer_Only
 from rest_framework import status
 from app.models import Customer_profile
 from app.Serializers.post_serializer import PostSerializer
@@ -14,7 +16,7 @@ class StandardResultsSetPagination(PageNumberPagination):
     max_page_size = 50
 
 class Customer_Feed(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, Request_By_Customer_Only]
 
     def get(self, request):
         paginator = StandardResultsSetPagination()
@@ -30,3 +32,15 @@ class Customer_Feed(APIView):
         serialized_posts = PostSerializer(paginated_posts, many=True)
 
         return paginator.get_paginated_response(serialized_posts.data)
+
+
+
+
+class Customer_Feed_Retrieve(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated, Request_By_Customer_Only]
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    lookup_field='slug'
+
+        
+        

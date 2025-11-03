@@ -1,6 +1,7 @@
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from venue.Permissions.venue_only_permission import Request_By_Venue_Only
 from venue.models.raffles import Raffles
+from app.Models.earned_points import Earned_Points
 from app.Models.raffles_entry import Raffles_Entry
 from app.models import Customer_profile
 from app.Serializers.customer_profile_serializer import CustomerProfileSerializer
@@ -9,6 +10,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from random import randint
 from django.db.models import Max
+from app.Views.functions.referrals_utils import add_points_to_user
 
 class Withdraw_of_Raffle(APIView):
     permission_classes = [IsAuthenticated]
@@ -48,6 +50,7 @@ class Withdraw_of_Raffle(APIView):
 
         # Reward points if applicable
         if get_winner_entry.raffle.rewarded_points:
+            Earned_Points.objects.create(customer=get_winner_entry.user, points_earned=get_winner_entry.raffle.rewarded_points)
             get_winner.total_redeemed_points += get_winner_entry.raffle.rewarded_points
             get_winner.save()
 

@@ -1,7 +1,10 @@
 from app.Models.earned_points import Earned_Points
+from app.Models.earned_badges_by_user import Earned_Badges
 from app.models import Customer_profile
 from staff.models.set_refferal_points import Set_Refferal_Points
 from app.Models.points_spent import Points_Spent
+from rest_framework.response import Response
+from rest_framework import status
 
 def get_reward_points():
     """Fetch the current reward point configuration."""
@@ -42,4 +45,30 @@ def add_points_to_user(customer, points):
     customer_profile.total_redeemed_points += points
     customer_profile.save()
 
-    
+
+def deduct_points_to_user(customer, points):
+    customer_profile, _ = Customer_profile.objects.get_or_create(customer=customer)
+
+    if customer_profile.total_redeemed_points >= points:
+        Points_Spent.objects.create(customer=customer, points_spent=points)
+        customer_profile.total_redeemed_points -= points
+        customer_profile.save()
+        return Response(
+            {"message": "Points deducted successfully!"},
+            status=status.HTTP_200_OK
+        )
+
+    return Response(
+        {"error": "You don't have enough points!"},
+        status=status.HTTP_400_BAD_REQUEST
+    )
+
+
+def add_points_and_badge_to_user(customer, points, badge):
+
+    Earned_Points.objects.create(customer=customer, points_earned=points)
+    Earned_Badges.objects.create(user=customer, badge=badge)
+    customer_profile, _ = Customer_profile.objects.get_or_create(customer=customer)
+
+    customer_profile.total_redeemed_points += points
+    customer_profile.save()

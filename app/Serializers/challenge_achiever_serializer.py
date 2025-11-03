@@ -3,8 +3,14 @@ from django.utils import timezone
 from datetime import timedelta
 from app.Models.challenge_achiever import Challenge_Achiever
 from venue.models.challenges import Challenges
+from app.Serializers.customer_profile_serializer import CustomerProfileSerializer
+from app.Views.functions.referrals_utils import add_points_and_badge_to_user
 
 class ChallengeAchieverSerializer(serializers.ModelSerializer):
+
+    code = serializers.CharField(write_only=True, required=True)
+    user = CustomerProfileSerializer(source='user.customer_profile', read_only=True)
+
     class Meta:
         model = Challenge_Achiever
         fields = '__all__'
@@ -64,7 +70,25 @@ class ChallengeAchieverSerializer(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
-        """Create a new Challenge_Achiever record."""
+        request = self.context.get('request')
+        user = request.user
+
+        # Get challenge object (provided in validated_data)
+        challenge = validated_data.pop('challenge')
+
+        # Get the QR code entered/scanned by user
+        code = validated_data.get('code')
+        
+        #  Check if QR code is valid for this challenge
+        if not code or str(code) != str(challenge.qr_code.code):
+            raise serializers.ValidationError({"error": "Invalid QR Code"})
+
+        #  Add points to user
+        add_points_and_badge_to_user(user, challenge.badge.badge.points_per_task, challenge.badge.badge)
+
+        # Save and return challenge achiever record
+        validated_data['user'] = user
+        validated_data['challenge'] = challenge
         return Challenge_Achiever.objects.create(**validated_data)
 
     def update(self, instance, validated_data):

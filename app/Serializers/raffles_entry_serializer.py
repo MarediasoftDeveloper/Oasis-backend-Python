@@ -2,7 +2,6 @@ from rest_framework import serializers
 from app.Models.raffles_entry import Raffles_Entry
 from django.utils import timezone
 
-
 class RafflesEntrySerializer(serializers.ModelSerializer):
     class Meta:
         model = Raffles_Entry
@@ -41,6 +40,7 @@ class RafflesEntrySerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         """Create a new raffle entry."""
         return Raffles_Entry.objects.create(**validated_data)
+    
 
     def update(self, instance, validated_data):
         """Update an existing raffle entry."""

@@ -4,13 +4,13 @@ from venue.models.qr_info_model import QR_Info
 from venue.Serializers.qr_info_serializer import QRInfoSerializer
 from venue.Serializers.venue_badges_serializer import VenueBadgesSerializer
 from venue.models.venue_badges import Venue_Badges
-from app.Serializers.customer_signup_serializer import Customer_Serializer
+from venue.Serializers.venue_info_serializer import VenueInfoSerializer
 
 
 class ChallengesSerializer(serializers.ModelSerializer):
     winning_points = serializers.IntegerField(min_value=5, required=True, write_only=True)
     qr_code = QRInfoSerializer(read_only=True)
-    venue = Customer_Serializer(read_only=True)
+    venue = VenueInfoSerializer(source="venue.venue_profile", read_only=True)
     badge_info = VenueBadgesSerializer(read_only=True)
     badge = serializers.PrimaryKeyRelatedField(
         queryset=Venue_Badges.objects.all(),
@@ -20,7 +20,6 @@ class ChallengesSerializer(serializers.ModelSerializer):
         model = Challenges
         fields = '__all__'
         read_only_fields=['venue', 'qr_code', 'badge_info']
-    
     # Custom validation to check if the starting date is before the ending date
     def validate(self, data):
         """Ensure that the ending date is after the starting date."""

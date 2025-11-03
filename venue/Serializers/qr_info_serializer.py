@@ -4,8 +4,7 @@ from venue.models.qr_info_model import QR_Info
 class QRInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = QR_Info
-        fields = '__all__'
-
+        exclude=['code', 'qr_image']
     def validate_winning_points(self, value):
         """Ensure winning points are positive."""
         if value < 0:
