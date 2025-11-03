@@ -1,7 +1,9 @@
 from rest_framework import serializers
 from venue.models.badges import Badges
+from venue.Serializers.badge_category_serializer import BadgesCategorySerializer
 
 class BadgesSerializer(serializers.ModelSerializer):
+    # category = BadgesCategorySerializer()
     class Meta:
         model = Badges
         fields = '__all__'

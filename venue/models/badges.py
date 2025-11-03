@@ -14,4 +14,4 @@ class Badges(models.Model):
     points_per_task = models.PositiveIntegerField(default=20)
 
     def __str__(self):
-        return self.name
+        return self.name + "-" + self.category.category

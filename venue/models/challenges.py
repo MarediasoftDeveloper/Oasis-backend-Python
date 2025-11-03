@@ -22,8 +22,8 @@ class Challenges(models.Model):
     venue = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, limit_choices_to={'user_role':'2'}) 
     cool_down_hours = models.PositiveIntegerField() 
     daily_cap = models.PositiveIntegerField(help_text="Define how many times a Challenge can be attempted in a day?") 
-    starting_at = models.DateField()
-    ending_at = models.DateTimeField(null=True, blank=True)
+    starting_at = models.DateTimeField()
+    ending_at = models.DateTimeField()
     badge = models.ForeignKey(Venue_Badges, on_delete=models.CASCADE)  
     qr_code = models.ForeignKey(QR_Info, on_delete=models.CASCADE)          
     created_at=models.DateTimeField(auto_now_add=True)
@@ -34,4 +34,4 @@ class Challenges(models.Model):
     
 
     def __str__(self):
-        return self.name
+        return self.title

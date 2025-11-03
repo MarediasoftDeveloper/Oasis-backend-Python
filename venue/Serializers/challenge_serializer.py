@@ -1,12 +1,25 @@
 from rest_framework import serializers
 from venue.models.challenges import Challenges
+from venue.models.qr_info_model import QR_Info
+from venue.Serializers.qr_info_serializer import QRInfoSerializer
+from venue.Serializers.venue_badges_serializer import VenueBadgesSerializer
+from venue.models.venue_badges import Venue_Badges
+from app.Serializers.customer_signup_serializer import Customer_Serializer
 
 
 class ChallengesSerializer(serializers.ModelSerializer):
+    winning_points = serializers.IntegerField(min_value=5, required=True, write_only=True)
+    qr_code = QRInfoSerializer(read_only=True)
+    venue = Customer_Serializer(read_only=True)
+    badge_info = VenueBadgesSerializer(read_only=True)
+    badge = serializers.PrimaryKeyRelatedField(
+        queryset=Venue_Badges.objects.all(),
+        required=True
+    )
     class Meta:
         model = Challenges
         fields = '__all__'
-        read_only_fields=['venue']
+        read_only_fields=['venue', 'qr_code', 'badge_info']
     
     # Custom validation to check if the starting date is before the ending date
     def validate(self, data):
@@ -37,14 +50,28 @@ class ChallengesSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         """Create a new Challenge."""
-        challenge = Challenges(**validated_data)
+        winning_points = validated_data.pop('winning_points')
+        ending_at = validated_data.get('ending_at')
+        qr_obj = QR_Info(winning_points=winning_points, expires_at=ending_at)
+        qr_obj.save()
+      
         
-        return challenge
+        
+        return Challenges.objects.create(
+            qr_code = qr_obj,
+            **validated_data
+        )
 
     def update(self, instance, validated_data):
         """Update an existing Challenge."""
+        winning_points = validated_data.pop('winning_points')
+        
+
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
+        if winning_points:
+            instance.qr_code.winning_points=winning_points
+            
         instance.save()
         return instance
 

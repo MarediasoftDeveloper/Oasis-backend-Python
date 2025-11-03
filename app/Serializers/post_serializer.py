@@ -4,6 +4,7 @@ from app.Serializers.interests_serializer import InterestSerializer
 from app.Serializers.customer_signup_serializer import Customer_Serializer
 from app.Models.interests import Customer_Interest
 from app.Serializers.customer_profile_serializer import CustomerProfileSerializer
+from venue.Serializers.venue_info_serializer import VenueInfoSerializer
 from django.utils.text import slugify
 
 
@@ -14,14 +15,24 @@ class PostSerializer(serializers.ModelSerializer):
         many=True,
         write_only=True
     )
-
-    # user = CustomerProfileSerializer(source="user.customer_profile", read_only=True)
-    user = Customer_Serializer(read_only=True)
+   
     class Meta:
         model = Post
         fields = '__all__'
         read_only_fields = ['user', 'slug', 'date', 'time']
 
+    def to_representation(self, instance):
+        """Customize user data based on role."""
+        data = super().to_representation(instance)
+
+        if instance.user.user_role == '2':  # Venue
+            data['user'] = VenueInfoSerializer(instance.user.venue_profile).data
+        else:  # Customer
+            data['user'] = CustomerProfileSerializer(instance.user.customer_profile).data
+
+        return data
+   
+   
     def validate_image(self, value):
         """Ensure an image is provided."""
         if not value:
@@ -37,6 +48,9 @@ class PostSerializer(serializers.ModelSerializer):
                     {"categories": "At least one category must be selected."}
                 )
         return data
+    
+    
+
 
     def create(self, validated_data):
         """Create a new post with slug and categories."""
