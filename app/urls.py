@@ -23,7 +23,7 @@ from rest_framework.routers import DefaultRouter
 from .Views.oasis_select_interest_crud import Oasis_Select_Interest_CRUD
 from .Views.oasis_interests_serializer import Oasis_Interest_CRUD
 from .Views.posts_crud import Post_Crud
-from .Views.user_stamps import User_Stamps
+from .Views.user_collected_badges import Collected_badges
 from .Views.customer_feed import Customer_Feed, Customer_Feed_Retrieve
 from .Views.email.resend_otp import Resent_OTP_For_Email_Verify, Resent_OTP_For_Password_Reset
 from .Views.forgot_password import Forgot_Password
@@ -35,6 +35,8 @@ from .Views.get_friends import Get_Friends
 from .Views.frienships import Friendship_Crud
 from .Views.get_raffle_participant_list import Raffles_Participant_List
 from .Views.challenge_get_retrieve import ChallengeGetView, ChallengeRetrieveView
+from .Views.scan_qr_get_badge import Scan_qr_get_badge
+from .Views.daily_stamps import StampsCreateView, StampsListView
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -86,9 +88,13 @@ urlpatterns = [
     path('earned-badges/', Earned_Badges_By_User.as_view(), name="earned-badges"),    
     path('earned-badges/<int:pk>/', Earned_Badges_By_User_Retrieve.as_view(), name="earned-badges-retrieve"),    
     
-    path('stamps/', User_Stamps.as_view(), name="stamps"),    
+    path('collected-badges/', Collected_badges.as_view(), name="collected-badges"),    
     path('badges-record/<int:id>/', User_Badges_Record.as_view(), name="user_badge_record"),    
 
+    path('scan-qr/', Scan_qr_get_badge.as_view(), name="scan_qr"),    
+
+    path('stamps/', StampsListView.as_view(), name="stamp-list"),    
+    path('stamps-create/', StampsCreateView.as_view(), name="stamp-create"),    
 
     path('friends/', Get_Friends.as_view(), name="get-friends"),    
 

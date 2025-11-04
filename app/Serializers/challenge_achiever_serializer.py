@@ -4,31 +4,48 @@ from datetime import timedelta
 from app.Models.challenge_achiever import Challenge_Achiever
 from venue.models.challenges import Challenges
 from app.Serializers.customer_profile_serializer import CustomerProfileSerializer
+from venue.Serializers.challenge_serializer import ChallengesSerializer
 from app.Views.functions.referrals_utils import add_points_and_badge_to_user
 
 class ChallengeAchieverSerializer(serializers.ModelSerializer):
 
     code = serializers.CharField(write_only=True, required=True)
-    challenge_id = serializers.IntegerField(min_value=1, write_only=True, required=True)
-    user = CustomerProfileSerializer(source='user.customer_profile', read_only=True)
-
+    customer_taken = CustomerProfileSerializer(source='user.customer_profile', read_only=True)
+    challenge = ChallengesSerializer(read_only=True)
     class Meta:
         model = Challenge_Achiever
         fields = '__all__'
-        read_only_fields = ['scanned_at', 'scanned_time']  # automatically handled
+        read_only_fields = ['scanned_at']  # automatically handled
 
     def validate(self, data):
         """Validate cooldown time and daily cap before allowing scan."""
-        customer = data.get('customer_taken')
-        challenge = data.get('challenge')
+        request = self.context.get('request')
+        code = data.get('code')
+        challenge = Challenges.objects.get(qr_code__code=code)
+        print(challenge)
+        if not challenge:
+            raise serializers.ValidationError("Invalid QR Code")
+        
+        user = request.user
+        
+        now = timezone.now()  # Use timezone aware current time
+    
+        # --- Check if Challenge hasn't started yet ---
+        if now < challenge.starting_at:
+            raise serializers.ValidationError({
+                "error": f"This challenge will start on {challenge.starting_at}."
+            })
 
-        if not challenge or not customer:
-            raise serializers.ValidationError("Customer and Challenge are required fields.")
-
+        # --- Check if Challenge already ended ---
+        if now > challenge.ending_at:
+            raise serializers.ValidationError({
+                "error": f"This challenge ended on {challenge.ending_at}."
+            })
+        
         # --- Check Cooldown Period ---
         last_entry = (
             Challenge_Achiever.objects
-            .filter(customer_taken=customer, challenge=challenge)
+            .filter(customer_taken=user, challenge=challenge)
             .order_by('-scanned_at')
             .first()
         )
@@ -40,7 +57,7 @@ class ChallengeAchieverSerializer(serializers.ModelSerializer):
                 hours, remainder = divmod(remaining.total_seconds(), 3600)
                 minutes = remainder // 60
                 raise serializers.ValidationError({
-                    "cool_down": f"You can scan this challenge again in {int(hours)}h {int(minutes)}m."
+                    "error": f"You can scan this challenge again in {int(hours)}h {int(minutes)}m."
                 })
 
         # --- Check Daily Cap ---
@@ -48,7 +65,7 @@ class ChallengeAchieverSerializer(serializers.ModelSerializer):
         end_of_day = start_of_day + timedelta(days=1)
 
         daily_count = Challenge_Achiever.objects.filter(
-            customer_taken=customer,
+            customer_taken=user,
             challenge=challenge,
             scanned_at__gte=start_of_day,
             scanned_at__lt=end_of_day
@@ -56,7 +73,7 @@ class ChallengeAchieverSerializer(serializers.ModelSerializer):
 
         if daily_count >= challenge.daily_cap:
             raise serializers.ValidationError({
-                "daily_cap": f"You have already reached the daily cap of {challenge.daily_cap} scans for this challenge."
+                "error": f"You have already reached the daily cap of {challenge.daily_cap} scans for this challenge."
             })
 
         current_time = timezone.localtime(timezone.now()).time()  # Get current local time
@@ -65,7 +82,7 @@ class ChallengeAchieverSerializer(serializers.ModelSerializer):
         if challenge.daily_open_time and challenge.daily_close_time:
             if not (challenge.daily_open_time <= current_time <= challenge.daily_close_time):
                 raise serializers.ValidationError({
-                    "time_window": f"The challenge is only available between {challenge.daily_open_time} and {challenge.daily_close_time}."
+                    "error": f"The challenge is only available between {challenge.daily_open_time} and {challenge.daily_close_time}."
                 })
         
         return data
@@ -74,13 +91,10 @@ class ChallengeAchieverSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         user = request.user
         code = validated_data.get('code')
-        get_id = validated_data.get('challenge_id')
-
+       
         # Get challenge object (provided in validated_data)
-        challenge = Challenges.objects.filter(id=get_id, qr_code__code=code).first()
-        # Get the QR code entered/scanned by user
-
-        #  Check if QR code is valid for this challenge
+        challenge = Challenges.objects.get(qr_code__code=code)
+       #  Check if QR code is valid for this challenge
         if not code or str(code) != str(challenge.qr_code.code):
             raise serializers.ValidationError({"error": "Invalid QR Code"})
 
@@ -90,7 +104,7 @@ class ChallengeAchieverSerializer(serializers.ModelSerializer):
         # Save and return challenge achiever record
         validated_data['user'] = user
         validated_data['challenge'] = challenge
-        return Challenge_Achiever.objects.create(**validated_data)
+        return Challenge_Achiever.objects.create(customer_taken=user, challenge=challenge)
 
     def update(self, instance, validated_data):
         """Update an existing Challenge_Achiever record."""

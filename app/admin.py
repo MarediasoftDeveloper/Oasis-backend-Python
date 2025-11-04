@@ -14,6 +14,7 @@ from .Models.earned_points import Earned_Points
 from .Models.notifications import Notifications
 from .Models.friendships import Friendships
 from .Models.earned_badges_by_user import Earned_Badges
+from .Models.stamps import Stamps
 # Register your models here.
 
 admin.site.register(Customer)
@@ -32,3 +33,4 @@ admin.site.register(Earned_Points)
 admin.site.register(Notifications)
 admin.site.register(Friendships)
 admin.site.register(Earned_Badges)
+admin.site.register(Stamps)

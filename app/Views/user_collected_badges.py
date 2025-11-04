@@ -9,7 +9,7 @@ from django.utils import timezone
 from datetime import datetime
 
 
-class User_Stamps(APIView):
+class Collected_badges(APIView):
     permission_classes=[IsAuthenticated]
 
     def post(self, request):
@@ -23,5 +23,5 @@ class User_Stamps(APIView):
         )
 
         serialized = Earned_Badges_By_User_Serializer(stamps, many=True)
-        return Response({"stamps": serialized.data})
+        return Response({"collected_badges": serialized.data})
 
