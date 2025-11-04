@@ -9,6 +9,7 @@ from app.Views.functions.referrals_utils import add_points_and_badge_to_user
 class ChallengeAchieverSerializer(serializers.ModelSerializer):
 
     code = serializers.CharField(write_only=True, required=True)
+    challenge_id = serializers.IntegerField(min_value=1, write_only=True, required=True)
     user = CustomerProfileSerializer(source='user.customer_profile', read_only=True)
 
     class Meta:
@@ -72,13 +73,13 @@ class ChallengeAchieverSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         request = self.context.get('request')
         user = request.user
+        code = validated_data.get('code')
+        get_id = validated_data.get('challenge_id')
 
         # Get challenge object (provided in validated_data)
-        challenge = validated_data.pop('challenge')
-
+        challenge = Challenges.objects.filter(id=get_id, qr_code__code=code).first()
         # Get the QR code entered/scanned by user
-        code = validated_data.get('code')
-        
+
         #  Check if QR code is valid for this challenge
         if not code or str(code) != str(challenge.qr_code.code):
             raise serializers.ValidationError({"error": "Invalid QR Code"})

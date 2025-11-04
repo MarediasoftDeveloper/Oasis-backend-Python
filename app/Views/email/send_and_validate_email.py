@@ -10,6 +10,7 @@ from django.conf import settings
 from django.contrib.auth.hashers import make_password, check_password
 from rest_framework.permissions import AllowAny
 from rest_framework import status
+from .sendgrid_mail import send_mail_via_sendgrid
 # Create your views here.
 def generate_otp():
     return str(random.randint(100000, 999999))
@@ -20,11 +21,11 @@ def Send_Otp_Mail(id, top_message, subject):
         customer = get_object_or_404(Customer, id=id)
       
         otp = generate_otp()
-        save_otp = OTP_Code.objects.create(customer=customer, otp=make_password(otp))
+        OTP_Code.objects.create(customer=customer, otp=make_password(otp))
         
         subject = f"My Oasis - {subject}"
-        from_email = settings.DEFAULT_FROM_EMAIL
-        to = [customer.email]
+        # from_email = settings.DEFAULT_FROM_EMAIL
+
 
         # Render HTML content
         html_content = render_to_string('emails/oasis_otp_email.html', {
@@ -32,17 +33,21 @@ def Send_Otp_Mail(id, top_message, subject):
             'otp': otp,
         })
 
-        # # Optional plain-text fallback
-        # text_content = f"Hello {customer.username}, your OTP is {otp}. It will expire in 10 minutes."
 
-        # Create and send the email
-        msg = EmailMultiAlternatives(subject, "", from_email, to)
-        msg.attach_alternative(html_content, "text/html")
-        msg.send()
-
-
-        return True
-
+        success = send_mail_via_sendgrid(customer.email, f"My Oasis - {subject}", html_content)
+        return success
+        # # # Optional plain-text fallback
+        # text_content = f"Your OTP is {otp}. It will expire in 10 minutes."
+        # # Create and send the email
+        # msg = EmailMultiAlternatives(subject, text_content, from_email, to)
+        # msg.attach_alternative(html_content, "text/html")
+       
+        # try:
+        #     msg.send()
+        #     return True
+        # except Exception as e:
+        #     print("SendGrid Error:", e)
+        #     return False
 
 class Validate_mail(APIView):
 

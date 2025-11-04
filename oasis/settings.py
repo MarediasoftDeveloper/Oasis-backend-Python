@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 from decouple import config
 import dj_database_url
+import ssl
+import certifi
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -177,15 +179,22 @@ USE_I18N = True
 
 USE_TZ = True
 
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST ='smtp.sendgrid.net'       # Gmail SMTP server
-EMAIL_PORT =587                    # TLS port
-EMAIL_USE_TLS =True                # Use TLS encryption
-EMAIL_HOST_USER ="apikey"   # Your email address
-EMAIL_HOST_PASSWORD =config('SENDGRID_API_KEY')
+
+EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
+SENDGRID_API_KEY = config("SENDGRID_API_KEY")
 DEFAULT_FROM_EMAIL =config('EMAIL_HOST_USER')
+
+
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
+
+
+
+# Optional – Disable sandbox mode (real emails will be sent)
+SENDGRID_SANDBOX_MODE_IN_DEBUG = False
+# Optional – Do not store API key in database
+SENDGRID_ECHO_TO_STDOUT = False
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
