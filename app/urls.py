@@ -37,6 +37,7 @@ from .Views.get_raffle_participant_list import Raffles_Participant_List
 from .Views.challenge_get_retrieve import ChallengeGetView, ChallengeRetrieveView
 from .Views.scan_qr_get_badge import Scan_qr_get_badge
 from .Views.daily_stamps import StampsCreateView, StampsListView
+from .Views.retrieve_user_profile import Retrieve_User_Profile
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -61,6 +62,7 @@ urlpatterns = [
     path('auth/google/', google_signup.Google_Signup.as_view(), name='google-auth'),
    
     path('user/', oasis_home.Oasis_Home.as_view(), name='get_user'),
+    path('user-profile/<int:id>/', Retrieve_User_Profile.as_view(), name='retrieve-user'),
     path('customer-info/<int:customer>', update_customer_info.Update_Customer_Info.as_view(), name='customer-info'),
 
 

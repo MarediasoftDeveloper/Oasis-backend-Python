@@ -36,7 +36,6 @@ class Friendship_Crud(viewsets.ModelViewSet):
                 get_profile = Customer_profile.objects.get(customer=friend.request_sender)
                 serialized_profile = CustomerProfileSerializer(get_profile)
                 data.append({
-                    
                     'request_get_by':{
                         'friendship_id':friend.id,
                         'request_send_on':friend.send_on,

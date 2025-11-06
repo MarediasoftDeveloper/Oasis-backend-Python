@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 # Create your models here.
 from oasis.settings import AUTH_USER_MODEL
+from django.core.exceptions import ValidationError
 
 USER_ROLES =[
     ('1', 'customer'),
@@ -26,12 +27,11 @@ class Customer(AbstractUser):
     password = models.CharField(max_length=500, blank=True, null=True)
     user_role = models.CharField(max_length=15, choices=USER_ROLES, default='1')
     is_verified = models.BooleanField(default=False)
-    
 
     USERNAME_FIELD = 'username'        # 🔹 use email for login
     REQUIRED_FIELDS = ['email']            # 🔹 no extra required fields
 
-
+    
 
     def __str__(self):
         return str(self.id) + "-" + self.email

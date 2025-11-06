@@ -12,4 +12,4 @@ class OTP_Code(models.Model):
 
     def is_expired(self):
         expiry_time = self.created_at + timedelta(minutes=10)
-        return timezone.now() > expiry_time
+        return timezone.now() > expiry_time 

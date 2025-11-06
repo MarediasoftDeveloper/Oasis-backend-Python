@@ -5,6 +5,8 @@ from rest_framework.validators import UniqueValidator
 from django.contrib.auth.hashers import make_password, check_password
 from app.Views.email.send_and_validate_email import Send_Otp_Mail
 from rest_framework.response import Response
+from rest_framework import status
+from app.Models.otp_requests import OTP_Code
 
 class Customer_Serializer(ModelSerializer):
     password = serializers.CharField(write_only=True, required=False, allow_blank=True)
@@ -48,13 +50,13 @@ class Customer_Serializer(ModelSerializer):
 
     def create(self, validated_data):
         password = validated_data.pop('password', None)
-        instance = Customer(**validated_data)
+        instance = Customer.objects.get_or_create(**validated_data)
 
         if password:
             instance.set_password(password)  # Hash if updated
 
         instance.save()
-        customer_profile = Customer_profile.objects.create(customer=instance)
+        customer_profile = Customer_profile.objects.get_or_create(customer=instance)
         
         return instance
 
@@ -63,14 +65,18 @@ class Customer_Serializer(ModelSerializer):
         age = validated_data.pop('age', None)
         gender = validated_data.pop('gender', None)
 
+            
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
+
         if password:
             instance.set_password(password)  # Hash if updated
+
         instance.save()
-        customer_profile = Customer_profile.objects.get(customer=instance)
-        customer_profile.age=age 
-        customer_profile.gender=gender
-        customer_profile.save()
+        if age or gender:
+            customer_profile = Customer_profile.objects.get(customer=instance)
+            customer_profile.age=age 
+            customer_profile.gender=gender
+            customer_profile.save()
         
         return instance

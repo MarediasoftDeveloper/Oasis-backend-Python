@@ -60,6 +60,7 @@ class Validate_mail(APIView):
         
         get_otp = OTP_Code.objects.filter(customer=customer).latest('created_at')
         entered_opt = request.data.get('otp')
+        print(entered_opt)
         try:
             if get_otp.is_expired():    
                 return Response({"error": "This code has been expired!"}, status=status.HTTP_400_BAD_REQUEST)

@@ -33,12 +33,21 @@ DEBUG= True
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="").split(",")
 
 # Optional: trust your Railway domain for CSRF
+# CSRF_TRUSTED_ORIGINS = [
+#     f"https://{host}" for host in ALLOWED_HOSTS if host not in ["localhost", "127.0.0.1"]
+#     "http://localhost:5173",  # Vite default
+#     "http://127.0.0.1:5173",
+#     "http://localhost:8080",  # Vue/React settings
+#     "http://127.0.0.1:8080",
+# ]
+
+
 CSRF_TRUSTED_ORIGINS = [
-    f"https://{host}" for host in ALLOWED_HOSTS if host not in ["localhost", "127.0.0.1"]
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
 ]
-
-
-
 
 
 
@@ -57,6 +66,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
+    'corsheaders',
 ]
 
 REST_FRAMEWORK = {
@@ -73,7 +83,37 @@ REST_FRAMEWORK = {
     ]
 }
 
+CORS_ALLOW_ALL_ORIGINS = False 
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  # Vite default
+    "http://127.0.0.1:5173",
+    "http://localhost:8080",  # Vue/React settings
+    "http://127.0.0.1:8080",
+]
+
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+CORS_ALLOW_CREDENTIALS = True
 
 GOOGLE_WEB_CLIENT_ID = config("GOOGLE_WEB_CLIENT_ID")
 
@@ -89,6 +129,7 @@ SIMPLE_JWT = {
 
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

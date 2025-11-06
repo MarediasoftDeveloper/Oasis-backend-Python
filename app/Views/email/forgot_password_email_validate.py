@@ -26,7 +26,7 @@ class Validate_forgot_Password_mail(APIView):
         
 
         if check_password(entered_opt, get_otp.otp):
-            get_otp = OTP_Code.objects.filter(customer=customer).delete()
+            get_otp.delete()
             return Response({"message": "Your email has been successfully Verified!"}, status=status.HTTP_200_OK)
 
         return Response({"error": "Your OTP is wrong!"}, status=status.HTTP_400_BAD_REQUEST)

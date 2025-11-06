@@ -1,6 +1,7 @@
 from rest_framework.serializers import ModelSerializer, EmailField
 from rest_framework import serializers
 from app.models import Customer
+from app.Serializers.customer_signup_serializer import Customer_Serializer
 from venue.models.venue_info import Venue_Info
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.hashers import make_password, check_password
@@ -11,36 +12,28 @@ class Venue_SignUp_Serializer(ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
     venue_name = serializers.CharField(write_only=True, required=True)
     
+
+    
+    def validate_username(self, value):
+        """Ensure the username is unique."""
+        if Customer.objects.filter(username__iexact=value).exists():
+            raise serializers.ValidationError({"message": "Username already exists."})
+        return value
+
     def validate_email(self, value):
-        request = self.context.get('request')
-        instance = getattr(self, 'instance', None)
+        """Ensure the email is unique and handle unverified emails."""
+        if Customer.objects.filter(email__iexact=value).exists():
+            customer = Customer.objects.get(email__iexact=value)
+            if not customer.is_verified:
+                Send_Otp_Mail(customer.id)  # Send OTP if email is unverified
+                raise serializers.ValidationError({
+                    "code": "unverified_email",
+                    "message": "Email exists but is not verified. We have sent an OTP to your email, Please verify it."
+                })
+            raise serializers.ValidationError({"message": "Email already exists."})
 
+        return value  # If email is unique
 
-        if request and request.method == 'POST':
-            customer = Customer.objects.filter(email__iexact=value).first()
-
-            if customer:
-                if not customer.is_verified:
-                    Send_Otp_Mail(customer.id)
-                    raise serializers.ValidationError({
-                        "code": "unverified_email",
-                        "customer_id": customer.id,
-                        "message": "Email exists but is not verified. We have sent an OTP on your email, Please verify your email."
-                    })
-                raise serializers.ValidationError("Email already exists.")
-
-            return value  # valid new email
-
-        if instance:
-            # If the user is keeping the same email — allow it
-            if instance.email.lower() == value.lower():
-                return value
-
-            # If changing to another email — make sure it's unique
-            if Customer.objects.filter(email__iexact=value).exists():
-                raise serializers.ValidationError("This email is already registered.")
-
-        return value  # ensure return in all paths
     
                 
     class Meta:
