@@ -11,7 +11,7 @@ class Logout(APIView):
             refresh_token = request.data['refresh_token']
             token = RefreshToken(refresh_token)
             token.blacklist()
-            return Response({"error":"Logged out successfully!"})
+            return Response({"message":"Logged out successfully!"})
 
         except Exception as e:
             return Response({"error":f"An Error occured: {e}"}, status=400)

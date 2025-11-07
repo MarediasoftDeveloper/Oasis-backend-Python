@@ -2,6 +2,8 @@ from rest_framework import serializers
 from app.Models.friendships import Friendships
 from django.contrib.auth import get_user_model
 from django.db.models import Q
+from rest_framework.response import Response
+from rest_framework import status
 
 User = get_user_model()
 
@@ -63,3 +65,4 @@ class FriendshipSerializer(serializers.ModelSerializer):
         if request and request.user.is_authenticated:
             validated_data['request_sender'] = request.user
         return super().create(validated_data)
+

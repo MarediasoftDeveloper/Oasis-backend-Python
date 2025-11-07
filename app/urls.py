@@ -63,7 +63,7 @@ urlpatterns = [
    
     path('user/', oasis_home.Oasis_Home.as_view(), name='get_user'),
     path('user-profile/<int:id>/', Retrieve_User_Profile.as_view(), name='retrieve-user'),
-    path('customer-info/<int:customer>', update_customer_info.Update_Customer_Info.as_view(), name='customer-info'),
+    path('customer-info/<int:customer>/', update_customer_info.Update_Customer_Info.as_view(), name='customer-info'),
 
 
     path('send-invite/', send_invite.Send_Invite.as_view(), name='send_invite'), #Invite user and send a refferal code

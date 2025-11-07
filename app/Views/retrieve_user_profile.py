@@ -17,6 +17,7 @@ class Retrieve_User_Profile(APIView):
         earned_badges= Earned_Badges.objects.filter(user__id=id).count()
         serialized_posts =None
         friendship_status =None
+        friendship_id =None
         if not user_info.is_private:
             posts= Post.objects.filter(user__id=id)
             posts = PostSerializer(posts, many=True).data
@@ -27,13 +28,16 @@ class Retrieve_User_Profile(APIView):
         friends = Friendships.objects.filter(Q(request_sender=user_info.customer) | Q(request_getter=user_info.customer))
         is_friend_obj = Friendships.objects.filter(Q(request_sender=user_info.customer, request_getter=self.request.user) | Q(request_sender=self.request.user, request_getter=user_info.customer)).first()
         if is_friend_obj and is_friend_obj.status=='accepted':
+            friendship_id=is_friend_obj.id
             friendship_status = {'status':True}
         elif is_friend_obj and is_friend_obj.status=='pending' and is_friend_obj.request_sender==self.request.user:
+            friendship_id=is_friend_obj.id
             friendship_status = {
                 'request_send':True,
                 "status":is_friend_obj.status,
             }
         elif is_friend_obj and is_friend_obj.status=='pending' and is_friend_obj.request_getter==self.request.user:
+            friendship_id=is_friend_obj.id
             friendship_status = {
                 'request_send':False,
                 "status":is_friend_obj.status,
@@ -43,6 +47,7 @@ class Retrieve_User_Profile(APIView):
 
         friends = friends.filter(status='accepted').count()
         return Response({
+            'friendship_id': friendship_id,
             **user_profile.data,
             'friends': friends,
             'badges': earned_badges,

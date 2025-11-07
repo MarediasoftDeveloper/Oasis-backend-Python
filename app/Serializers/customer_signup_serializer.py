@@ -50,13 +50,13 @@ class Customer_Serializer(ModelSerializer):
 
     def create(self, validated_data):
         password = validated_data.pop('password', None)
-        instance = Customer.objects.get_or_create(**validated_data)
+        instance = Customer(**validated_data)
 
         if password:
             instance.set_password(password)  # Hash if updated
 
         instance.save()
-        customer_profile = Customer_profile.objects.get_or_create(customer=instance)
+        customer_profile, _ = Customer_profile.objects.get_or_create(customer=instance)
         
         return instance
 
