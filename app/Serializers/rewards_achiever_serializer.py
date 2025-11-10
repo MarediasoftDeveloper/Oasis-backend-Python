@@ -1,32 +1,63 @@
 from rest_framework import serializers
 from app.Models.rewards_achiever import Rewards_Achiever
+from app.Models.earned_badges_by_user import Earned_Badges
+from app.models import Customer_profile
 from django.utils import timezone
 
 class RewardsAchieverSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rewards_Achiever
         fields = '__all__'
+        read_only_fields=['customer_taken']
+
 
     def validate(self, data):
         """Ensure a customer can't claim the same reward multiple times."""
-        customer = data.get('customer_taken')
+        customer = self.context.get('request').user
+        customer_profile = Customer_profile.objects.get(customer=customer)
         reward = data.get('reward')
-
+        rewards_achieved = Rewards_Achiever.objects.filter(reward=reward).count()
         # Check only on creation (not update)
         if self.instance is None and Rewards_Achiever.objects.filter(customer_taken=customer, reward=reward).exists():
             raise serializers.ValidationError({
-                "reward": "This reward has already been achieved by this customer."
+                "error": "This reward has already been achieved by you."
             })
 
-        if reward.start_at > timezone.now():
+        if not customer_profile.total_redeemed_points >= reward.required_points_for_reward:
                 raise serializers.ValidationError({
-                    "reward": "The reward has not started yet."
+                    "error": "You do not have enough points to get this reward!"
+                })
+
+        if reward.started_at > timezone.now():
+                raise serializers.ValidationError({
+                    "error": "The reward has not started yet."
                 })
 
         # Check if the raffle has ended (ended_at <= current time)
         if reward.ended_at < timezone.now():
             raise serializers.ValidationError({
-                "reward": "This reward has ended. You can no longer join."
+                "error": "This reward has ended. You can no longer join."
+            })
+        
+        if reward.is_ended:
+            raise serializers.ValidationError({
+                "error": "This reward has ended. You can no longer join."
+            })
+        
+
+        if rewards_achieved > reward.stock:
+            raise serializers.ValidationError({
+                "error": "This reward has been reached its maximum numbers of achievers!"
+            })
+        
+        if not reward.is_approved == 'approved':
+            raise serializers.ValidationError({
+                "error": "This reward has been suspended or not approved yet!"
+            })
+        
+        if not Earned_Badges.objects.filter(badge__category=reward.rewards_for_badge_holder).exists():
+            raise serializers.ValidationError({
+                "error": f"You must have the passed {reward.rewards_for_badge_holder.category} level to get this reward!"
             })
 
         return data

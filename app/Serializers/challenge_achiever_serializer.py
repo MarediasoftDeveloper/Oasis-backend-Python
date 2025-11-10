@@ -1,8 +1,11 @@
 from rest_framework import serializers
+from rest_framework import status
+
 from django.utils import timezone
 from datetime import timedelta
 from app.Models.challenge_achiever import Challenge_Achiever
 from venue.models.challenges import Challenges
+from rest_framework.response import Response
 from app.Serializers.customer_profile_serializer import CustomerProfileSerializer
 from venue.Serializers.challenge_serializer import ChallengesSerializer
 from app.Views.functions.referrals_utils import add_points_and_badge_to_user
@@ -10,12 +13,12 @@ from app.Views.functions.referrals_utils import add_points_and_badge_to_user
 class ChallengeAchieverSerializer(serializers.ModelSerializer):
 
     code = serializers.CharField(write_only=True, required=True)
-    customer_taken = CustomerProfileSerializer(source='user.customer_profile', read_only=True)
+    customer_taken = CustomerProfileSerializer(source='customer_taken.customer_profile', read_only=True)
     challenge = ChallengesSerializer(read_only=True)
     class Meta:
         model = Challenge_Achiever
         fields = '__all__'
-        read_only_fields = ['scanned_at']  # automatically handled
+        read_only_fields = ['scanned_at', 'customer_taken']  # automatically handled
 
     def validate(self, data):
         """Validate cooldown time and daily cap before allowing scan."""
@@ -91,20 +94,23 @@ class ChallengeAchieverSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         user = request.user
         code = validated_data.get('code')
-       
-        # Get challenge object (provided in validated_data)
-        challenge = Challenges.objects.get(qr_code__code=code)
-       #  Check if QR code is valid for this challenge
-        if not code or str(code) != str(challenge.qr_code.code):
-            raise serializers.ValidationError({"error": "Invalid QR Code"})
+        try:
+            challenge = Challenges.objects.get(qr_code__code=code)
+            if not code or str(code) != str(challenge.qr_code.code):
+                raise serializers.ValidationError({"error": "Invalid QR Code"})
+        except Challenges.DoesNotExist:
+            return Response({"error":"Invlid QR code!"})
 
         #  Add points to user
         add_points_and_badge_to_user(user, challenge.badge.badge.points_per_task, challenge.badge.badge)
-
-        # Save and return challenge achiever record
         validated_data['user'] = user
         validated_data['challenge'] = challenge
-        return Challenge_Achiever.objects.create(customer_taken=user, challenge=challenge)
+        achievement = Challenge_Achiever.objects.create(
+            customer_taken=user,
+            challenge=challenge
+        )
+        
+        return achievement
 
     def update(self, instance, validated_data):
         """Update an existing Challenge_Achiever record."""
@@ -116,3 +122,9 @@ class ChallengeAchieverSerializer(serializers.ModelSerializer):
     def delete(self, instance):
         """Allow deletion with possible future custom logic."""
         instance.delete()
+
+
+
+
+
+

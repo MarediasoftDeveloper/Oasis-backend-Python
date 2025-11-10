@@ -12,3 +12,4 @@ class Rewards_Achiever(models.Model):
     
     def __str__(self):
         return f"earned {self.customer_taken.username}-{self.reward.title}"
+    

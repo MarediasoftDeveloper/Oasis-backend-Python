@@ -1,4 +1,5 @@
 from rest_framework.views import APIView
+from rest_framework import serializers
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from app.Serializers.earned_badges_by_user_serializer import Earned_Badges_By_User_Serializer
@@ -9,7 +10,7 @@ from venue.models.badge_category import Badge_Category
 from app.Permissions.send_by_customer_only import Request_By_Customer_Only
 from django.utils import timezone
 from datetime import datetime
-
+from django.db.models.functions import Lower
 
 class User_Badges_Record(APIView):
 
@@ -17,11 +18,16 @@ class User_Badges_Record(APIView):
 
     def get(self, request, id):
         
+       
         earned_badge = Earned_Badges.objects.filter(user=request.user, badge__id=id).first()
+        if not earned_badge:
+         raise serializers.ValidationError({
+                "error": "This badge is not available!"
+            })
         badges_category = Badge_Category.objects.all()
         data=[]
         for category in badges_category:
-            filtered_badges = Earned_Badges.objects.filter(user=request.user, badge__name__iexact=earned_badge.badge.name, badge__category=category)
+            filtered_badges = Earned_Badges.objects.filter(user=request.user, badge__name__iexact=earned_badge.badge.name.lower(), badge__category=category)
             if filtered_badges:
                 earned_count = filtered_badges.count()       
                 f_badge = filtered_badges.first()
@@ -41,8 +47,11 @@ class User_Badges_Record(APIView):
                     })
             else:
                 data.append({
+                    'category':category.category,
+                    'badge': BadgesSerializer(f_badge.badge).data,
                     'message': f"No Earned badges for this {category.category} level"
                 })
+      
 
         return Response(data)
             

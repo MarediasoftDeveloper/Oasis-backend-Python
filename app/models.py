@@ -30,7 +30,7 @@ class Customer(AbstractUser):
 
     USERNAME_FIELD = 'username'        # 🔹 use email for login
     REQUIRED_FIELDS = ['email']            # 🔹 no extra required fields
-
+    
     
 
     def __str__(self):

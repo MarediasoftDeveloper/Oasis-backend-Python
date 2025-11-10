@@ -38,6 +38,7 @@ from .Views.challenge_get_retrieve import ChallengeGetView, ChallengeRetrieveVie
 from .Views.scan_qr_get_badge import Scan_qr_get_badge
 from .Views.daily_stamps import StampsCreateView, StampsListView
 from .Views.retrieve_user_profile import Retrieve_User_Profile
+from .Views.user_redeem_rewards import User_Redeem_Rewards
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -102,6 +103,9 @@ urlpatterns = [
 
     path('raffles-entry/', User_Raffles_Entry.as_view(), name="raffles-entry"),    
     path('raffles-participant/<int:id>', Raffles_Participant_List.as_view(), name="raffles-participant-list"),    
+
+
+    path('redeem-reward/', User_Redeem_Rewards.as_view(), name="redeem-reward"),    
 
 
     # jwt token 

@@ -1,4 +1,4 @@
-from rest_framework import generics
+from rest_framework import generics, status
 from ..Models.challenge_achiever import Challenge_Achiever
 from venue.models.challenges import Challenges
 from rest_framework.permissions import IsAuthenticated
@@ -15,5 +15,20 @@ class Scan_qr_get_badge(generics.CreateAPIView):
     queryset = Challenge_Achiever.objects.all()
     serializer_class = ChallengeAchieverSerializer
 
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        achievement = serializer.save()
+
+        challenge = achievement.challenge
+
+        return Response({
+            "message": f"🎉👏 You earned a new badge {challenge.badge.badge.name} "
+                       f"and {challenge.qr_code.winning_points} won points!"
+        }, status=status.HTTP_201_CREATED)
+
+
     
+
 

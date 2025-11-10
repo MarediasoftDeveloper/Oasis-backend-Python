@@ -12,7 +12,7 @@ STATUS_CHOICES = [
     ('approved', 'Approved'),
     ('suspended', 'Suspended'),
 ]
-
+ 
 
 def challenge_file_upload_path(instance, filename):
     return f'uploads/challenges/{instance.id}/{filename}'

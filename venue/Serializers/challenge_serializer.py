@@ -11,10 +11,11 @@ class ChallengesSerializer(serializers.ModelSerializer):
     winning_points = serializers.IntegerField(min_value=5, required=True, write_only=True)
     qr_code = QRInfoSerializer(read_only=True)
     venue = VenueInfoSerializer(source="venue.venue_profile", read_only=True)
-    badge_info = VenueBadgesSerializer(read_only=True)
-    badge = serializers.PrimaryKeyRelatedField(
+    badge = VenueBadgesSerializer(read_only=True)
+    badge_id = serializers.PrimaryKeyRelatedField(
         queryset=Venue_Badges.objects.all(),
-        required=True
+        required=True,
+        write_only=True
     )
     class Meta:
         model = Challenges

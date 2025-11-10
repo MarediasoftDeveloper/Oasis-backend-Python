@@ -5,6 +5,7 @@ from venue.Serializers.rewards_serializer import RewardsSerializer
 from rest_framework.permissions import IsAuthenticated
 from venue.Permissions.write_by_venue_only import WriteByVenueOnly
 
+
 class Rewards_Crud_for_Venue(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, WriteByVenueOnly]
     serializer_class = RewardsSerializer

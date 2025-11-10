@@ -16,22 +16,22 @@ class RafflesEntrySerializer(serializers.ModelSerializer):
         # Only check on creation
         if self.instance is None and Raffles_Entry.objects.filter(user=user, raffle=raffle).exists():
             raise serializers.ValidationError({
-                "raffle": "This user has already joined this raffle."
+                "error": "This user has already joined this raffle."
             })
         if raffle.is_ended:
             raise serializers.ValidationError({
-                "raffle": "This raffle has reached its deadline for entries please select another raffle!"
+                "error": "This raffle has reached its deadline for entries please select another raffle!"
             })
         
         if raffle.start_at > timezone.now():
                 raise serializers.ValidationError({
-                    "raffle": "The raffle has not started yet."
+                    "error": "The raffle has not started yet."
                 })
 
         # Check if the raffle has ended (ended_at <= current time)
         if raffle.ended_at < timezone.now():
             raise serializers.ValidationError({
-                "raffle": "This raffle has ended. You can no longer join."
+                "error": "This raffle has ended. You can no longer join."
                 })
         return data
         

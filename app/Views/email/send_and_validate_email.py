@@ -21,6 +21,7 @@ def Send_Otp_Mail(id, top_message, subject):
         customer = get_object_or_404(Customer, id=id)
       
         otp = generate_otp()
+        
         OTP_Code.objects.create(customer=customer, otp=make_password(otp))
         
         subject = f"My Oasis - {subject}"
