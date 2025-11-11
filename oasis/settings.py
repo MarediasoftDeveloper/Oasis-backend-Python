@@ -27,7 +27,7 @@ SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-# DEBUG = config("DEBUG", default=False, cast=bool)
+DEBUG = config("DEBUG", default=False, cast=bool)
 DEBUG= False
 
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="").split(",")
@@ -202,6 +202,18 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+STORAGES = {
+    "default": {
+        "BACKEND": "oasis.storage_backends.MediaStorage",
+        # This is your DEFAULT_FILE_STORAGE (Media Files)
+    },
+    "staticfiles": {
+        "BACKEND": "oasis.storage_backends.StaticStorage",
+        # This is your STATICFILES_STORAGE (Static Files for collectstatic)
+    }
+}
+# IMPORTANT: Remove or comment out STATICFILES_STORAGE and DEFAULT_FILE_STORAGE
+# to avoid a conflict.
 
 
 # Internationalization
@@ -251,7 +263,7 @@ AWS_QUERYSTRING_AUTH = False  # ✅ public URLs without ?signature= params
 AWS_S3_OBJECT_PARAMETERS = {
     "CacheControl": "max-age=86400",
 }
-
+AWS_LOCATION = ""
 # ✅ Custom domain (public endpoint)
 AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
 
@@ -260,8 +272,8 @@ STATICFILES_LOCATION = "static"
 MEDIAFILES_LOCATION = "media"
 
 # ✅ Use custom storage classes (best practice)
-STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
-DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+STATICFILES_STORAGE = "oasis.storage_backends.StaticStorage"
+DEFAULT_FILE_STORAGE = "oasis.storage_backends.MediaStorage"
 
 # ✅ URLs
 STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/{STATICFILES_LOCATION}/"
