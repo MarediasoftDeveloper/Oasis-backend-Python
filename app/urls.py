@@ -81,7 +81,7 @@ urlpatterns = [
 
     path('get-menu-list/<int:pk>/', venue_menu_list.Venue_Menu_List.as_view(), name='venue_menu'), #get raffles
     
-    path('feed/', Customer_Feed.as_view(), name='feed'), #get feed
+    path('feed/', Customer_Feed.as_view(), name='feed'), #get feed  
     path('feed/<str:slug>/', Customer_Feed_Retrieve.as_view(), name='feed-retrieve'), #get feed
     
     path('forgot-password/', Forgot_Password.as_view(), name='forgot-password'), #forgot password
@@ -102,7 +102,7 @@ urlpatterns = [
     path('friends/', Get_Friends.as_view(), name="get-friends"),    
 
     path('raffles-entry/', User_Raffles_Entry.as_view(), name="raffles-entry"),    
-    path('raffles-participant/<int:id>', Raffles_Participant_List.as_view(), name="raffles-participant-list"),    
+    path('raffles-participant/<int:id>/', Raffles_Participant_List.as_view(), name="raffles-participant-list"),    
 
 
     path('redeem-reward/', User_Redeem_Rewards.as_view(), name="redeem-reward"),    

@@ -16,6 +16,7 @@ class Raffles_Participant_List(APIView):
             Prefetch('user__customer_profile', queryset=Customer_profile.objects.all(), to_attr='user_profile')
         )
 
+
         # Prepare data
         data = []
         for entry in raffle_entries:

@@ -18,7 +18,7 @@ class Venue_Badge_CRUD(APIView):
         for venue in venues:
             # Get the related Venue_Info and all Venue_Badges for this venue
             venue_info = Venue_Info.objects.filter(venue=venue).first()
-            venue_badges = Venue_Badges.objects.filter(venue=venue)
+            venue_badges = Venue_Badges.objects.filter(venue=venue, is_active=True)
 
             # Serialize each part
             venue_info_data = VenueInfoSerializer(venue_info).data if venue_info else None
@@ -41,7 +41,7 @@ class Venue_Badge_CRUD_Retrieve(APIView):
         venue = Customer.objects.get(id=venue_id, user_role='2')
         data = []
         venue_info = Venue_Info.objects.filter(venue=venue).first()
-        venue_badges = Venue_Badges.objects.filter(venue=venue)
+        venue_badges = Venue_Badges.objects.filter(venue=venue, is_active=True)
 
 
         # Serialize each part
