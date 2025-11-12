@@ -23,7 +23,7 @@ from rest_framework.routers import DefaultRouter
 from .Views.oasis_select_interest_crud import Oasis_Select_Interest_CRUD
 from .Views.oasis_interests_serializer import Oasis_Interest_CRUD
 from .Views.posts_crud import Post_Crud
-from .Views.user_collected_badges import Collected_badges
+# from .Views.user_collected_badges import Collected_badges
 from .Views.customer_feed import Customer_Feed, Customer_Feed_Retrieve
 from .Views.email.resend_otp import Resent_OTP_For_Email_Verify, Resent_OTP_For_Password_Reset
 from .Views.forgot_password import Forgot_Password
@@ -91,7 +91,7 @@ urlpatterns = [
     path('earned-badges/', Earned_Badges_By_User.as_view(), name="earned-badges"),    
     path('earned-badges/<int:pk>/', Earned_Badges_By_User_Retrieve.as_view(), name="earned-badges-retrieve"),    
     
-    path('collected-badges/', Collected_badges.as_view(), name="collected-badges"),    
+    # path('collected-badges/', Collected_badges.as_view(), name="collected-badges"),    
     path('badges-record/<int:id>/', User_Badges_Record.as_view(), name="user_badge_record"),    
 
     path('scan-qr/', Scan_qr_get_badge.as_view(), name="scan_qr"),    

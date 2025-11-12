@@ -1,6 +1,6 @@
 from django.db import models
 from oasis import settings
-from .badges import Badges
+from venue.models.badge_category import Badge_Category
 from .venue_badges import Venue_Badges
 from .qr_info_model import QR_Info
 from django.utils import timezone
@@ -33,7 +33,6 @@ class Challenges(models.Model):
     is_ended = models.BooleanField(default=False)
     daily_open_time = models.TimeField()
     daily_close_time = models.TimeField()
-    
-
+   
     def __str__(self):
         return self.title

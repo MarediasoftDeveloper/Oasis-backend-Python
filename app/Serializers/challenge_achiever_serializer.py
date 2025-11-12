@@ -4,11 +4,14 @@ from rest_framework import status
 from django.utils import timezone
 from datetime import timedelta
 from app.Models.challenge_achiever import Challenge_Achiever
+from app.Models.earned_badges_by_user import Earned_Badges
 from venue.models.challenges import Challenges
+from venue.models.venue_badges import Venue_Badges
 from rest_framework.response import Response
 from app.Serializers.customer_profile_serializer import CustomerProfileSerializer
 from venue.Serializers.challenge_serializer import ChallengesSerializer
 from app.Views.functions.referrals_utils import add_points_and_badge_to_user
+from venue.models.badge_category import Badge_Category
 
 class ChallengeAchieverSerializer(serializers.ModelSerializer):
 
@@ -25,12 +28,33 @@ class ChallengeAchieverSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         code = data.get('code')
         challenge = Challenges.objects.get(qr_code__code=code)
-        print(challenge)
+        venue_badge_obj = Venue_Badges.objects.get(badge__id=challenge.badge.id)
+        
         if not challenge:
             raise serializers.ValidationError("Invalid QR Code")
         
         user = request.user
+        earned_badges = Earned_Badges.objects.filter(badge__name__iexact=venue_badge_obj.badge.name)  
+        badges_category = Badge_Category.objects.all()
+       
+        if not earned_badges or not venue_badge_obj.badge.category.category.lower()=='basic':
+            for category in badges_category:
+                if category.category.lower()==venue_badge_obj.badge.category.category.lower():
+                    break
+                else:
+                    filtered_badges = Earned_Badges.objects.filter(user=user, badge__name__iexact=venue_badge_obj.badge.name, badge__category=category).count()
+                    if category.num_of_task_to_achieve_badge > filtered_badges:
+                        print("num_of_task_to_achieve_badge", category.num_of_task_to_achieve_badge)
+                        print("filtered_badges", filtered_badges)
+                        raise serializers.ValidationError({
+                            "error": f"This badge is only available to {venue_badge_obj.badge.category.category} level users!"
+                        })
+                
+
+            
+
         
+
         now = timezone.now()  # Use timezone aware current time
     
         # --- Check if Challenge hasn't started yet ---
@@ -39,11 +63,25 @@ class ChallengeAchieverSerializer(serializers.ModelSerializer):
                 "error": f"This challenge will start on {challenge.starting_at}."
             })
 
-        # --- Check if Challenge already ended ---
-        if now > challenge.ending_at:
+        if challenge.is_ended:
+            if venue_badge_obj.is_active:
+                venue_badge_obj.is_active = False
+                venue_badge_obj.save()
             raise serializers.ValidationError({
                 "error": f"This challenge ended on {challenge.ending_at}."
             })
+
+        # --- Check if Challenge already ended ---
+        if now > challenge.ending_at:
+            challenge.is_ended = True
+            challenge.save()
+            venue_badge_obj.is_active = False
+            venue_badge_obj.save()
+            raise serializers.ValidationError({
+                "error": f"This challenge ended on {challenge.ending_at}."
+            })
+        
+       
         
         # --- Check Cooldown Period ---
         last_entry = (

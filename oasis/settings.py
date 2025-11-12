@@ -27,23 +27,23 @@ SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-DEBUG = config("DEBUG", default=False, cast=bool)
-DEBUG= False
+# DEBUG = config("DEBUG", default=False, cast=bool)
+DEBUG= True
 
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="").split(",")
 
 # Optional: trust your Railway domain for CSRF
-CSRF_TRUSTED_ORIGINS = [
-    f"https://{host}" for host in ALLOWED_HOSTS if host not in ["localhost", "127.0.0.1"]
-]
-
-
 # CSRF_TRUSTED_ORIGINS = [
-#     "http://localhost:8080",
-#     "http://127.0.0.1:8080",
-#     "http://localhost:5173",
-#     "http://127.0.0.1:5173",
+#     f"https://{host}" for host in ALLOWED_HOSTS if host not in ["localhost", "127.0.0.1"]
 # ]
+
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
 
 
 

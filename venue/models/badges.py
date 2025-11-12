@@ -3,13 +3,30 @@ from oasis import settings
 from .badge_category import Badge_Category
 
 
+from django.db import models
+from django.core.exceptions import ValidationError
+from django.utils.deconstruct import deconstructible
+import os
+
+@deconstructible
+class SVGAndImageValidator:
+    def __call__(self, value):
+        ext = os.path.splitext(value.name)[1].lower()
+        valid_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.svg']
+        if ext not in valid_extensions:
+            raise ValidationError(f'Unsupported file extension: {ext}. Allowed: {", ".join(valid_extensions)}')
+
+class SVGAndImageField(models.FileField):
+    def __init__(self, *args, **kwargs):
+        kwargs['validators'] = [SVGAndImageValidator()]
+        super().__init__(*args, **kwargs)
 
 
 
 class Badges(models.Model):
     name = models.CharField(max_length=150) 
     category = models.ForeignKey(Badge_Category, on_delete=models.CASCADE) 
-    image = models.ImageField(upload_to='media/badges/')
+    image = SVGAndImageField(upload_to='media/badges/')
     description = models.CharField(max_length=500, null=True, blank=True) 
     points_per_task = models.PositiveIntegerField(default=20)
 

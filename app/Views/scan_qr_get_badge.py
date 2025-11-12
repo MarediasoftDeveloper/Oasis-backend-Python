@@ -7,7 +7,7 @@ from app.Permissions.send_by_customer_only import Request_By_Customer_Only
 from app.Views.functions.referrals_utils import add_points_to_user
 from app.models import Customer_profile
 from app.Serializers.challenge_achiever_serializer import ChallengeAchieverSerializer
-
+from rest_framework.serializers import Serializer
 
 class Scan_qr_get_badge(generics.CreateAPIView):
 
@@ -22,12 +22,15 @@ class Scan_qr_get_badge(generics.CreateAPIView):
         achievement = serializer.save()
 
         challenge = achievement.challenge
-
+        
         return Response({
-            "message": f"🎉👏 You earned a new badge {challenge.badge.badge.name} "
-                       f"and {challenge.qr_code.winning_points} won points!"
+            "badge_id": challenge.badge.badge.id,
+            "badge_img": request.build_absolute_uri(challenge.badge.badge.image.url) if challenge.badge.badge.image else None,
+            "message": (
+                f"🎉👏 You earned a new badge {challenge.badge.badge.name} "
+                f"and won {challenge.badge.badge.points_per_task} points!"
+            ),
         }, status=status.HTTP_201_CREATED)
-
 
     
 

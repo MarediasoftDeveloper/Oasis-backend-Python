@@ -27,7 +27,7 @@ class User_Badges_Record(APIView):
         badges_category = Badge_Category.objects.all()
         data=[]
         for category in badges_category:
-            filtered_badges = Earned_Badges.objects.filter(user=request.user, badge__name__iexact=earned_badge.badge.name.lower(), badge__category=category)
+            filtered_badges = Earned_Badges.objects.filter(user=request.user, badge__name__iexact=earned_badge.badge.name, badge__category=category)
             if filtered_badges:
                 earned_count = filtered_badges.count()       
                 f_badge = filtered_badges.first()
