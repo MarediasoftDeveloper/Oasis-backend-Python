@@ -5,11 +5,11 @@ class QRInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = QR_Info
         exclude=['code', 'qr_image']
-    def validate_winning_points(self, value):
-        """Ensure winning points are positive."""
-        if value < 0:
-            raise serializers.ValidationError("Winning points cannot be negative.")
-        return value
+    # def validate_winning_points(self, value):
+    #     """Ensure winning points are positive."""
+    #     if value < 0:
+    #         raise serializers.ValidationError("Winning points cannot be negative.")
+    #     return value
 
     def validate(self, data):
         """Check logical consistency of expiration dates."""
@@ -45,11 +45,11 @@ class VenueQRInfoSerializer(serializers.ModelSerializer):
         fields="__all__"
 
         
-    def validate_winning_points(self, value):
-        """Ensure winning points are positive."""
-        if value < 0:
-            raise serializers.ValidationError("Winning points cannot be negative.")
-        return value
+    # def validate_winning_points(self, value):
+    #     """Ensure winning points are positive."""
+    #     if value < 0:
+    #         raise serializers.ValidationError("Winning points cannot be negative.")
+    #     return value
 
     def validate(self, data):
         """Check logical consistency of expiration dates."""

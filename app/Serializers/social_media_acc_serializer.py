@@ -4,6 +4,7 @@ from app.Models.social_media_accounts import Social_Media_Accounts
 
 
 class SocialMediaAccountsSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = Social_Media_Accounts
         fields = '__all__'
@@ -43,6 +44,8 @@ class SocialMediaAccountsSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({
                 "error": "You can only link up to 3 social media accounts."
             })
+        
+        return data
 
     def create(self, validated_data):
         """Create new social media account entry."""
