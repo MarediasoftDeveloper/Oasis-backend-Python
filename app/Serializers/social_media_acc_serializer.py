@@ -1,13 +1,16 @@
 from rest_framework import serializers
 from app.Models.social_media_accounts import Social_Media_Accounts
 
+
+
 class SocialMediaAccountsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Social_Media_Accounts
         fields = '__all__'
+        read_only_fields = ['user']
 
     def validate_link(self, value):
-        """Ensure the social media link is not empty and is a valid URL format."""
+        """Ensure the social media link is valid."""
         if not value or not value.strip():
             raise serializers.ValidationError("Social media link cannot be empty.")
 
@@ -16,16 +19,30 @@ class SocialMediaAccountsSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, data):
-        """Prevent duplicate social media entries for the same user."""
-        user = data.get('user')
+        """Prevent duplicate social media entries for the same user and limit count."""
+        request = self.context.get('request')
+        user = request.user if request else None
         social_media = data.get('social_media')
 
-        # When creating a new record
-        if self.instance is None and Social_Media_Accounts.objects.filter(user=user, social_media=social_media).exists():
+        if not user:
+            raise serializers.ValidationError("User context missing.")
+
+        # Exclude current instance when updating
+        existing_accounts = Social_Media_Accounts.objects.filter(user=user)
+        if self.instance:
+            existing_accounts = existing_accounts.exclude(id=self.instance.id)
+
+        # Check for duplicates
+        if existing_accounts.filter(social_media__iexact=social_media).exists():
             raise serializers.ValidationError({
-                "social_media": f"This user already has a {social_media} account linked."
+                "error": f"You already have a {social_media} account linked."
             })
-        return data
+
+        # Check for limit (max 3)
+        if existing_accounts.count() >= 3:
+            raise serializers.ValidationError({
+                "error": "You can only link up to 3 social media accounts."
+            })
 
     def create(self, validated_data):
         """Create new social media account entry."""

@@ -12,6 +12,9 @@ class Customer_Serializer(ModelSerializer):
     password = serializers.CharField(write_only=True, required=False, allow_blank=True)
     age = serializers.IntegerField(min_value=0, allow_null=True, required=False, write_only=True)
     gender = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    bio = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    profile_picture = serializers.ImageField(write_only=True, required=False, allow_null=True)
+    is_private = serializers.BooleanField(write_only=True, required=False)
 
     def validate_email(self, value):
         request = self.context.get('request')
@@ -46,7 +49,11 @@ class Customer_Serializer(ModelSerializer):
                 
     class Meta:
         model = Customer
-        fields = ['id','username', 'email', 'password', 'first_name', 'last_name', 'age', 'gender']
+        fields = [
+            'id', 'username', 'email', 'password',
+            'first_name', 'last_name', 'age', 'gender',
+            'bio', 'profile_picture', 'is_private'
+        ]
 
     def create(self, validated_data):
         password = validated_data.pop('password', None)
@@ -56,7 +63,7 @@ class Customer_Serializer(ModelSerializer):
             instance.set_password(password)  # Hash if updated
 
         instance.save()
-        customer_profile, _ = Customer_profile.objects.get_or_create(customer=instance)
+        Customer_profile.objects.get_or_create(customer=instance)
         
         return instance
 
@@ -64,6 +71,9 @@ class Customer_Serializer(ModelSerializer):
         password = validated_data.pop('password', None)
         age = validated_data.pop('age', None)
         gender = validated_data.pop('gender', None)
+        bio = validated_data.pop('bio', None)
+        profile_picture = validated_data.pop('profile_picture', None)
+        is_private = validated_data.pop('is_private', None)
 
             
         for attr, value in validated_data.items():
@@ -73,10 +83,18 @@ class Customer_Serializer(ModelSerializer):
             instance.set_password(password)  # Hash if updated
 
         instance.save()
-        if age or gender:
-            customer_profile = Customer_profile.objects.get(customer=instance)
-            customer_profile.age=age 
-            customer_profile.gender=gender
-            customer_profile.save()
+        profile = Customer_profile.objects.get(customer=instance)
+        if age:
+            profile.age=age 
+        if gender:
+            profile.gender=gender
+        if bio:
+            profile.bio=bio
+        if profile_picture:
+            profile.profile_picture=profile_picture
+        if is_private is not None:
+            profile.is_private=is_private
+            
+        profile.save()
         
         return instance

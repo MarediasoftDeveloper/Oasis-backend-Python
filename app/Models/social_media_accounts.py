@@ -3,11 +3,11 @@ from oasis import settings
 
 
 SOCIAL_MEDIA = (
-    ('1', 'Facebook'),
-    ('2', 'Instagram'),
-    ('3', 'Twitter'),
-    ('4', 'TikTok'),
-    ('5', 'Youtube'),
+    ('facebook', 'Facebook'),
+    ('instagram', 'Instagram'),
+    ('twitter', 'Twitter'),
+    ('tiktok', 'TikTok'),
+    ('youtube', 'Youtube'),
 )
 
 class Social_Media_Accounts(models.Model):

@@ -43,9 +43,7 @@ class ChallengeAchieverSerializer(serializers.ModelSerializer):
                     break
                 else:
                     filtered_badges = Earned_Badges.objects.filter(user=user, badge__name__iexact=venue_badge_obj.badge.name, badge__category=category).count()
-                    if category.num_of_task_to_achieve_badge > filtered_badges:
-                        print("num_of_task_to_achieve_badge", category.num_of_task_to_achieve_badge)
-                        print("filtered_badges", filtered_badges)
+                    if category.num_of_task_to_achieve_badge > filtered_badges: 
                         raise serializers.ValidationError({
                             "error": f"This badge is only available to {venue_badge_obj.badge.category.category} level users!"
                         })

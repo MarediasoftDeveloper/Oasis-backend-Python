@@ -64,12 +64,12 @@ class VenueDashboard(APIView):
             })
             weekly_points_issue.append({
                 "day": current_day.strftime("%A"),  # Day name (Monday, Tuesday...)
-                "points": sum([item.challenge.qr_code.winning_points for item in challenge_by_day])
+                "points": sum([item.challenge.badge.badge.points_per_task for item in challenge_by_day])
             })
 
         points_issued = 0
         for challenge in challenges_qs:
-            points_issued += challenge.challenge.qr_code.winning_points 
+            points_issued += challenge.badge.badge.points_per_task
                 
             
         

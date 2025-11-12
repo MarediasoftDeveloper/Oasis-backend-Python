@@ -23,7 +23,7 @@ from rest_framework.routers import DefaultRouter
 from .Views.oasis_select_interest_crud import Oasis_Select_Interest_CRUD
 from .Views.oasis_interests_serializer import Oasis_Interest_CRUD
 from .Views.posts_crud import Post_Crud
-# from .Views.user_collected_badges import Collected_badges
+from .Views.user_collected_badges import Collected_badges
 from .Views.customer_feed import Customer_Feed, Customer_Feed_Retrieve
 from .Views.email.resend_otp import Resent_OTP_For_Email_Verify, Resent_OTP_For_Password_Reset
 from .Views.forgot_password import Forgot_Password
@@ -39,6 +39,7 @@ from .Views.scan_qr_get_badge import Scan_qr_get_badge
 from .Views.daily_stamps import StampsCreateView, StampsListView
 from .Views.retrieve_user_profile import Retrieve_User_Profile
 from .Views.user_redeem_rewards import User_Redeem_Rewards
+from .Views.social_media_crud import SocialMediaAccountViewSet
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -50,14 +51,16 @@ router.register(r'customer-interests', Oasis_Select_Interest_CRUD, basename='cus
 router.register(r'interests', Oasis_Interest_CRUD, basename='interests')
 router.register(r'posts', Post_Crud, basename='post_crud')
 router.register(r'friendships', Friendship_Crud, basename='friendship_crud')
+router.register(r'social-media-accounts', SocialMediaAccountViewSet, basename='social-media-accounts')
 
 
 urlpatterns = [
     path('register/', create_customer.Create_Customer.as_view(), name="Signup"),
-    path('registration-complete/<int:pk>/', update_customer.Update_Customer.as_view(), name="update"),
+    path('update-profile/<int:pk>/', update_customer.Update_Customer.as_view(), name="update"),
     path('validate-otp/<int:id>/', Validate_mail.as_view(), name="validate-otp"),    
     path('resend-otp/<int:id>/', Resent_OTP_For_Email_Verify.as_view(), name="resent-otp"),    
     path('auth/login/', login.Login.as_view(), name='login'),
+    
     path('auth/logout/', logout.Logout.as_view(), name='logout'),
     
     path('auth/google/', google_signup.Google_Signup.as_view(), name='google-auth'),
@@ -91,7 +94,7 @@ urlpatterns = [
     path('earned-badges/', Earned_Badges_By_User.as_view(), name="earned-badges"),    
     path('earned-badges/<int:pk>/', Earned_Badges_By_User_Retrieve.as_view(), name="earned-badges-retrieve"),    
     
-    # path('collected-badges/', Collected_badges.as_view(), name="collected-badges"),    
+    path('collected-badges/', Collected_badges.as_view(), name="collected-badges"),    
     path('badges-record/<int:id>/', User_Badges_Record.as_view(), name="user_badge_record"),    
 
     path('scan-qr/', Scan_qr_get_badge.as_view(), name="scan_qr"),    
