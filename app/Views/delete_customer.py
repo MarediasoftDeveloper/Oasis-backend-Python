@@ -7,7 +7,7 @@ from app.Permissions.write_by_customer_only import WriteByCustomerOnly
 
 
 
-class Update_Customer(generics.UpdateAPIView):
+class Delete_Customer(generics.DestroyAPIView):
 
     permission_classes=[IsAuthenticated, WriteByCustomerOnly]
     queryset = Customer.objects.all()

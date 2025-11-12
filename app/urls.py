@@ -39,6 +39,7 @@ from .Views.scan_qr_get_badge import Scan_qr_get_badge
 from .Views.daily_stamps import StampsCreateView, StampsListView
 from .Views.retrieve_user_profile import Retrieve_User_Profile
 from .Views.user_redeem_rewards import User_Redeem_Rewards
+from .Views.delete_customer import Delete_Customer
 from .Views.social_media_crud import SocialMediaAccountViewSet
 
 from rest_framework_simplejwt.views import (
@@ -57,10 +58,11 @@ router.register(r'social-media-accounts', SocialMediaAccountViewSet, basename='s
 urlpatterns = [
     path('register/', create_customer.Create_Customer.as_view(), name="Signup"),
     path('update-profile/<int:pk>/', update_customer.Update_Customer.as_view(), name="update"),
+    path('delete-customer/<int:pk>/', Delete_Customer.as_view(), name="delete-customer"),
     path('validate-otp/<int:id>/', Validate_mail.as_view(), name="validate-otp"),    
     path('resend-otp/<int:id>/', Resent_OTP_For_Email_Verify.as_view(), name="resent-otp"),    
     path('auth/login/', login.Login.as_view(), name='login'),
-    
+
     path('auth/logout/', logout.Logout.as_view(), name='logout'),
     
     path('auth/google/', google_signup.Google_Signup.as_view(), name='google-auth'),

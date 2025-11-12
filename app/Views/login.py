@@ -8,6 +8,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny
 from app.Views.use_referral_code import UseReferralCode
 from rest_framework import status
+from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
+
 
 class Login(APIView):   
 
@@ -19,6 +21,8 @@ class Login(APIView):
         email = data.get('email')
         password = data.get('password')
         referral_code = data.get('referral_code')
+        refresh_token = data.get('refresh')
+
         if not email or not password:
             return Response({'error':"Credentials not provided!"})
     
@@ -28,24 +32,26 @@ class Login(APIView):
             if not check_password(password, customer.password):
                 return Response({'error': 'One or more information is incorrect!'}, status=401)
 
-            customer_profile, _ = Customer_profile.objects.get_or_create(customer=customer)
-            serialized = CustomerProfileSerializer(customer_profile)
+          
             
-            customer_data = {**serialized.data}
 
             if referral_code:  # Only include if provided
                 error_or_message = UseReferralCode(customer.id, referral_code)
                 customer_data['referral_code_response'] = error_or_message
                 if not error_or_message['status'] == 200:
                     return Response({"error":error_or_message['error']}, status=status.HTTP_400_BAD_REQUEST)
-                    
-
+                
+            if refresh_token:        
+                token = RefreshToken(refresh_token)
+                token.blacklist()
             refresh = RefreshToken.for_user(customer)
 
+            customer_profile, _ = Customer_profile.objects.get_or_create(customer=customer)
+            serialized = CustomerProfileSerializer(customer_profile)
             
 
             return Response({
-                **customer_data,
+                **serialized.data,
                 'access_token': str(refresh.access_token),
                 'refresh_token': str(refresh),
             }, status=200)

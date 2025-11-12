@@ -9,7 +9,6 @@ from venue.Serializers.venue_info_serializer import VenueInfoSerializer
 
 class ChallengesSerializer(serializers.ModelSerializer):
     venue_badge_status = serializers.BooleanField(required=False, write_only=True)
-    winning_points = serializers.IntegerField(min_value=5, required=True, write_only=True)
     qr_code = QRInfoSerializer(read_only=True)
     venue = VenueInfoSerializer(source="venue.venue_profile", read_only=True)
     badge = VenueBadgesSerializer(read_only=True)
@@ -51,9 +50,8 @@ class ChallengesSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         """Create a new Challenge."""
-        winning_points = validated_data.pop('winning_points')
         ending_at = validated_data.get('ending_at')
-        qr_obj = QR_Info(winning_points=winning_points, expires_at=ending_at)
+        qr_obj = QR_Info(expires_at=ending_at)
         qr_obj.save()
         challenge = Challenges.objects.create(
             qr_code = qr_obj,
@@ -67,14 +65,12 @@ class ChallengesSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         """Update an existing Challenge."""
-        winning_points = validated_data.pop('winning_points')
         badge_status = validated_data.pop('venue_badge_status')
         
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
-        if winning_points:
-            instance.qr_code.winning_points=winning_points
+       
 
         if badge_status:
             instance.badge.is_active = badge_status
@@ -92,7 +88,6 @@ class ChallengesSerializer(serializers.ModelSerializer):
 
 class VenueChallengesSerializer(serializers.ModelSerializer):
     venue_badge_status = serializers.BooleanField(required=False, write_only=True)
-    winning_points = serializers.IntegerField(min_value=5, required=True, write_only=True)
     qr_code = VenueQRInfoSerializer(read_only=True)
     venue = VenueInfoSerializer(source="venue.venue_profile", read_only=True)
     badge = VenueBadgesSerializer(read_only=True)
@@ -140,9 +135,8 @@ class VenueChallengesSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         """Create a new Challenge."""
-        winning_points = validated_data.pop('winning_points')
         ending_at = validated_data.get('ending_at')
-        qr_obj = QR_Info(winning_points=winning_points, expires_at=ending_at)
+        qr_obj = QR_Info(expires_at=ending_at)
         qr_obj.save()
         challenge = Challenges.objects.create(
             qr_code = qr_obj,
@@ -156,15 +150,12 @@ class VenueChallengesSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         """Update an existing Challenge."""
-        winning_points = validated_data.pop('winning_points')
         badge_status = validated_data.pop('venue_badge_status')
         
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
-        if winning_points:
-            instance.qr_code.winning_points=winning_points
-            
+     
         if badge_status:
             instance.badge.is_active = badge_status
             instance.badge.save()

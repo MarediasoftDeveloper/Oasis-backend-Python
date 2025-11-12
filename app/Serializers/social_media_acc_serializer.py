@@ -30,7 +30,7 @@ class SocialMediaAccountsSerializer(serializers.ModelSerializer):
 
         # Exclude current instance when updating
         existing_accounts = Social_Media_Accounts.objects.filter(user=user)
-        if self.instance:
+        if self.instance:   
             existing_accounts = existing_accounts.exclude(id=self.instance.id)
 
         # Check for duplicates

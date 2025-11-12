@@ -1,5 +1,5 @@
 from rest_framework import viewsets, permissions, status
-from app.Permissions.write_by_customer_only import WriteByCustomerOnly
+from app.Permissions.write_by_customer_only_where_obj_user import WriteByCustomerOnlyUser
 from rest_framework.response import Response
 from app.Models.social_media_accounts import Social_Media_Accounts
 from app.Serializers.social_media_acc_serializer import SocialMediaAccountsSerializer
@@ -9,7 +9,7 @@ class SocialMediaAccountViewSet(viewsets.ModelViewSet):
     A ViewSet to manage social media links for the authenticated user.
     """
     serializer_class = SocialMediaAccountsSerializer
-    permission_classes = [permissions.IsAuthenticated, WriteByCustomerOnly]
+    permission_classes = [permissions.IsAuthenticated, WriteByCustomerOnlyUser]
 
     def get_queryset(self):
         # Only return social media accounts belonging to the logged-in user
