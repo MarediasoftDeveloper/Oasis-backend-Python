@@ -34,20 +34,8 @@ class ChallengeAchieverSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Invalid QR Code")
         
         user = request.user
-        earned_badges = Earned_Badges.objects.filter(badge__name__iexact=venue_badge_obj.badge.name)  
-        badges_category = Badge_Category.objects.all()
-       
-        if not earned_badges or not venue_badge_obj.badge.category.category.lower()=='basic':
-            for category in badges_category:
-                if category.category.lower()==venue_badge_obj.badge.category.category.lower():
-                    break
-                else:
-                    filtered_badges = Earned_Badges.objects.filter(user=user, badge__name__iexact=venue_badge_obj.badge.name, badge__category=category).count()
-                    if category.num_of_task_to_achieve_badge > filtered_badges: 
-                        raise serializers.ValidationError({
-                            "error": f"This badge is only available to {venue_badge_obj.badge.category.category} level users!"
-                        })
-                
+        
+     
 
             
 

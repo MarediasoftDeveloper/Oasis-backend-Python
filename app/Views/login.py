@@ -4,7 +4,7 @@ from app.models import Customer, Customer_profile
 from app.Serializers.customer_profile_serializer import CustomerProfileSerializer
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.hashers import check_password
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from rest_framework.permissions import AllowAny
 from app.Views.use_referral_code import UseReferralCode
 from rest_framework import status
@@ -32,36 +32,38 @@ class Login(APIView):
             if not check_password(password, customer.password):
                 return Response({'error': 'One or more information is incorrect!'}, status=401)
 
-          
-            
-
-            if referral_code:  # Only include if provided
+            # Optional referral handling
+            customer_data = {}
+            if referral_code:
                 error_or_message = UseReferralCode(customer.id, referral_code)
                 customer_data['referral_code_response'] = error_or_message
-                if not error_or_message['status'] == 200:
-                    return Response({"error":error_or_message['error']}, status=status.HTTP_400_BAD_REQUEST)
-                
-            if refresh_token:        
-                token = RefreshToken(refresh_token)
-                token.blacklist()
+                if error_or_message.get('status') != 200:
+                    return Response({"error": error_or_message['error']}, status=status.HTTP_400_BAD_REQUEST)
+
+            # ✅ Safely handle refresh token blacklist
+            if refresh_token:
+                try:
+                    old_refresh = RefreshToken(refresh_token)
+                    old_refresh.blacklist()
+                except TokenError:
+                    pass  # Invalid or already blacklisted
+
+            # ✅ Generate new token pair
             refresh = RefreshToken.for_user(customer)
 
+            # ✅ Serialize customer profile
             customer_profile, _ = Customer_profile.objects.get_or_create(customer=customer)
             serialized = CustomerProfileSerializer(customer_profile)
-            
 
             return Response({
                 **serialized.data,
                 'access_token': str(refresh.access_token),
                 'refresh_token': str(refresh),
+                **customer_data
             }, status=200)
 
-        except Customer.DoesNotExist:
+        except Customer.DoesNotExist:   
             return Response({'error': 'One or more information is incorrect!'}, status=401)
-
-        except Exception as e:
-            return Response({'error': str(e)}, status=500)
-
 
 
                         

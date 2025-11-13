@@ -69,7 +69,7 @@ class VenueDashboard(APIView):
 
         points_issued = 0
         for challenge in challenges_qs:
-            points_issued += challenge.badge.badge.points_per_task
+            points_issued += challenge.challenge.badge.badge.points_per_task
                 
             
         

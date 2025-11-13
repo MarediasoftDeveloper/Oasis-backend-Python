@@ -10,6 +10,7 @@ from venue.models.badge_category import Badge_Category
 from app.Permissions.send_by_customer_only import Request_By_Customer_Only
 from django.utils import timezone
 from datetime import datetime
+import math
 from django.db.models.functions import Lower
 
 class User_Badges_Record(APIView):
@@ -26,23 +27,24 @@ class User_Badges_Record(APIView):
             })
         badges_category = Badge_Category.objects.all()
         data=[]
+        tasks_num=[]
         for category in badges_category:
-            filtered_badges = Earned_Badges.objects.filter(user=request.user, badge__name__iexact=earned_badge.badge.name, badge__category=category)
+            filtered_badges = Earned_Badges.objects.filter(user=request.user, badge__name__iexact=earned_badge.badge.name)
+            # print(filtered_badges.count())
             if filtered_badges:
                 earned_count = filtered_badges.count()       
                 f_badge = filtered_badges.first()
+                
                 if category.num_of_task_to_achieve_badge > earned_count:
                     data.append({
                         "category":category.category,
                         **Earned_Badges_By_User_Serializer(f_badge).data,
-                        'earned_badges':earned_count,
                         'remaining_badges_to_pass_this_level': category.num_of_task_to_achieve_badge - earned_count
                     })
                 else:
                     data.append({
                         "category":category.category,
                         **Earned_Badges_By_User_Serializer(f_badge).data,
-                        'earned_badges':earned_count,
                         'message': f"you have passed this {category.category} level"
                     })
             else:
@@ -51,7 +53,8 @@ class User_Badges_Record(APIView):
                     'badge': BadgesSerializer(f_badge.badge).data,
                     'message': f"No Earned badges for this {category.category} level"
                 })
-      
+                        
+        data.append({'earned_badges':earned_count})
 
         return Response(data)
             
