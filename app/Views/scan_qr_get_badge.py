@@ -22,7 +22,6 @@ class Scan_qr_get_badge(generics.CreateAPIView):
         achievement = serializer.save()
 
         challenge = achievement.challenge
-        
         return Response({
             "badge_id": challenge.badge.badge.id,
             "badge_img": request.build_absolute_uri(challenge.badge.badge.image.url) if challenge.badge.badge.image else None,

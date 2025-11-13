@@ -5,8 +5,8 @@ from rest_framework.permissions import IsAuthenticated
 from app.Serializers.earned_badges_by_user_serializer import Earned_Badges_By_User_Serializer
 from rest_framework import status
 from ..Models.earned_badges_by_user import Earned_Badges
-from venue.Serializers.badges_serializer import BadgesSerializer
-from venue.models.badge_category import Badge_Category
+from app.Serializers.badge_level_serializer import BadgesLevelSerializer
+from venue.models.badges import BadgesLevel, Badges
 from app.Permissions.send_by_customer_only import Request_By_Customer_Only
 from django.utils import timezone
 from datetime import datetime
@@ -20,42 +20,39 @@ class User_Badges_Record(APIView):
     def get(self, request, id):
         
        
-        earned_badge = Earned_Badges.objects.filter(user=request.user, badge__id=id).first()
+        earned_badge = Earned_Badges.objects.filter(user=request.user, badge__id=id).first()    
+        print(earned_badge)
         if not earned_badge:
          raise serializers.ValidationError({
                 "error": "This badge is not available!"
             })
-        badges_category = Badge_Category.objects.all()
+        badges_category = BadgesLevel.objects.filter(badge__id=id)
         data=[]
-        tasks_num=[]
+        earned_count=0
         for category in badges_category:
-            filtered_badges = Earned_Badges.objects.filter(user=request.user, badge__name__iexact=earned_badge.badge.name)
-            # print(filtered_badges.count())
+            filtered_badges = Earned_Badges.objects.filter(user=request.user, badge=earned_badge.badge)
             if filtered_badges:
-                earned_count = filtered_badges.count()       
+                earned_count = filtered_badges.count() | 0       
                 f_badge = filtered_badges.first()
                 
-                if category.num_of_task_to_achieve_badge > earned_count:
+                if category.category.num_of_task_to_achieve_badge > earned_count:
                     data.append({
-                        "category":category.category,
-                        **Earned_Badges_By_User_Serializer(f_badge).data,
-                        'remaining_badges_to_pass_this_level': category.num_of_task_to_achieve_badge - earned_count
+                        **BadgesLevelSerializer(category).data,
+                        'remaining_badges_to_pass_this_level': category.category.num_of_task_to_achieve_badge - earned_count
                     })
                 else:
                     data.append({
-                        "category":category.category,
-                        **Earned_Badges_By_User_Serializer(f_badge).data,
-                        'message': f"you have passed this {category.category} level"
+                        **BadgesLevelSerializer(category).data,
+                        'message': f"you have passed this {category.category.category} level"
                     })
             else:
                 data.append({
-                    'category':category.category,
-                    'badge': BadgesSerializer(f_badge.badge).data,
-                    'message': f"No Earned badges for this {category.category} level"
+                    **BadgesLevelSerializer(category).data,
+                    'message': f"No Earned badges for this {category.category.category} level"
                 })
                         
         data.append({'earned_badges':earned_count})
-
+      
         return Response(data)
             
 

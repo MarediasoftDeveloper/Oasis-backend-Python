@@ -8,3 +8,5 @@ class Badges_Crud(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, WriteByAdminOnly]
     queryset = Badges.objects.all()
     serializer_class=BadgesSerializer
+
+    
