@@ -15,7 +15,7 @@ from django.utils import timezone
 import datetime
 from datetime import timedelta
 from venue.Permissions.venue_only_permission import Request_By_Venue_Only
-
+from django.db.models import Sum
 
 class VenueDashboard(APIView):
     permission_classes = [IsAuthenticated, Request_By_Venue_Only]
@@ -71,20 +71,14 @@ class VenueDashboard(APIView):
                 # "points": sum([item.challenge.badge.badge.points_per_task for item in challenge_by_day])
             })
 
-        points_issued =[]
-        for challenge in challenges_qs:
-           print(challenge.challenge.badge.badge)
-           points_issued=BadgesLevel.objects.filter(badge=challenge.challenge.badge.badge).values_list('points_per_task', flat=True)
-           print(sum(points_issued))
-
-            # points_issued += challenge.challenge.badge.badge.points_per_task
-                
+        points_issued = challenges_qs.aggregate(points=Sum('points_issued'))
+        print(points_issued)
             
         
 
         return Response({
             **venue_serialized.data,
-            "points_issued":sum(points_issued),
+            "points_issued":points_issued,
             "weekly_scans":weekly_scans,
             "weekly_points_issued":weekly_points_issue,
             "stats": {

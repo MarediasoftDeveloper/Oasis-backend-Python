@@ -13,6 +13,8 @@ class Oasis_Home(APIView):
         user = request.user
         user_info, _ = Customer_profile.objects.get_or_create(customer=user)
         info_serializer = CustomerProfileSerializer(user_info, context={'request': request})
-   
+        password_created = user.is_verified and user.has_usable_password()
 
-        return Response({**info_serializer.data})
+
+
+        return Response({**info_serializer.data, 'is_verified':password_created})

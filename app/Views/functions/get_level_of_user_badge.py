@@ -9,7 +9,19 @@ from app.models import Customer_profile
 
 
 
+def get_level_points_per_task(user, badge):
 
+    earned_badges = Earned_Badges.objects.filter(user=user, badge=badge).count()
+    badge_category = BadgesLevel.objects.filter(badge=badge)
+    points=0
+    for category in badge_category:
+            if category.category.num_of_task_to_achieve_badge < earned_badges:
+                points= category.points_per_task
+                print(points)
+                break
+            else:
+                points= category.points_per_task
+                print(points)
 
 
 
@@ -39,4 +51,4 @@ def get_level_points_per_task_and_save_it(user, badge):
     customer_profile.total_redeemed_points += points
     customer_profile.save()
 
-    return True
+    return points
