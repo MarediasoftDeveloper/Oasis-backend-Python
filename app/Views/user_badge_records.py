@@ -13,6 +13,7 @@ from datetime import datetime
 import math
 from django.db.models.functions import Lower
 
+
 class User_Badges_Record(APIView):
 
     permission_classes=[IsAuthenticated]
@@ -35,15 +36,17 @@ class User_Badges_Record(APIView):
                 earned_count = filtered_badges.count() | 0       
                 f_badge = filtered_badges.first()
                 
-                if category.category.num_of_task_to_achieve_badge > earned_count:
+                if category.category.num_of_task_to_achieve_badge < earned_count:
                     data.append({
                         **BadgesLevelSerializer(category).data,
-                        'remaining_badges_to_pass_this_level': category.category.num_of_task_to_achieve_badge - earned_count
+                        'status':True,
+                        'message': f"you have passed this {category.category.category} level"
                     })
                 else:
                     data.append({
                         **BadgesLevelSerializer(category).data,
-                        'message': f"you have passed this {category.category.category} level"
+                        'status':False,
+                        'remaining_badges_to_pass_this_level': category.category.num_of_task_to_achieve_badge - earned_count
                     })
             else:
                 data.append({

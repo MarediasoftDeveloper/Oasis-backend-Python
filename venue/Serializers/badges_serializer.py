@@ -18,12 +18,7 @@ class BadgesSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Badge name cannot be empty.")
         return value
 
-    def validate_points_per_task(self, value):
-        """Ensure points per task are non-negative."""
-        if value < 0:
-            raise serializers.ValidationError("Points per task cannot be negative.")
-        return value
-
+   
 
     def create(self, validated_data):
         """Create a new badge and all its levels safely."""

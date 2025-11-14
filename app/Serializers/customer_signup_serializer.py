@@ -25,14 +25,21 @@ class Customer_Serializer(ModelSerializer):
             customer = Customer.objects.filter(email__iexact=value).first()
 
             if customer:
+                password_created = customer.password is not None
                 if not customer.is_verified:
                     Send_Otp_Mail(customer.id)
                     raise serializers.ValidationError({
-                        "code": "unverified_email",
+                        "verified": False,
+                        "password_created": False,
                         "customer_id": customer.id,
                         "message": "Email exists but is not verified. We have sent an OTP on your email, Please verify your email."
                     })
-                raise serializers.ValidationError("Email already exists.")
+
+                raise serializers.ValidationError({
+                    "verified": False,
+                    "password_created": password_created,
+                    "error": "Email already exists."
+                })
 
             return value  # valid new email
 

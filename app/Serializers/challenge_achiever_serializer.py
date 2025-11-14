@@ -10,7 +10,7 @@ from venue.models.venue_badges import Venue_Badges
 from rest_framework.response import Response
 from app.Serializers.customer_profile_serializer import CustomerProfileSerializer
 from venue.Serializers.challenge_serializer import ChallengesSerializer
-from app.Views.functions.referrals_utils import add_points_and_badge_to_user
+from app.Views.functions.get_level_of_user_badge import get_level_points_per_task_and_save_it
 from venue.models.badge_category import Badge_Category
 
 class ChallengeAchieverSerializer(serializers.ModelSerializer):
@@ -117,22 +117,18 @@ class ChallengeAchieverSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         request = self.context.get('request')
         user = request.user
-        code = validated_data.get('code')
+        code = validated_data.pop('code')
         try:
-            challenge = Challenges.objects.get(qr_code__code=code)
-            if not code or str(code) != str(challenge.qr_code.code):
-                raise serializers.ValidationError({"error": "Invalid QR Code"})
+            challenge = Challenges.objects.get(qr_code__code__iexact=code)
         except Challenges.DoesNotExist:
-            return Response({"error":"Invlid QR code!"})
+            raise serializers.ValidationError({"error": "Invalid QR code!"})
+
 
         #  Add points to user
-        add_points_and_badge_to_user(user, challenge.badge.badge.points_per_task, challenge.badge.badge)
-        validated_data['user'] = user
+        get_level_points_per_task_and_save_it(user, challenge.badge.badge)
+        validated_data['customer_taken'] = user
         validated_data['challenge'] = challenge
-        achievement = Challenge_Achiever.objects.create(
-            customer_taken=user,
-            challenge=challenge
-        )
+        achievement = Challenge_Achiever.objects.create(**validated_data)
         
         return achievement
 

@@ -34,6 +34,13 @@ class BadgesLevelSerializer(serializers.ModelSerializer):
         if value.size > max_size_mb * 1024 * 1024:
             raise serializers.ValidationError(f"Image size cannot exceed {max_size_mb}MB.")
         return value
+    
+    def validate_points_per_task(self, value):
+        """Ensure points per task are non-negative."""
+        if value < 0:
+            raise serializers.ValidationError("Points per task cannot be negative.")
+        return value
+
 
     # ---------------------------------------
     # Object-level validation (cross-field)

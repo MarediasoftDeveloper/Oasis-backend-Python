@@ -8,6 +8,11 @@ from app.Views.functions.referrals_utils import add_points_to_user
 from app.models import Customer_profile
 from app.Serializers.challenge_achiever_serializer import ChallengeAchieverSerializer
 from rest_framework.serializers import Serializer
+from venue.models.badges import BadgesLevel
+from app.Models.earned_points import Earned_Points
+from app.Models.earned_badges_by_user import Earned_Badges
+from app.models import Customer_profile
+
 
 class Scan_qr_get_badge(generics.CreateAPIView):
 
@@ -22,12 +27,29 @@ class Scan_qr_get_badge(generics.CreateAPIView):
         achievement = serializer.save()
 
         challenge = achievement.challenge
+        earned_badges = Earned_Badges.objects.filter(user=self.request.user, badge=challenge.badge.badge).count()
+        badge_category = BadgesLevel.objects.filter(badge=challenge.badge.badge)
+        print(earned_badges, badge_category)
+        
+        badge_img = None
+        points_per_task=0
+
+        for category in badge_category:
+                if category.category.num_of_task_to_achieve_badge < earned_badges:
+                    points_per_task= category.points_per_task
+                    badge_img= category.image
+                else:
+                    points_per_task= category.points_per_task
+                    badge_img= category.image
+                    break
+
+   
         return Response({
             "badge_id": challenge.badge.badge.id,
-            "badge_img": request.build_absolute_uri(challenge.badge.badge.image.url) if challenge.badge.badge.image else None,
+            "badge_img": request.build_absolute_uri(badge_img.url) if badge_img else None,
             "message": (
                 f"🎉👏 You earned a new badge {challenge.badge.badge.name} "
-                f"and won {challenge.badge.badge.points_per_task} points!"
+                f"and won {points_per_task} points!"
             ),
         }, status=status.HTTP_201_CREATED)
 

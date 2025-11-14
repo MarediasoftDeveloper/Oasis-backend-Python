@@ -30,7 +30,6 @@ class SVGAndImageField(models.FileField):
 class Badges(models.Model):
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=500, null=True, blank=True) 
-    points_per_task = models.PositiveIntegerField(default=20)
     
 
 
@@ -46,6 +45,8 @@ class BadgesLevel(models.Model):
     badge = models.ForeignKey(Badges, on_delete=models.CASCADE)
     image = SVGAndImageField(upload_to='media/badges/')
     category = models.ForeignKey(Badge_Category, on_delete=models.CASCADE)  
+    points_per_task = models.PositiveIntegerField(default=20)
+
 
     def __str__(self):
         return self.badge.name + " " + self.category.category
