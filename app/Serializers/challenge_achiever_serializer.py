@@ -28,7 +28,7 @@ class ChallengeAchieverSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         code = data.get('code')
         challenge = Challenges.objects.get(qr_code__code=code)
-        venue_badge_obj = Venue_Badges.objects.get(badge__id=challenge.badge.badge.id)
+        venue_badge_obj = challenge.badge
         
         if not challenge:
             raise serializers.ValidationError("Invalid QR Code")
