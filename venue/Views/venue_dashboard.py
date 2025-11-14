@@ -6,6 +6,7 @@ from app.Serializers.challenge_achiever_serializer import ChallengeAchieverSeria
 from app.Serializers.rewards_achiever_serializer import RewardsAchieverSerializer
 from app.Serializers.raffles_entry_serializer import RafflesEntrySerializer
 from venue.models.venue_info import Venue_Info
+from venue.models.badges import BadgesLevel
 from app.Models.challenge_achiever import Challenge_Achiever
 from app.Models.rewards_achiever import Rewards_Achiever
 from app.Models.raffles_entry import Raffles_Entry
@@ -14,7 +15,6 @@ from django.utils import timezone
 import datetime
 from datetime import timedelta
 from venue.Permissions.venue_only_permission import Request_By_Venue_Only
-
 
 
 class VenueDashboard(APIView):
@@ -52,8 +52,11 @@ class VenueDashboard(APIView):
         else:
             percentage_change = None  # Or assign 100% or 0%
 
+
+        
         weekly_scans = []
         weekly_points_issue = []
+        
         for i in range(7):
             current_day = start_of_week + timedelta(days=i)
             challenge_by_day = challenges_qs.filter(scanned_at__date=current_day)
@@ -62,21 +65,26 @@ class VenueDashboard(APIView):
                 "day": current_day.strftime("%A"),  # Day name (Monday, Tuesday...)
                 "scans": count
             })
+
             weekly_points_issue.append({
                 "day": current_day.strftime("%A"),  # Day name (Monday, Tuesday...)
-                "points": sum([item.challenge.badge.badge.points_per_task for item in challenge_by_day])
+                # "points": sum([item.challenge.badge.badge.points_per_task for item in challenge_by_day])
             })
 
-        points_issued = 0
+        points_issued =[]
         for challenge in challenges_qs:
-            points_issued += challenge.challenge.badge.badge.points_per_task
+           print(challenge.challenge.badge.badge)
+           points_issued=BadgesLevel.objects.filter(badge=challenge.challenge.badge.badge).values_list('points_per_task', flat=True)
+           print(points_issued)
+
+            # points_issued += challenge.challenge.badge.badge.points_per_task
                 
             
         
 
         return Response({
             **venue_serialized.data,
-            "points_issued":points_issued,
+            "points_issued":sum(points_issued),
             "weekly_scans":weekly_scans,
             "weekly_points_issued":weekly_points_issue,
             "stats": {

@@ -22,7 +22,7 @@ class Customer_Serializer(ModelSerializer):
 
 
         if request and request.method == 'POST':
-            customer = Customer.objects.filter(email__iexact=value).first()
+            customer = Customer.objects.filter(email__iexact=value).first() 
 
             if customer:
                 password_created = customer.password is not None
