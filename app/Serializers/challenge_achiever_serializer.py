@@ -125,7 +125,9 @@ class ChallengeAchieverSerializer(serializers.ModelSerializer):
 
 
         #  Add points to user
-        points = get_level_points_per_task_and_save_it(user, challenge.badge.badge)
+        actual_badge = challenge.badge.badge
+        print(actual_badge)
+        points = get_level_points_per_task_and_save_it(user, actual_badge)
         validated_data['customer_taken'] = user
         validated_data['challenge'] = challenge
         validated_data['points_issued'] = points

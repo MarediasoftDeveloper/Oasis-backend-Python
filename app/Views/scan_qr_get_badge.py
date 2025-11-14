@@ -25,10 +25,12 @@ class Scan_qr_get_badge(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         achievement = serializer.save()
-
+        
         challenge = achievement.challenge
-        earned_badges = Earned_Badges.objects.filter(user=self.request.user, badge=challenge.badge.badge).count()
-        badge_category = BadgesLevel.objects.filter(badge=challenge.badge.badge)
+        actual_badge = challenge.badge.badge
+        print(actual_badge)
+        earned_badges = Earned_Badges.objects.filter(user=self.request.user, badge=actual_badge).count()
+        badge_category = BadgesLevel.objects.filter(badge=actual_badge)
         print(earned_badges, badge_category)
         
         badge_img = None
@@ -45,10 +47,10 @@ class Scan_qr_get_badge(generics.CreateAPIView):
 
    
         return Response({
-            "badge_id": challenge.badge.badge.id,
+            "badge_id": actual_badge.id,
             "badge_img": request.build_absolute_uri(badge_img.url) if badge_img else None,
             "message": (
-                f"🎉👏 You earned a new badge {challenge.badge.badge.name} "
+                f"🎉👏 You earned a new badge {actual_badge.name} "
                 f"and won {points_per_task} points!"
             ),
         }, status=status.HTTP_201_CREATED)

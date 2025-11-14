@@ -13,8 +13,8 @@ class CustomerProfileSerializer(serializers.ModelSerializer):
         required=False,
         allow_null=True
     )
-    
-    customer = Customer_Serializer()
+
+    customer = Customer_Serializer(read_only=True)
     class Meta:
         model = Customer_profile
         fields = [

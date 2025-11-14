@@ -29,8 +29,14 @@ class Login(APIView):
         try:
             customer = Customer.objects.get(email=email, user_role='1')
 
+            if not password:
+                return Response({'error': 'Password is required!'}, status=401)
+            
+            
             if not check_password(password, customer.password):
                 return Response({'error': 'One or more information is incorrect!'}, status=401)
+
+
 
             # Optional referral handling
             customer_data = {}
