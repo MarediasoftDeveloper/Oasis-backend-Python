@@ -16,7 +16,7 @@ class Create_Customer(APIView):
     
     def post(self, request):
         email = request.data.get('email')
-
+        
         # Check if customer already exists (case-insensitive)
         customer = Customer.objects.filter(email__iexact=email).first()
         
@@ -56,7 +56,10 @@ class Create_Customer(APIView):
                 return Response({
                     "verified": False,
                     "password_created": password_created,
-                    "customer_id": customer.id,
+                    "customer": {
+                        "id": customer.id,
+                        "email": customer.email
+                    },
                     "message": "Email exists but is not verified. OTP sent.",
                     "access_token": str(refresh.access_token),
                     "refresh_token": str(refresh)
@@ -66,7 +69,10 @@ class Create_Customer(APIView):
                 return Response({
                         "verified": customer.is_verified,
                         "password_created": password_created,
-                        "customer_id": customer.id,
+                        "customer": {
+                            "id": customer.id,
+                            "email": customer.email
+                        },
                         "message": "Email exists and also verified, Please create your password to logged In.",
                         "access_token": str(refresh.access_token),
                         "refresh_token": str(refresh)
@@ -75,7 +81,10 @@ class Create_Customer(APIView):
             return Response({
                 "verified": customer.is_verified,
                 "password_created": password_created,
-                "customer_id": customer.id,
+                "customer": {
+                    "id": customer.id,
+                    "email": customer.email
+                },
                 "message": "Email exists and also verified, Please proceed to login.",
             })
         
