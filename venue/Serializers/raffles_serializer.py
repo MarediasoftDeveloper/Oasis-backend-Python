@@ -21,12 +21,12 @@ class RafflesSerializer(serializers.ModelSerializer):
         # Ensure numeric logic makes sense
         if rewarded_points is not None and rewarded_points < 0:
             raise serializers.ValidationError({
-                'rewarded_points': 'Rewarded points cannot be negative.'
+                'error': 'Rewarded points cannot be negative.'
             })
 
         if points_to_join < 0:
             raise serializers.ValidationError({
-                'points_to_join': 'Points to join cannot be negative.'
+                'error': 'Points to join cannot be negative.'
             })
 
         return data

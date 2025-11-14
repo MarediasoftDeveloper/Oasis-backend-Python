@@ -5,7 +5,7 @@ from venue.Serializers.qr_info_serializer import QRInfoSerializer, VenueQRInfoSe
 from venue.Serializers.venue_badges_serializer import VenueBadgesSerializer
 from venue.models.venue_badges import Venue_Badges
 from venue.Serializers.venue_info_serializer import VenueInfoSerializer
-
+from django.db.models import Count
 
 class ChallengesSerializer(serializers.ModelSerializer):
     venue_badge_status = serializers.BooleanField(required=False, write_only=True)
@@ -21,15 +21,37 @@ class ChallengesSerializer(serializers.ModelSerializer):
         model = Challenges
         fields = '__all__'
         read_only_fields=['venue', 'qr_code', 'badge_info']
-    # Custom validation to check if the starting date is before the ending date
+    
+    
     def validate(self, data):
-        """Ensure that the ending date is after the starting date."""
+        """Ensure ending date is after starting date and badge is valid."""
+
         starting_date = data.get('starting_date')
         ending_date = data.get('ending_date')
-        
-        if ending_date and starting_date and ending_date < starting_date:
-            raise serializers.ValidationError("Ending date cannot be before the starting date.")
-        
+        badge_id = data.get('badge_id')
+
+        # Validate date logic
+        if starting_date and ending_date and ending_date < starting_date:
+            raise serializers.ValidationError(
+                {"error": "Ending date cannot be before the starting date."}
+            )
+
+        # Validate badge_id existence
+        if not badge_id:
+            raise serializers.ValidationError({"error": "Badge ID is required."})
+
+        # Validate active challenge for this badge already exists
+        venue = self.context.get('request').user
+
+        if Challenges.objects.filter(
+            venue=venue,
+            badge__id=badge_id,
+            is_ended=False
+        ).exists():
+            raise serializers.ValidationError(
+                {"error": "You already have an active challenge for this badge!"}
+            )
+
         return data
 
     def validate_daily_times(self, value, field_name):

@@ -16,7 +16,7 @@ class RafflesEntrySerializer(serializers.ModelSerializer):
         # Only check on creation
         if self.instance is None and Raffles_Entry.objects.filter(user=user, raffle=raffle).exists():
             raise serializers.ValidationError({
-                "error": "This user has already joined this raffle."
+                "error": "You have already joined this raffle."
             })
         if raffle.is_ended:
             raise serializers.ValidationError({

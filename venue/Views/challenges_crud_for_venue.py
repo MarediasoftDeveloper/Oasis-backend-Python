@@ -28,16 +28,17 @@ class Challenges_Crud_for_Venue(viewsets.ModelViewSet):
 
         # All achievers for this venue’s challenges
         challenges_achieved = Challenge_Achiever.objects.filter(challenge__venue=self.request.user)
-        print(challenges_achieved)
+       
         # Sum of all winning points issued across achievers
-        total_points_issued = sum([item.challenge.badge.badge.points_per_task for item in challenges_achieved])
-        print(total_points_issued)  
+        total_points_issued = sum([item.points_issued for item in challenges_achieved])
+      
         # Build custom response
         data = {
             "challenges": serializer.data,
             "summary": {
                 "active_challenges": challenges_active,
                 "total_challenges": queryset.count(),
+                "total_scans": challenges_achieved.count(),
                 "total_points_issued": total_points_issued
             }
         }

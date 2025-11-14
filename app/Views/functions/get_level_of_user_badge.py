@@ -58,10 +58,11 @@ def get_level_points_per_task_and_save_it(user, badge):
         for level in badge_levels:
             required_tasks = level.category.num_of_task_to_achieve_badge or 0
             level_points = level.points_per_task or 0
-
-            if earned_badges_count >= required_tasks:
+            earned_badges_count = earned_badges_count+1
+            if required_tasks < earned_badges_count:
                 points = level_points
             else:
+                points = level_points
                 # Stop once we hit a level not yet reached
                 break
 
@@ -76,7 +77,7 @@ def get_level_points_per_task_and_save_it(user, badge):
 
         # Update profile safely
         profile, _ = Customer_profile.objects.select_for_update().get_or_create(customer=user)
-
+        print(points)
         current_points = profile.total_redeemed_points or 0
         profile.total_redeemed_points = current_points + points
 

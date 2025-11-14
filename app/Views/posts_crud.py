@@ -2,6 +2,7 @@ from rest_framework import viewsets
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from app.Permissions.write_by_customer_and_venue_only import WriteByCustomerAndVenueOnly
+from app.Permissions.send_by_customer_only import Request_By_Customer_Only
 from app.Models.posts import Post 
 from app.Serializers.post_serializer import PostSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -16,7 +17,3 @@ class Post_Crud(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
-
-
-
-

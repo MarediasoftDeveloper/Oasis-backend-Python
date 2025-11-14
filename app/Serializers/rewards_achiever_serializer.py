@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from app.Models.rewards_achiever import Rewards_Achiever
 from app.Models.earned_badges_by_user import Earned_Badges
+from venue.models.badges import BadgesLevel
 from app.models import Customer_profile
 from django.utils import timezone
 
@@ -55,10 +56,7 @@ class RewardsAchieverSerializer(serializers.ModelSerializer):
                 "error": "This reward has been suspended or not approved yet!"
             })
         
-        if not Earned_Badges.objects.filter(badge__category=reward.rewards_for_badge_holder).exists():
-            raise serializers.ValidationError({
-                "error": f"You must have the passed {reward.rewards_for_badge_holder.category} level to get this reward!"
-            })
+        
 
         return data
 

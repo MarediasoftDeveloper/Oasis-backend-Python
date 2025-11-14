@@ -31,6 +31,7 @@ class Scan_qr_get_badge(generics.CreateAPIView):
      
         earned_badges = Earned_Badges.objects.filter(user=self.request.user, badge=actual_badge).count()
         badge_category = BadgesLevel.objects.filter(badge=actual_badge)
+
        
         badge_img = None
         points_per_task=0

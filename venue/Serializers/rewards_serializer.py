@@ -12,7 +12,7 @@ class RewardsSerializer(serializers.ModelSerializer):
     def validate_title(self, value):
         """Ensure title is not empty."""
         if not value or not value.strip():
-            raise serializers.ValidationError("Title cannot be empty.")
+            raise serializers.ValidationError({"error":"Title cannot be empty."})
         return value
 
     def validate(self, data):
@@ -23,7 +23,7 @@ class RewardsSerializer(serializers.ModelSerializer):
         # Check date order if both provided
         if start and end and end < start:
             raise serializers.ValidationError({
-                'ended_at': 'End date cannot be earlier than start date.'
+                'error': 'End date cannot be earlier than start date.'
             })
 
         return data
