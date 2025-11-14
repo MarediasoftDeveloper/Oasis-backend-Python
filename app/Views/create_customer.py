@@ -25,6 +25,7 @@ class Create_Customer(APIView):
         else:
             customer = Customer.objects.create(email=email)
             created = True
+        Customer_profile.objects.get_or_create(customer=customer)
 
         # Check password
         password_created = bool(customer.password and customer.has_usable_password())

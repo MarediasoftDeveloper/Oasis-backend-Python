@@ -72,8 +72,6 @@ class VenueDashboard(APIView):
             })
 
         points_issued =[]
-        badgesLevel = BadgesLevel.objects.filter(badge__in=challenges_qs)
-        print(badgesLevel)
         for challenge in challenges_qs:
            print(challenge.challenge.badge.badge)
            points_issued=BadgesLevel.objects.filter(badge=challenge.challenge.badge.badge).values_list('points_per_task', flat=True)

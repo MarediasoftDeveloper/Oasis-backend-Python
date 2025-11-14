@@ -34,7 +34,7 @@ class Login(APIView):
 
             # Optional referral handling
             customer_data = {}
-            if referral_code:
+            if referral_code:   
                 error_or_message = UseReferralCode(customer.id, referral_code)
                 customer_data['referral_code_response'] = error_or_message
                 if error_or_message.get('status') != 200:
