@@ -56,6 +56,7 @@ class RewardsAchieverSerializer(serializers.ModelSerializer):
                 "error": "This reward has been suspended or not approved yet!"
             })
         
+
         
 
         return data

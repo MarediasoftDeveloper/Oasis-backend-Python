@@ -1,8 +1,11 @@
 from rest_framework import serializers
 from venue.models.rewards import Rewards
+from venue.Serializers.badges_serializer import BadgesSerializer
 from venue.Serializers.venue_info_serializer import VenueInfoSerializer
+ 
 
 class RewardsSerializer(serializers.ModelSerializer):
+    rewards_for_badge_holder = BadgesSerializer(many=True, read_only=True)
     class Meta:
         model = Rewards
         fields = '__all__'
