@@ -32,7 +32,10 @@ class Login(APIView):
             if not password:
                 return Response({'error': 'Password is required!'}, status=401)
             
-            
+            if not bool(customer.password) or not customer.has_usable_password():
+                return Response({'error': 'One or more information is incorrect!'}, status=401)
+
+
             if not check_password(password, customer.password):
                 return Response({'error': 'One or more information is incorrect!'}, status=401)
 
