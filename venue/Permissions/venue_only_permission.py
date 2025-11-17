@@ -14,3 +14,16 @@ class Request_By_Venue_Only(BasePermission):
             return False
         return True
 
+
+
+
+class Request_By_Current_Venue_Only(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        user = request.user
+
+        # Must be venue user
+        if user.user_role != "2":
+            return False
+
+        # Object must belong to this venue
+        return hasattr(obj, "venue") and obj.venue == user

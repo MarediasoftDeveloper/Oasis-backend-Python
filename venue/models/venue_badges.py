@@ -13,4 +13,4 @@ class Venue_Badges(models.Model):
     is_active = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.venue.username + "-" + self.badge.name
+        return self.venue.username + f"-{self.id}-" + self.badge.name

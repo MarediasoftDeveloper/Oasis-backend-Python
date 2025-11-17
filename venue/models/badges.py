@@ -34,7 +34,7 @@ class Badges(models.Model):
 
 
     def __str__(self):
-        return self.name
+        return self.name + f"-{self.id}"
     
 
 
@@ -49,4 +49,4 @@ class BadgesLevel(models.Model):
 
 
     def __str__(self):
-        return self.badge.name + " " + self.category.category
+        return self.badge.name + f"-{self.badge.id}-" + self.category.category

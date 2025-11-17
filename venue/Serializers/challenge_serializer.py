@@ -8,11 +8,10 @@ from venue.Serializers.venue_info_serializer import VenueInfoSerializer
 from django.db.models import Count
 
 class ChallengesSerializer(serializers.ModelSerializer):
-    venue_badge_status = serializers.BooleanField(required=False, write_only=True)
     qr_code = QRInfoSerializer(read_only=True)
     venue = VenueInfoSerializer(source="venue.venue_profile", read_only=True)
     badge = VenueBadgesSerializer(read_only=True)
-    badge_id = serializers.PrimaryKeyRelatedField(
+    venue_badge = serializers.PrimaryKeyRelatedField(
         queryset=Venue_Badges.objects.all(),
         required=True,
         write_only=True
@@ -20,7 +19,7 @@ class ChallengesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Challenges
         fields = '__all__'
-        read_only_fields=['venue', 'qr_code', 'badge_info']
+        read_only_fields=['venue', 'qr_code', 'badge']
     
     
     def validate(self, data):
@@ -28,7 +27,7 @@ class ChallengesSerializer(serializers.ModelSerializer):
 
         starting_date = data.get('starting_date')
         ending_date = data.get('ending_date')
-        badge_id = data.get('badge_id')
+        venue_badge = data.get('venue_badge')
 
         # Validate date logic
         if starting_date and ending_date and ending_date < starting_date:
@@ -37,20 +36,25 @@ class ChallengesSerializer(serializers.ModelSerializer):
             )
 
         # Validate badge_id existence
-        if not badge_id:
+        if not venue_badge:
             raise serializers.ValidationError({"error": "Badge ID is required."})
 
         # Validate active challenge for this badge already exists
         venue = self.context.get('request').user
-
-        if Challenges.objects.filter(
-            venue=venue,
-            badge__id=badge_id,
-            is_ended=False
-        ).exists():
+        if not Venue_Badges.objects.filter(venue=venue, badge=venue_badge.badge).exists():
             raise serializers.ValidationError(
-                {"error": "You already have an active challenge for this badge!"}
+                {"error": "Currently you don't have selected this badge, Please select it first to create challenge on it!"}
             )
+        request = self.context.get('request')
+        if request and request.method == 'POST':
+            if Challenges.objects.filter(
+                venue=venue,
+                badge=venue_badge,
+                is_ended=False
+            ).exists():
+                raise serializers.ValidationError(
+                    {"error": "You already have an active challenge for this badge!"}
+                )
 
         return data
 
@@ -73,9 +77,14 @@ class ChallengesSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         """Create a new Challenge."""
         ending_at = validated_data.get('ending_at')
+        venue_badge = validated_data.get('venue_badge')
+        venue = self.context.get('request').user
         qr_obj = QR_Info(expires_at=ending_at)
         qr_obj.save()
+
         challenge = Challenges.objects.create(
+            venue=venue,
+            badge=venue_badge,
             qr_code = qr_obj,
             **validated_data
         )
@@ -109,11 +118,10 @@ class ChallengesSerializer(serializers.ModelSerializer):
 
 
 class VenueChallengesSerializer(serializers.ModelSerializer):
-    venue_badge_status = serializers.BooleanField(required=False, write_only=True)
     qr_code = VenueQRInfoSerializer(read_only=True)
     venue = VenueInfoSerializer(source="venue.venue_profile", read_only=True)
     badge = VenueBadgesSerializer(read_only=True)
-    badge_id = serializers.PrimaryKeyRelatedField(
+    venue_badge = serializers.PrimaryKeyRelatedField(
         queryset=Venue_Badges.objects.all(),
         required=True,
         write_only=True
@@ -121,22 +129,43 @@ class VenueChallengesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Challenges
         fields = '__all__'
-        read_only_fields=['venue', 'qr_code', 'badge']
-    # Custom validation to check if the starting date is before the ending date
+        read_only_fields=['venue', 'qr_code', 'badge', 'is_approved']
+        
+    
     def validate(self, data):
-        """Ensure that the ending date is after the starting date."""
+        """Ensure ending date is after starting date and badge is valid."""
+
         starting_date = data.get('starting_date')
         ending_date = data.get('ending_date')
-        badge_id = data.get('badge_id')
-        venue = data.get('venue')
+        venue_badge = data.get('venue_badge')
 
-        if not Venue_Badges.objects.filter(venue=venue, badge=badge_id).exists():
-            raise serializers.ValidationError(f"You don't have current badge selected, to create challenge on this badge please select it first!")
-            
-        
-        if ending_date and starting_date and ending_date < starting_date:
-            raise serializers.ValidationError("Ending date cannot be before the starting date.")
-        
+        # Validate date logic
+        if starting_date and ending_date and ending_date < starting_date:
+            raise serializers.ValidationError(
+                {"error": "Ending date cannot be before the starting date."}
+            )
+
+        # Validate badge_id existence
+        if not venue_badge:
+            raise serializers.ValidationError({"error": "Badge ID is required."})
+
+        # Validate active challenge for this badge already exists
+        venue = self.context.get('request').user
+        if not Venue_Badges.objects.filter(venue=venue, badge=venue_badge.badge).exists():
+            raise serializers.ValidationError(
+                {"error": "Currently you don't have selected this badge, Please select it first to create challenge on it!"}
+            )
+        request = self.context.get('request')
+        if request and request.method =='POST':
+            if Challenges.objects.filter(
+                venue=venue,
+                badge=venue_badge,
+                is_ended=False
+            ).exists():
+                raise serializers.ValidationError(
+                    {"error": "You already have an active challenge for this badge!"}
+                )
+
         return data
 
     def validate_daily_times(self, value, field_name):
@@ -158,8 +187,10 @@ class VenueChallengesSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         """Create a new Challenge."""
         ending_at = validated_data.get('ending_at')
+        venue_badge = validated_data.pop('venue_badge')
         qr_obj = QR_Info(expires_at=ending_at)
         qr_obj.save()
+        validated_data['badge'] = venue_badge
         challenge = Challenges.objects.create(
             qr_code = qr_obj,
             **validated_data
@@ -172,15 +203,22 @@ class VenueChallengesSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         """Update an existing Challenge."""
-        badge_status = validated_data.pop('venue_badge_status')
+        is_ended = validated_data.get('is_ended')
+        venue_badge = validated_data.pop('venue_badge', None)
         
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
-     
-        if badge_status:
-            instance.badge.is_active = badge_status
+
+        if venue_badge is not None:
+            instance.badge = venue_badge
+
+        
+
+        if is_ended is not None:
+            instance.badge.is_active = not is_ended
             instance.badge.save()
+
 
         instance.save()
         return instance

@@ -53,6 +53,7 @@ class ChallengeAchieverSerializer(serializers.ModelSerializer):
             if venue_badge_obj.is_active:
                 venue_badge_obj.is_active = False
                 venue_badge_obj.save()
+                
             raise serializers.ValidationError({
                 "error": f"This challenge ended on {challenge.ending_at}."
             })
