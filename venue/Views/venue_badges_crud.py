@@ -10,6 +10,11 @@ from venue.Permissions.venue_only_permission import Request_By_Current_Venue_Onl
 from app.models import Customer
 from venue.models.venue_info import Venue_Info
 from rest_framework.response import Response
+from datetime import timedelta
+from datetime import timezone
+import datetime
+from venue.models.venue_opening_hours import Venue_Opening_Hours
+
 
 class Venue_Badge_CRUD(APIView):
     permission_classes = [IsAuthenticated]
@@ -27,20 +32,34 @@ class Venue_Badge_CRUD(APIView):
                 .filter(venue=venue, is_active=True)
                 .values_list('badge__id', flat=True)
             )
-           
+
             # Badge levels (only category=1)
             badges = BadgesLevel.objects.filter(
                 badge__id__in=venue_badges,
                 category_id=1
             )
-    
+            today = datetime.datetime.now()
+
+            # Get the full weekday name
+            day_of_week_attr = today.strftime("%A").lower()
+             
+            
+            hours = Venue_Opening_Hours.objects.filter(venue=venue).first()
+            if hours:
+                # Get the value of the attribute corresponding to the current day
+                # We use None as a default value if the attribute is somehow missing
+                daily_hours = getattr(hours, day_of_week_attr, None)
+            else:
+                daily_hours = None
             venue_info_data = VenueInfoSerializer(venue_info).data if venue_info else None
             venue_badges_data = BadgesLevelSerializer(badges, many=True).data if badges.exists() else []
 
             data.append({
                 "venue_profile": venue_info_data,
-                "venue_badges": venue_badges_data
+                "venue_badges": venue_badges_data,
+                "daily_hours": daily_hours
             })
+            
 
         return Response(data)
 
@@ -60,14 +79,26 @@ class Venue_Badge_CRUD_Retrieve(APIView):
         # Fetch venue profile
         venue_info = Venue_Info.objects.filter(venue=venue).first()
         venue_info_data = VenueInfoSerializer(venue_info).data if venue_info else None
-
-        # Fetch the venue's active badges
+  
+        # Fetch the venue's active badges   
         venue_badge_ids = (
             Venue_Badges.objects
             .filter(venue=venue, is_active=True)
             .values_list('badge_id', flat=True)
         )
+        today = datetime.datetime.now()
 
+        # Get the full weekday name
+        day_of_week_attr = today.strftime("%A").lower()
+            
+        
+        hours = Venue_Opening_Hours.objects.filter(venue=venue).first()
+        if hours:
+            # Get the value of the attribute corresponding to the current day
+            # We use None as a default value if the attribute is somehow missing
+            daily_hours = getattr(hours, day_of_week_attr, None)
+        else:
+            daily_hours = None
         badges = BadgesLevel.objects.filter(
             badge__id__in=venue_badge_ids,
             category_id=1
@@ -77,7 +108,8 @@ class Venue_Badge_CRUD_Retrieve(APIView):
 
         return Response({
             "venue_profile": venue_info_data,
-            "venue_badges": venue_badges_data
+            "venue_badges": venue_badges_data,
+            "daily_hours": daily_hours
         })
 
  
