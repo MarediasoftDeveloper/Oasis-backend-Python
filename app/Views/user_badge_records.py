@@ -22,18 +22,15 @@ class User_Badges_Record(APIView):
         
        
         earned_badge = Earned_Badges.objects.filter(user=request.user, badge__id=id).first()    
-        print(earned_badge)
-        if not earned_badge:
-         raise serializers.ValidationError({
-                "error": "This badge is not available!"
-            })
         badges_category = BadgesLevel.objects.filter(badge__id=id)
+        filtered_badges=None
         data=[]
         earned_count=0
         for category in badges_category:
-            filtered_badges = Earned_Badges.objects.filter(user=request.user, badge=earned_badge.badge)
+            if earned_badge:
+                filtered_badges = Earned_Badges.objects.filter(user=request.user, badge=earned_badge.badge)
             if filtered_badges:
-                earned_count = filtered_badges.count() | 0       
+                earned_count = filtered_badges.count()       
                 f_badge = filtered_badges.first()
                 
                 if category.category.num_of_task_to_achieve_badge < earned_count:

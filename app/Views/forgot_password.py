@@ -6,6 +6,7 @@ from app.models import Customer
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
+from rest_framework_simplejwt.tokens import RefreshToken
 
 import logging
 
@@ -37,6 +38,7 @@ class Forgot_Password(APIView):
         try:
             mail_sent = Send_Otp_Mail(customer.id, top_email_msg, subject='Reset Your Password')
             if mail_sent:
+                refresh = RefreshToken.for_user(customer)
                 return Response(
                     {
                         "success": True,
@@ -45,13 +47,15 @@ class Forgot_Password(APIView):
                             "id": customer.id,
                             "email": customer.email,
                         },
+                        "access_token": str(refresh.access_token),
+                        "refresh_token": str(refresh)
                     },
                     status=status.HTTP_200_OK,
                 )
             else:
                 return Response(
                     {"success": False, "error": "Failed to send OTP. Try again."},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                    status=status.HTTP_200_OK
                 )
 
         except Exception as e:
