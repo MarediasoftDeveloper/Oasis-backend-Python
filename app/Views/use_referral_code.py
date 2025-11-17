@@ -8,9 +8,8 @@ from app.Permissions.send_by_customer_only import Request_By_Customer_Only
 from app.models import Customer
 
 
-def UseReferralCode(id, referral_code):
+def UseReferralCode(customer, referral_code):
     code = referral_code
-    customer = Customer.objects.get(id=id, user_role='1')
     
     if not code:
         return {"error": "Referral code is required", "status": 400}

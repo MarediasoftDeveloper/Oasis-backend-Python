@@ -44,7 +44,7 @@ class Login(APIView):
             # Optional referral handling
             customer_data = {}
             if referral_code:   
-                error_or_message = UseReferralCode(customer.id, referral_code)
+                error_or_message = UseReferralCode(customer, referral_code)
                 customer_data['referral_code_response'] = error_or_message
                 if error_or_message.get('status') != 200:
                     return Response({"error": error_or_message['error']}, status=status.HTTP_400_BAD_REQUEST)
