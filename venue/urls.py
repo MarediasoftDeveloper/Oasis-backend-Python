@@ -29,6 +29,7 @@ from .Views.venue_opening_hours_crud import Venue_Opening_Hours_View
 from .Views.withdraw_raffle import Withdraw_of_Raffle
 from .Views.rewards_getter_list import MyRewardsGetView, MyRewardsRetrieveView
 from .Views.raffles_getter_list import MyRafflesGetView, MyRafflesRetrieveView
+from .Views.venue_opening_hours_crud import Venue_Opening_Hours_View_List
 from .Views.venue_badges_crud import Venue_Badge_CRUD, Venue_Badge_CRUD_Retrieve, Venue_Badge_list_for_dashboard
 from .Views.create_venue import Create_Venue
 from .Views.challenges_crud_for_venue import Challenges_Crud_for_Venue
@@ -68,6 +69,7 @@ urlpatterns = [
     path('retrieve-my-raffle/<int:pk>/', MyRafflesRetrieveView.as_view(), name='retrievemyraffle'),
     path('', include(router.urls)),
 
+    path('venue-hours-list/', Venue_Opening_Hours_View_List.as_view(), name='venue-hours-list'),
 
     path('protected-route-api/', ProtectedRouteAPI.as_view(), name='protectedrouteapi'),
 ]   
