@@ -34,6 +34,7 @@ from .Views.venue_badges_crud import Venue_Badge_CRUD, Venue_Badge_CRUD_Retrieve
 from .Views.create_venue import Create_Venue
 from .Views.challenges_crud_for_venue import Challenges_Crud_for_Venue
 from .Views.venue_dashboard import VenueDashboard
+from .Views.venue_posts_crud import VenuePosts
 from .Views.protected_route_api import ProtectedRouteAPI
 from rest_framework.routers import DefaultRouter
 
@@ -55,6 +56,7 @@ urlpatterns = [
     path('venue-badges/', Venue_Badge_CRUD.as_view(), name='venue-badges'),
     path('venue-badges/<int:venue_id>/', Venue_Badge_CRUD_Retrieve.as_view(), name='venue-badges-retrieve'),
     path('venue-badges-list/', Venue_Badge_list_for_dashboard.as_view(), name='venue-badges-list'),
+    path('venue-posts/<int:venue_id>/', VenuePosts.as_view(), name='venue-posts'),
     
     path('auth/login/', login.Login.as_view(), name='login'),
     path('auth/signup/', Create_Venue.as_view(), name='create-venue'),
@@ -69,7 +71,7 @@ urlpatterns = [
     path('retrieve-my-raffle/<int:pk>/', MyRafflesRetrieveView.as_view(), name='retrievemyraffle'),
     path('', include(router.urls)),
 
-    path('venue-hours-list/', Venue_Opening_Hours_View_List.as_view(), name='venue-hours-list'),
+    path('venue-hours-list/', Venue_Opening_Hours_View_List.as_view(), name='venue-hours-list'),    
 
     path('protected-route-api/', ProtectedRouteAPI.as_view(), name='protectedrouteapi'),
 ]   
