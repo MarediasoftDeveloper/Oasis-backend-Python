@@ -15,22 +15,60 @@ from decouple import config
 import dj_database_url
 import ssl
 import certifi
+import os
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+
+#For production
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")  # leave empty in production
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")  # leave empty in production
+AWS_S3_REGION_NAME = "us-east-1"
+
+
+import boto3
+
+
+
+#For Production
+ssm = boto3.client( 'ssm', region_name=AWS_S3_REGION_NAME)
+
+
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
+
+secret_key = ssm.get_parameter(
+    Name='/myOasis/DJANGO_SECRET_KEY',
+    WithDecryption=True
+)['Parameter']['Value']
+
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY')
+SECRET_KEY = secret_key
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-# DEBUG = config("DEBUG", default=False, cast=bool)
-DEBUG= True
+debug_value = ssm.get_parameter(
+    Name='/myOasis/DEBUG',
+    WithDecryption=False
+)['Parameter']['Value']
 
-ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="").split(",")
+DEBUG = debug_value.lower() == 'true'
+
+
+hosts = ssm.get_parameter(
+    Name='/myOasis/ALLOWED_HOSTS',
+    WithDecryption=False
+)['Parameter']['Value']
+
+ALLOWED_HOSTS = hosts.split(",")
+
+
+
 
 # Optional: trust your Railway domain for CSRF
 CSRF_TRUSTED_ORIGINS = [
@@ -38,14 +76,7 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 
-# CSRF_TRUSTED_ORIGINS = [
-#     "http://localhost:8080",
-#     "http://127.0.0.1:8080",
-#     "http://localhost:5173",
-#     "http://127.0.0.1:5173",
-# ]
-
-
+    
 
 # Application definition
 
@@ -84,12 +115,14 @@ REST_FRAMEWORK = {
 
 CORS_ALLOW_ALL_ORIGINS = False 
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  # Vite default
-    "http://127.0.0.1:5173",
-    "http://localhost:8080",  # Vue/React settings
-    "http://127.0.0.1:8080",
-]
+
+cross_origins = ssm.get_parameter(
+    Name='/myOasis/CORS_ALLOWED_ORIGINS',
+    WithDecryption=False
+)['Parameter']['Value']
+
+CORS_ALLOWED_ORIGINS = cross_origins.split(",")
+
 
 CORS_ALLOW_METHODS = [
     'DELETE',
@@ -114,13 +147,12 @@ CORS_ALLOW_HEADERS = [
 
 CORS_ALLOW_CREDENTIALS = True
 
-GOOGLE_WEB_CLIENT_ID = config("GOOGLE_WEB_CLIENT_ID")
 
 from datetime import timedelta
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=14),
     'AUTH_HEADER_TYPES': ('Bearer',),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
@@ -160,6 +192,13 @@ WSGI_APPLICATION = 'oasis.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+
+db_url = ssm.get_parameter(
+    Name='/myOasis/DATABASE_URL',
+    WithDecryption=True
+)['Parameter']['Value']
+os.environ['DATABASE_URL'] = db_url
+
 
 DATABASES = {
     'default': {
@@ -229,8 +268,19 @@ USE_TZ = True
 
 
 EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
-SENDGRID_API_KEY = config("SENDGRID_API_KEY")
-DEFAULT_FROM_EMAIL =config('EMAIL_HOST_USER')
+
+
+sendgrid_api = ssm.get_parameter(
+    Name='/myOasis/SENDGRID_API_KEY',
+    WithDecryption=True
+)['Parameter']['Value']
+SENDGRID_API_KEY = sendgrid_api
+
+email_host = ssm.get_parameter(
+    Name='/myOasis/EMAIL_HOST_USER',
+    WithDecryption=False
+)['Parameter']['Value']
+DEFAULT_FROM_EMAIL =email_host
 
 
 
@@ -247,14 +297,16 @@ SENDGRID_ECHO_TO_STDOUT = False
 
 
 
+
+
 # Public files (STATIC)
 
 
-
-AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY")
-AWS_STORAGE_BUCKET_NAME = config("AWS_STORAGE_BUCKET_NAME")
-AWS_S3_REGION_NAME = "us-east-1"
+bucket = ssm.get_parameter(
+    Name='/myOasis/AWS_STORAGE_BUCKET_NAME',
+    WithDecryption=True
+)['Parameter']['Value']
+AWS_STORAGE_BUCKET_NAME = bucket
 AWS_S3_SIGNATURE_VERSION = "s3v4"
 AWS_DEFAULT_ACL = None
 AWS_S3_FILE_OVERWRITE = False
@@ -282,3 +334,8 @@ MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/{MEDIAFILES_LOCATION}/"
 # ✅ Local fallback
 STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_ROOT = BASE_DIR / "media"
+
+
+
+
+
