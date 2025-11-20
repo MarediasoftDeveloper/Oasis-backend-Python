@@ -1,8 +1,11 @@
 from rest_framework import serializers
 from app.Models.raffles_entry import Raffles_Entry
+from app.Serializers.customer_profile_serializer import CustomerProfileSerializer
 from django.utils import timezone
 
 class RafflesEntrySerializer(serializers.ModelSerializer):
+    user = CustomerProfileSerializer(source='user.customer_profile')
+    
     class Meta:
         model = Raffles_Entry
         fields = '__all__'
@@ -21,6 +24,11 @@ class RafflesEntrySerializer(serializers.ModelSerializer):
         if raffle.is_ended:
             raise serializers.ValidationError({
                 "error": "This raffle has reached its deadline for entries please select another raffle!"
+            })
+        
+        if raffle.is_approved == 'pending':
+            raise serializers.ValidationError({
+                "error": "This raffle is pending, Please wait until it approved."
             })
         
         if raffle.start_at > timezone.now():

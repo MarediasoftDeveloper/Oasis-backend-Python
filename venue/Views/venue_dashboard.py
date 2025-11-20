@@ -52,6 +52,7 @@ class VenueDashboard(APIView):
         else:
             percentage_change = None  # Or assign 100% or 0%
 
+        unique_users = challenges_qs.values("customer_taken").distinct().count()
 
         
         weekly_scans = []
@@ -84,6 +85,7 @@ class VenueDashboard(APIView):
                 "today_scans": today_scans,
                 "yesterday_scans": yesterday_scans,
                 "percentage_change": percentage_change,
+                "unique_users": unique_users,
             },
             "recent_activity": {
                 "challenges": ChallengeAchieverSerializer(challenges_recent, many=True).data,

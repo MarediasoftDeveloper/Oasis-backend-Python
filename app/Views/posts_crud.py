@@ -1,14 +1,14 @@
 from rest_framework import viewsets
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from app.Permissions.write_by_customer_only import WriteByCustomerOnly
+from app.Permissions.write_by_customer_and_venue_only import WriteByCustomerAndVenueOnly
 from app.Permissions.send_by_customer_only import Request_By_Customer_Only
 from app.Models.posts import Post 
 from app.Serializers.post_serializer import PostSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 
 class Post_Crud(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated, WriteByCustomerOnly]
+    permission_classes = [IsAuthenticated, WriteByCustomerAndVenueOnly]
     serializer_class = PostSerializer
     lookup_field ='slug'
     
@@ -17,3 +17,14 @@ class Post_Crud(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+    
+    def get_object(self):
+        slug = self.kwargs.get(self.lookup_field)
+        obj = Post.objects.get(slug=slug)
+
+        # ⚠️ Only check object-level permissions for update/delete
+        if self.request.method in ("PUT", "PATCH", "DELETE"):
+            self.check_object_permissions(self.request, obj)
+
+        return obj

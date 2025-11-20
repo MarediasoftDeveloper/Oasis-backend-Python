@@ -19,7 +19,7 @@ class Venue_Info(models.Model):
     venue_cover_photo = models.ImageField(upload_to=venue_file_upload_path, null=True, blank=True)
     venue_description = models.CharField(max_length=1000, null=True, blank=True)
     address = models.CharField(max_length=300)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', null=True, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='approved', null=True, blank=True)
     phone = models.CharField(max_length=14)
     longitude = models.FloatField(null=True, blank=True)
     latitude = models.FloatField(null=True, blank=True)

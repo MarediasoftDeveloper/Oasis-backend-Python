@@ -14,4 +14,5 @@ class Menu_Category_View(viewsets.ModelViewSet):
     def get_queryset(self):
         return Food_Menu_Category.objects.filter(venue=self.request.user)
 
-     
+    def perform_create(self, serializer):
+        serializer.save(venue=self.request.user)

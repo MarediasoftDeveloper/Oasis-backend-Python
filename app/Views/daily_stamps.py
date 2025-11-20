@@ -21,7 +21,7 @@ class StampsCreateView(generics.CreateAPIView):
     def perform_create(self, serializer):
         # Safely update user's redeemed points
         profile, created = Customer_profile.objects.get_or_create(customer=self.request.user)
-        profile.total_redeemed_points = (profile.total_redeemed_points or 0) + 3
+        profile.total_redeemed_points = (profile.total_redeemed_points or 0) + 30
         profile.save()
 
         # Save stamp with correct user assignment
@@ -47,14 +47,14 @@ class StampsListView(APIView):
             stamped_at__year=current_year
         )
         
-
+        stamp_winning_points = 30
         serialized = StampSerializer(stamps, many=True)
         return Response({
             "daily_stamps": serialized.data,
             "collected_stamps": stamps.count(),
             "total_days_in_month": num_days,
-            "current_points": stamps.count() * 3,
-            "potential_points": 3 * num_days
+            "current_points": stamps.count() * stamp_winning_points,
+            "potential_points": stamp_winning_points * num_days
         })
 
     

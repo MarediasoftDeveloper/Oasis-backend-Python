@@ -11,5 +11,5 @@ class Badge_Category(models.Model):
     num_of_task_to_achieve_badge = models.PositiveIntegerField(default=5)
 
     def __str__(self):
-        return self.category
+        return self.category +"-"+ str(self.num_of_task_to_achieve_badge)
     

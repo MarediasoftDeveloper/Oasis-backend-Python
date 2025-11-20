@@ -35,6 +35,8 @@ from .Views.create_venue import Create_Venue
 from .Views.challenges_crud_for_venue import Challenges_Crud_for_Venue
 from .Views.venue_dashboard import VenueDashboard
 from .Views.venue_posts_crud import VenuePosts
+from .Views.update_venue import Update_Venue
+from .Views.venue_specific_users import VenueSpecificUser, VenueSpecificUserActivity
 from .Views.protected_route_api import ProtectedRouteAPI
 from rest_framework.routers import DefaultRouter
 
@@ -48,14 +50,16 @@ router.register(r'challenges-crud', Challenges_Crud_for_Venue, basename='challen
 router.register(r'menu-items', Menu_Items_View, basename='menu-items')
 router.register(r'menu-category', Menu_Category_View, basename='menu-category')
 router.register(r'venue-opening-hours', Venue_Opening_Hours_View, basename='venue-opening-hours')
+router.register(r'venue-badges-crud', Venue_Badge_list_for_dashboard, basename='venue-badges-crud')
+
 # router.register(r'venue-badges', Venue_Badge_CRUD, basename='venue-badge')
 
 
 urlpatterns = [
     path('', oasis_venue_home.Oasis_Venue_Home.as_view(), name='home'),
     path('venue-badges/', Venue_Badge_CRUD.as_view(), name='venue-badges'),
+    path('update-profile/<int:pk>/', Update_Venue.as_view(), name='venue-update-profile'),
     path('venue-badges/<int:venue_id>/', Venue_Badge_CRUD_Retrieve.as_view(), name='venue-badges-retrieve'),
-    path('venue-badges-list/', Venue_Badge_list_for_dashboard.as_view(), name='venue-badges-list'),
     path('venue-posts/<int:venue_id>/', VenuePosts.as_view(), name='venue-posts'),
     
     path('auth/login/', login.Login.as_view(), name='login'),
@@ -72,6 +76,8 @@ urlpatterns = [
     path('', include(router.urls)),
 
     path('venue-hours-list/', Venue_Opening_Hours_View_List.as_view(), name='venue-hours-list'),    
+    path('venue-users/', VenueSpecificUser.as_view(), name='venue-users'),    
+    path('venue-users-activity/<int:id>/', VenueSpecificUserActivity.as_view(), name='venue-users-activity'),    
 
     path('protected-route-api/', ProtectedRouteAPI.as_view(), name='protectedrouteapi'),
 ]   

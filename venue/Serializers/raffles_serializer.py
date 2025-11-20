@@ -5,6 +5,7 @@ class RafflesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Raffles
         fields = '__all__'
+        read_only_fields=['is_approved', 'venue']
 
     def validate_title(self, value):
         """Ensure title is not empty."""

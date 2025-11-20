@@ -1,4 +1,5 @@
 from rest_framework.views import APIView
+from rest_framework import viewsets
 from venue.models.venue_badges import Venue_Badges
 from venue.models.badges import BadgesLevel
 from venue.models.challenges import Challenges
@@ -114,18 +115,43 @@ class Venue_Badge_CRUD_Retrieve(APIView):
 
  
 
-class Venue_Badge_list_for_dashboard(APIView):
+class Venue_Badge_list_for_dashboard(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, Request_By_Current_Venue_Only]
-    
-    def get(self, request):
+    serializer_class=VenueBadgesSerializer
+
+    def get_queryset(self):
+        return Venue_Badges.objects.filter(venue=self.request.user)
+
+    def list(self, request):
+        queryset=self.get_queryset()
         try:
-            venue = request.user
-            venue_badges = Venue_Badges.objects.filter(venue=venue, is_active=True)
-            venue_badges_data = VenueBadgesSerializer(venue_badges, many=True)
+            venue_badges = queryset.values_list('badge__id', flat=True)
+            selected_badges = BadgesLevel.objects.filter(badge__in=venue_badges, category=1) 
+            venue_badges_data = BadgesLevelSerializer(selected_badges, many=True)
+            unselected_badges = BadgesLevel.objects.filter(
+                category=1
+            ).exclude(
+                badge__id__in=venue_badges
+            )
+            unselected_badges_data = BadgesLevelSerializer(unselected_badges, many=True)
+
 
             # Append to the main list
            
         except Customer.DoesNotExist:
             return Response({"error":"User is not valid!"})
 
-        return Response({"badges":venue_badges_data.data})
+        return Response({"selected_badges":venue_badges_data.data,
+                         "unselected_badges": unselected_badges_data.data
+                         })
+    
+    def get_object(self):
+        queryset=self.get_queryset()
+        badge_id = self.kwargs.get('pk')
+        return queryset.get(badge__id=badge_id)
+
+    
+    def perform_create(self, serializer):
+        serializer.save(venue=self.request.user)
+
+ 

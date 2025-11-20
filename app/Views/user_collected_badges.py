@@ -23,16 +23,17 @@ class Collected_badges(APIView):
         earned_badges_ids = earned_badges.distinct().values_list('badge__id', flat=True)
         for earned in earned_badges_ids:
             badge_count = earned_badges.filter(badge__id=earned).count()
-            badge = BadgesLevel.objects.filter(id=earned)
+            badge = BadgesLevel.objects.filter(badge__id=earned, category=1)
             data.append({
               "collected_badges":{
                 "badge": BadgesLevelSerializer(badge, many=True).data,
                 "collected_badge_count":badge_count,
               }  
             })
-        unearned_badges = BadgesLevel.objects.filter().exclude(badge__id__in=earned_badges_ids)
+        unearned_badges = BadgesLevel.objects.exclude(badge__id__in=earned_badges_ids)
+        filtered_unearned_badges = unearned_badges.filter(category=1)
         data.append({
-            "uncollected_badges":BadgesLevelSerializer(unearned_badges, many=True).data,
+            "uncollected_badges":BadgesLevelSerializer(filtered_unearned_badges, many=True).data,
         })
 
        

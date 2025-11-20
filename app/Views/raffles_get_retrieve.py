@@ -12,7 +12,7 @@ class RafflesGetView(generics.ListAPIView):
     serializer_class = RafflesSerializer
 
     def list(self, request, *args, **kwargs):
-        queryset = Raffles.objects.all()
+        queryset = Raffles.objects.filter(is_approved='approved')
         data=[]
         raffles_count = len(queryset)
         serialized=self.get_serializer(queryset)

@@ -16,37 +16,36 @@ class Withdraw_of_Raffle(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        raffle_id = request.data.get('id')
+        raffle_id = request.data.get('raffle_id')
 
         if not raffle_id:
-            return Response({"error": "Raffle ID is required!"})
+            return Response({"error": "Raffle ID is required!"},status=400)
 
         # Fetch all entries for the specific raffle
-        get_entries = Raffles_Entry.objects.filter(raffle__id=raffle_id, is_winner=False)
+        get_raffle_entries = Raffles_Entry.objects.filter(raffle__id=raffle_id)
+        get_entries = get_raffle_entries.filter(is_winner=False)
+
 
         if not get_entries.exists():
-            return Response({"error": "No entries found for the specified raffle!"})
+            return Response({"error": "No entries found for the specified raffle!"}, status=400)
+       
+        if not get_entries.first().raffle.venue ==request.user:
+            return Response({"error": "You are not allowed to withdraw this raffle!"},status=400)
 
-        # Calculate the maximum ID for the entries in this specific raffle
-        max_id = get_entries.aggregate(max_id=Max('id'))['max_id']
-
-        if not max_id:  # Ensure we have entries
-            return Response({"error": "No entries available for this raffle!"})
-
-        # Randomly select an ID within the range
-        random_id = randint(1, max_id)
 
         # Get the randomly selected entry
-        get_winner_entry = get_entries.filter(id=random_id).first()
+        get_winner_entry = get_entries.order_by('?').first()
+       
+        if get_raffle_entries.filter(is_winner=True).count() >= get_winner_entry.raffle.num_of_winners:
+            return Response({"error": "This Raffle has reached its number of winners!"}, status=400)
+
         # Check if the raffle has already reached its winner limit
-        if get_entries.filter(is_winner=True).count() >= get_winner_entry.raffle.num_of_winners:
-            return Response({"error": "This Raffle has reached its number of winners!"})
 
         # Try to get the winner's customer profile
         try:
             get_winner = Customer_profile.objects.get(customer=get_winner_entry.user)
         except Customer_profile.DoesNotExist:
-            return Response({"error": "Customer profile not found for the winner."})
+            return Response({"error": "Customer profile not found for the winner."}, status=400)
 
         # Reward points if applicable
         if get_winner_entry.raffle.rewarded_points:
@@ -60,6 +59,8 @@ class Withdraw_of_Raffle(APIView):
 
         # Serialize the winner's profile and return as a response
         serialized = CustomerProfileSerializer(get_winner)
+        print(serialized.data)
+        print(get_winner_entry)
         return Response({"winner": serialized.data,
                         "reward": get_winner_entry.raffle.rewards
                          })

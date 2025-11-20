@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from app.models import Customer
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.hashers import check_password
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken,TokenError
 from rest_framework.permissions import AllowAny
 from rest_framework import status
 from app.Views.email.send_and_validate_email import Send_Otp_Mail
@@ -19,6 +19,7 @@ class Login(APIView):
         data = request.data.get('credentials')
         email = data.get('email')
         password = data.get('password')
+        refresh_token = data.get('refresh')
 
        
         if not email or not password:
@@ -64,6 +65,13 @@ class Login(APIView):
 
             if not check_password(password, venue_or_admin.password):
                 return Response({'error': 'One or more information is incorrect!'}, status=status.HTTP_401_UNAUTHORIZED)
+
+            if refresh_token:
+                try:
+                    old_refresh = RefreshToken(refresh_token)
+                    old_refresh.blacklist()
+                except TokenError:
+                    pass  # Invalid or already blacklisted
 
             refresh = RefreshToken.for_user(venue_or_admin)
             # Build customer data dynamically

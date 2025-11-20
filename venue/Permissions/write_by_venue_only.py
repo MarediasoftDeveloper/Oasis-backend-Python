@@ -26,3 +26,30 @@ class WriteByVenueOnlySocialMedia(BasePermission):
 
         # Venues can edit only their own objects
         return user.user_role == "2" and obj.user == user
+
+
+
+class WriteByVenueOnlyMenuItem(BasePermission):
+  
+    def has_object_permission(self, request, view, obj):
+        user = request.user
+
+        # Allow read-only access
+        if request.method in SAFE_METHODS:
+            return True
+
+        # Venues can edit only their own objects
+        return user.user_role == "2" and obj.menu_category.venue == user
+    
+
+class WriteByVenueOnlyCustom(BasePermission):
+  
+    def has_object_permission(self, request, view, obj):
+        user = request.user
+
+        # Allow read-only access
+        if request.method in SAFE_METHODS:
+            return True
+
+        # Venues can edit only their own objects
+        return user.user_role == "2" and obj == user
