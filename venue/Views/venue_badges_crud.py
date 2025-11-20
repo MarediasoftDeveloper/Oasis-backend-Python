@@ -155,3 +155,22 @@ class Venue_Badge_list_for_dashboard(viewsets.ModelViewSet):
         serializer.save(venue=self.request.user)
 
  
+
+class Venue_Badges_list_for_challenge(APIView):
+    permission_classes = [IsAuthenticated, Request_By_Current_Venue_Only]
+    
+    def get(self, request):
+        try:
+            venue_badges = Venue_Badges.objects.filter(venue=self.request.user).values_list('badge__id', flat=True)
+            selected_badges = BadgesLevel.objects.filter(badge__in=venue_badges, category=1) 
+            venue_badges_data = BadgesLevelSerializer(selected_badges, many=True)
+          
+
+            # Append to the main list
+           
+        except Customer.DoesNotExist:
+            return Response({"error":"User is not valid!"})
+
+        return Response({"badges":venue_badges_data.data})
+    
+    

@@ -21,6 +21,7 @@ class Login(APIView):
         password = data.get('password')
         refresh_token = data.get('refresh')
 
+        print(data)
        
         if not email or not password:
             return Response({'error':"Credentials not provided!"})
@@ -36,7 +37,13 @@ class Login(APIView):
                     return Response({'error': 'One or more information is incorrect!'}, status=status.HTTP_401_UNAUTHORIZED)
                 if not venue_or_admin.is_verified:
                     return Response({'error': 'Your Admin account is under review please wait until it approved!'}, status=status.HTTP_406_NOT_ACCEPTABLE)
-
+            
+            if refresh_token:
+                try:
+                    old_refresh = RefreshToken(refresh_token)
+                    old_refresh.blacklist()
+                except TokenError:
+                    pass  # Invalid or already blacklisted
 
                 refresh = RefreshToken.for_user(venue_or_admin)
 

@@ -30,7 +30,7 @@ from .Views.withdraw_raffle import Withdraw_of_Raffle
 from .Views.rewards_getter_list import MyRewardsGetView, MyRewardsRetrieveView
 from .Views.raffles_getter_list import MyRafflesGetView, MyRafflesRetrieveView
 from .Views.venue_opening_hours_crud import Venue_Opening_Hours_View_List
-from .Views.venue_badges_crud import Venue_Badge_CRUD, Venue_Badge_CRUD_Retrieve, Venue_Badge_list_for_dashboard
+from .Views.venue_badges_crud import Venue_Badge_CRUD, Venue_Badge_CRUD_Retrieve, Venue_Badge_list_for_dashboard, Venue_Badges_list_for_challenge
 from .Views.create_venue import Create_Venue
 from .Views.challenges_crud_for_venue import Challenges_Crud_for_Venue
 from .Views.venue_dashboard import VenueDashboard
@@ -78,6 +78,7 @@ urlpatterns = [
     path('venue-hours-list/', Venue_Opening_Hours_View_List.as_view(), name='venue-hours-list'),    
     path('venue-users/', VenueSpecificUser.as_view(), name='venue-users'),    
     path('venue-users-activity/<int:id>/', VenueSpecificUserActivity.as_view(), name='venue-users-activity'),    
+    path('venue-badges-list/', Venue_Badges_list_for_challenge.as_view(), name='venue-badges-list'),    
 
     path('protected-route-api/', ProtectedRouteAPI.as_view(), name='protectedrouteapi'),
 ]   
