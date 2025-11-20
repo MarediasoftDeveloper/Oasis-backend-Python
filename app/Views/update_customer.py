@@ -12,3 +12,12 @@ class Update_Customer(generics.UpdateAPIView):
     permission_classes=[IsAuthenticated, WriteByCustomerOnlyObj]
     queryset = Customer.objects.all()
     serializer_class = Customer_Serializer
+
+
+
+
+
+
+
+
+    

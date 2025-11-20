@@ -3,6 +3,7 @@ from rest_framework import serializers
 from app.models import Customer
 from app.Serializers.customer_signup_serializer import Customer_Serializer
 from venue.models.venue_info import Venue_Info
+from venue.models.venue_opening_hours import Venue_Opening_Hours
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.hashers import make_password, check_password
 from app.Views.email.send_and_validate_email import Send_Otp_Mail
@@ -49,7 +50,9 @@ class Venue_SignUp_Serializer(ModelSerializer):
             instance.set_password(password)  # Hash if updated
             instance.user_role = '2'  # user role set to venue
         instance.save()
+        time_not_set = "Not Set"
         venue_profile = Venue_Info.objects.create(venue=instance, venue_name=venue_name)
+        opening_hours = Venue_Opening_Hours.objects.create(venue=instance, monday=time_not_set, tuesday=time_not_set, wednesday=time_not_set, thursday=time_not_set, friday=time_not_set,saturday=time_not_set,sunday=time_not_set)
         return instance
 
     def update(self, instance, validated_data):
