@@ -22,7 +22,7 @@ class Challenges(models.Model):
     title = models.CharField(max_length=150) 
     description = models.CharField(max_length=350, null=True, blank=True) 
     venue = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, limit_choices_to={'user_role':'2'}) 
-    cool_down_hours = models.PositiveIntegerField() 
+    cool_down_minutes = models.PositiveIntegerField() 
     daily_cap = models.PositiveIntegerField(help_text="Define how many times a Challenge can be attempted in a day?") 
     starting_at = models.DateTimeField()
     ending_at = models.DateTimeField()
@@ -31,8 +31,8 @@ class Challenges(models.Model):
     created_at=models.DateTimeField(auto_now_add=True)
     is_approved = models.CharField(max_length=50, choices=STATUS_CHOICES, default='approved')
     is_ended = models.BooleanField(default=False)
-    daily_open_time = models.TimeField()
-    daily_close_time = models.TimeField()
+    # daily_open_time = models.TimeField()
+    # daily_close_time = models.TimeField()
    
     def __str__(self):
         return self.title

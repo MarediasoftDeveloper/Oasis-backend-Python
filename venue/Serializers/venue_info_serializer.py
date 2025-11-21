@@ -23,15 +23,16 @@ class VenueInfoSerializer(serializers.ModelSerializer):
         return value
 
     def validate_phone(self, value):
-     
-        e164_pattern = re.compile(r'^\+?[1-9]\d{7,14}$')
+            # Remove spaces, dashes, parentheses
+            cleaned = re.sub(r"[ \-\(\)]", "", value)
 
-        if not e164_pattern.match(value):
-            raise serializers.ValidationError({"error":
-                "Enter a valid phone number in international format "
-                "(e.g. +64211234567 or +14155552671)."
-            })
-        return value
+            # Must be digits or +digits
+            if not re.fullmatch(r"\+?\d{7,15}", cleaned):
+                raise serializers.ValidationError(
+                    "Enter a valid phone number (landline or mobile, with optional +country code)."
+                )
+
+            return value
 
     def validate(self, data):
         latitude = data.get('latitude')

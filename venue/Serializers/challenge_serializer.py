@@ -80,6 +80,7 @@ class ChallengesSerializer(serializers.ModelSerializer):
         venue_badge = validated_data.get('venue_badge')
         venue = self.context.get('request').user
         qr_obj = QR_Info(expires_at=ending_at)
+        
         qr_obj.save()
 
         challenge = Challenges.objects.create(
@@ -168,20 +169,20 @@ class VenueChallengesSerializer(serializers.ModelSerializer):
 
         return data
 
-    def validate_daily_times(self, value, field_name):
-        """Ensure daily_open_time and daily_close_time are within valid range."""
-        if value:
-            if value.hour < 0 or value.hour >= 24 or value.minute < 0 or value.minute >= 60:
-                raise serializers.ValidationError(f"{field_name} must be a valid time (HH:MM format).")
-        return value
+    # def validate_daily_times(self, value, field_name):
+    #     """Ensure daily_open_time and daily_close_time are within valid range."""
+    #     if value:
+    #         if value.hour < 0 or value.hour >= 24 or value.minute < 0 or value.minute >= 60:
+    #             raise serializers.ValidationError(f"{field_name} must be a valid time (HH:MM format).")
+    #     return value
 
-    def validate_daily_open_time(self, value):
-        """Validate that daily open time is a valid time."""
-        return self.validate_daily_times(value, "daily_open_time")
+    # def validate_daily_open_time(self, value):
+    #     """Validate that daily open time is a valid time."""
+    #     return self.validate_daily_times(value, "daily_open_time")
 
-    def validate_daily_close_time(self, value):
-        """Validate that daily close time is a valid time."""
-        return self.validate_daily_times(value, "daily_close_time")
+    # def validate_daily_close_time(self, value):
+    #     """Validate that daily close time is a valid time."""
+    #     return self.validate_daily_times(value, "daily_close_time")
 
 
     def create(self, validated_data):

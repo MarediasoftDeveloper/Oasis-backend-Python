@@ -17,12 +17,11 @@ def get_level_points_per_task(user, badge):
     for category in badge_category:
             if category.category.num_of_task_to_achieve_badge < earned_badges:
                 points= category.points_per_task
-                print(points)
+                
                 break
             else:
                 points= category.points_per_task
-                print(points)
-
+               
 
 
 from django.db import transaction
@@ -77,7 +76,6 @@ def get_level_points_per_task_and_save_it(user, badge):
 
         # Update profile safely
         profile, _ = Customer_profile.objects.select_for_update().get_or_create(customer=user)
-        print(points)
         current_points = profile.total_redeemed_points or 0
         profile.total_redeemed_points = current_points + points
 

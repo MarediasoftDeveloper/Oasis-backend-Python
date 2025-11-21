@@ -79,14 +79,27 @@ class ChallengeAchieverSerializer(serializers.ModelSerializer):
         )
 
         if last_entry:
-            next_allowed_time = last_entry.scanned_at + timedelta(hours=challenge.cool_down_hours)
-            if timezone.now() < next_allowed_time:
+            # Cooldown in minutes instead of hours
+            next_allowed_time = last_entry.scanned_at + timedelta(minutes=challenge.cool_down_minutes)
+
+            if timezone.now() < next_allowed_time:  
                 remaining = next_allowed_time - timezone.now()
-                hours, remainder = divmod(remaining.total_seconds(), 3600)
-                minutes = remainder // 60
+                total_minutes = int(remaining.total_seconds() // 60)
+                seconds = int(remaining.total_seconds() % 60)
+
                 raise serializers.ValidationError({
-                    "error": f"You can scan this challenge again in {int(hours)}h {int(minutes)}m."
+                    "error": f"You can scan this challenge again in {total_minutes}m {seconds}s."
                 })
+
+        # if last_entry:
+        #     next_allowed_time = last_entry.scanned_at + timedelta(hours=challenge.cool_down_hours)
+        #     if timezone.now() < next_allowed_time:
+        #         remaining = next_allowed_time - timezone.now()
+        #         hours, remainder = divmod(remaining.total_seconds(), 3600)
+        #         minutes = remainder // 60
+        #         raise serializers.ValidationError({
+        #             "error": f"You can scan this challenge again in {int(hours)}h {int(minutes)}m."
+        #         })
 
         # --- Check Daily Cap ---
         start_of_day = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
@@ -107,11 +120,11 @@ class ChallengeAchieverSerializer(serializers.ModelSerializer):
         current_time = timezone.localtime(timezone.now()).time()  # Get current local time
 
         # Ensure daily_open_time and daily_close_time are provided and are valid
-        if challenge.daily_open_time and challenge.daily_close_time:
-            if not (challenge.daily_open_time <= current_time <= challenge.daily_close_time):
-                raise serializers.ValidationError({
-                    "error": f"The challenge is only available between {challenge.daily_open_time} and {challenge.daily_close_time}."
-                })
+        # if challenge.daily_open_time and challenge.daily_close_time:
+        #     if not (challenge.daily_open_time <= current_time <= challenge.daily_close_time):
+        #         raise serializers.ValidationError({
+        #             "error": f"The challenge is only available between {challenge.daily_open_time} and {challenge.daily_close_time}."
+        #         })
         
         return data
 
@@ -127,8 +140,9 @@ class ChallengeAchieverSerializer(serializers.ModelSerializer):
 
         #  Add points to user
         actual_badge = challenge.badge.badge
-        print(actual_badge)
+     
         points = get_level_points_per_task_and_save_it(user, actual_badge)
+    
         validated_data['customer_taken'] = user
         validated_data['challenge'] = challenge
         validated_data['points_issued'] = points
