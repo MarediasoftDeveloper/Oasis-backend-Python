@@ -16,7 +16,7 @@ class Raffles(models.Model):
     description = models.CharField(max_length=300, null=True, blank=True)
     rewards = models.CharField(max_length=250, null=True, blank=True)
     points_to_join = models.PositiveIntegerField()
-    is_approved = models.CharField(max_length=50, choices=STATUS_CHOICES, default='pending')
+    is_approved = models.CharField(max_length=50, choices=STATUS_CHOICES, default='approved')
     rewarded_points = models.PositiveIntegerField(null=True, blank=True, help_text="points will be rewarded to winner (optional)")
     start_at = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)

@@ -29,7 +29,7 @@ class Challenges(models.Model):
     badge = models.ForeignKey(Venue_Badges, on_delete=models.CASCADE)  
     qr_code = models.ForeignKey(QR_Info, on_delete=models.CASCADE)          
     created_at=models.DateTimeField(auto_now_add=True)
-    is_approved = models.CharField(max_length=50, choices=STATUS_CHOICES, default='pending')
+    is_approved = models.CharField(max_length=50, choices=STATUS_CHOICES, default='approved')
     is_ended = models.BooleanField(default=False)
     daily_open_time = models.TimeField()
     daily_close_time = models.TimeField()

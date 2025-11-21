@@ -20,7 +20,7 @@ class Rewards(models.Model):
     condition = models.CharField(max_length=250, null=True, blank=True) 
     stock = models.PositiveIntegerField(default=50)
     required_points_for_reward=models.PositiveIntegerField(default=50)
-    is_approved = models.CharField(max_length=50, choices=STATUS_CHOICES, default='pending')
+    is_approved = models.CharField(max_length=50, choices=STATUS_CHOICES, default='approved')
     started_at = models.DateTimeField()
     ended_at = models.DateTimeField(null=True, blank=True)
     created_at=models.DateTimeField(auto_now_add=True)

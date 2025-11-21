@@ -161,9 +161,8 @@ class Venue_Badges_list_for_challenge(APIView):
     
     def get(self, request):
         try:
-            venue_badges = Venue_Badges.objects.filter(venue=self.request.user).values_list('badge__id', flat=True)
-            selected_badges = BadgesLevel.objects.filter(badge__in=venue_badges, category=1) 
-            venue_badges_data = BadgesLevelSerializer(selected_badges, many=True)
+            venue_badges = Venue_Badges.objects.filter(venue=self.request.user)
+            venue_badges_data = VenueBadgesSerializer(venue_badges, many=True)
           
 
             # Append to the main list
