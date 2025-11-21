@@ -4,7 +4,7 @@ from app.Serializers.customer_profile_serializer import CustomerProfileSerialize
 from django.utils import timezone
 
 class RafflesEntrySerializer(serializers.ModelSerializer):
-    user = CustomerProfileSerializer(source='user.customer_profile')
+    user = CustomerProfileSerializer(source='user.customer_profile', read_only=True)
     
     class Meta:
         model = Raffles_Entry
