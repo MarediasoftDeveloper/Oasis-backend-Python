@@ -3,6 +3,9 @@ from django.db import models
 # Create your models here.
 from oasis.settings import AUTH_USER_MODEL
 from django.core.exceptions import ValidationError
+from django.contrib.auth.base_user import BaseUserManager
+
+
 
 USER_ROLES =[
     ('1', 'customer'),
@@ -20,18 +23,41 @@ def customer_upload_path(instance, filename):
     return f'media/customer/{instance.customer.id}-{instance.customer.username}/{filename}'
 
 
+
+
+
+class CustomerManager(BaseUserManager):
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError("Email is required")
+
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+        extra_fields.setdefault("is_active", True)
+
+        return self.create_user(email, password, **extra_fields)
+
+
+
 class Customer(AbstractUser):
 
-    username = models.CharField(max_length=20, blank=True, null=True, unique=True)
+    username = models.CharField(max_length=20, blank=True, null=True, unique=False)
     email =   models.EmailField(unique=True)
     password = models.CharField(max_length=500, blank=True, null=True)
     user_role = models.CharField(max_length=15, choices=USER_ROLES, default='1')
     is_verified = models.BooleanField(default=False)
 
-    USERNAME_FIELD = 'username'        # 🔹 use email for login
-    REQUIRED_FIELDS = ['email']            # 🔹 no extra required fields
+    USERNAME_FIELD = 'email'        # 🔹 use email for login
+    REQUIRED_FIELDS = []            # 🔹 no extra required fields
     
-    
+    objects = CustomerManager()
 
     def __str__(self):
         return str(self.id) + "-" + self.email
