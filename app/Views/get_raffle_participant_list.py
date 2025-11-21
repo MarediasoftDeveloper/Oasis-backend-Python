@@ -12,7 +12,7 @@ class Raffles_Participant_List(APIView):
 
     def get(self, request, id):
         # Prefetch the customer profiles to avoid N+1 query problem
-        raffle_entries = Raffles_Entry.objects.filter(raffle=id, is_approved='approved').select_related('user').prefetch_related(
+        raffle_entries = Raffles_Entry.objects.filter(raffle=id, raffle__is_approved='approved').select_related('user').prefetch_related(
             Prefetch('user__customer_profile', queryset=Customer_profile.objects.all(), to_attr='user_profile')
         )
 
