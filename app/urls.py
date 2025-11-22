@@ -41,6 +41,9 @@ from .Views.retrieve_user_profile import Retrieve_User_Profile
 from .Views.user_redeem_rewards import User_Redeem_Rewards
 from .Views.delete_customer import Delete_Customer
 from .Views.social_media_crud import SocialMediaAccountViewSet
+from .Views.terms_and_conditions_acceptance import TermsAndConditionsAcceptView
+from .Views.block_user_view import BlockUserView
+from .Views.reporting_and_complain_view import ReportingAndComplainsView
 
 
 from rest_framework_simplejwt.views import (
@@ -113,6 +116,9 @@ urlpatterns = [
 
     path('redeem-reward/', User_Redeem_Rewards.as_view(), name="redeem-reward"),    
 
+    path('block-user/', BlockUserView.as_view(), name="block-user"),    
+    path('report-user/', ReportingAndComplainsView.as_view(), name="report-user"),    
+    path('accept-terms-and-conditions/', TermsAndConditionsAcceptView.as_view(), name="accept-terms-and-conditions"),    
 
     # jwt token 
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),

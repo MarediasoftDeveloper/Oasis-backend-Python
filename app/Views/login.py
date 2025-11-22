@@ -9,6 +9,7 @@ from rest_framework.permissions import AllowAny
 from app.Views.use_referral_code import UseReferralCode
 from rest_framework import status
 from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
+from app.Models.terms_and_conditions_accept import TermsAndConditionsAccept
 
 
 class Login(APIView):   
@@ -25,10 +26,11 @@ class Login(APIView):
 
         if not email or not password:
             return Response({'error':"Credentials not provided!"})
-    
+
+
         try:
             customer = Customer.objects.get(email=email, user_role='1')
-
+            
             if not password:
                 return Response({'error': 'Password is required!'}, status=401)
             
@@ -39,10 +41,16 @@ class Login(APIView):
             if not check_password(password, customer.password):
                 return Response({'error': 'One or more information is incorrect!'}, status=401)
 
+            customer_data = {}
+
+            if TermsAndConditionsAccept.objects.filter(user=customer).exists():
+                customer_data['termsAccepted']=True
+            else:
+                customer_data['termsAccepted']=False
+            
 
 
             # Optional referral handling
-            customer_data = {}
             if referral_code:   
                 error_or_message = UseReferralCode(customer, referral_code)
                 customer_data['referral_code_response'] = error_or_message
