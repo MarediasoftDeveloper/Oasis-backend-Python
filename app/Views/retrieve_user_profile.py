@@ -8,6 +8,7 @@ from app.Serializers.post_serializer import PostSerializer
 from app.Models.friendships import Friendships
 from app.Models.earned_badges_by_user import Earned_Badges
 from django.db.models import Q
+from app.Models.users_blocking import UserBlocking
 
 class Retrieve_User_Profile(APIView):
     permission_classes = [IsAuthenticated]
@@ -18,15 +19,27 @@ class Retrieve_User_Profile(APIView):
         serialized_posts =None
         friendship_status =None
         friendship_id =None
+        
+
+
         if not user_info.is_private:
             posts= Post.objects.filter(user__id=id)
             posts = PostSerializer(posts, many=True).data
         else:
             posts="This is a private account you can't see the posts of this user!"
+        
+        check_blocking = UserBlocking.objects.filter(Q(blockedBy=self.request.user, blockedUser__id=id) | Q(blockedBy__id=id, blockedUser=self.request.user))
+        blockedByCurrentUser = False
+        if check_blocking.exists():
+            if check_blocking.first().blockedBy==self.request.user:
+                blockedByCurrentUser =True
+            return Response({"error":"You can't see this profile!", "blockedByCurrentUser":blockedByCurrentUser})
+
         posts_count= Post.objects.filter(user__id=id).count()
         user_profile = CustomerProfileSerializer(user_info)
         friends = Friendships.objects.filter(Q(request_sender=user_info.customer) | Q(request_getter=user_info.customer))
         is_friend_obj = Friendships.objects.filter(Q(request_sender=user_info.customer, request_getter=self.request.user) | Q(request_sender=self.request.user, request_getter=user_info.customer)).first()
+       
         if is_friend_obj and is_friend_obj.status=='accepted':
             friendship_id=is_friend_obj.id
             friendship_status = {'status':True}

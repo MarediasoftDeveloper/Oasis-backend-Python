@@ -38,6 +38,8 @@ class RafflesEntrySerializer(serializers.ModelSerializer):
 
         # Check if the raffle has ended (ended_at <= current time)
         if raffle.ended_at < timezone.now():
+            raffle.is_ended=True
+            raffle.save()
             raise serializers.ValidationError({
                 "error": "This raffle has ended. You can no longer join."
                 })

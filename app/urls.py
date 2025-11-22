@@ -56,8 +56,8 @@ router.register(r'customer-interests', Oasis_Select_Interest_CRUD, basename='cus
 router.register(r'interests', Oasis_Interest_CRUD, basename='interests')
 router.register(r'posts', Post_Crud, basename='post_crud')
 router.register(r'friendships', Friendship_Crud, basename='friendship_crud')
-router.register(r'social-media-accounts', SocialMediaAccountViewSet, basename='social-media-accounts')
-
+router.register(r'social-media-accounts', SocialMediaAccountViewSet, basename='social-media-accounts')    
+router.register(r'block-user', BlockUserView, basename="block-user")
 
 urlpatterns = [
     path('register/', create_customer.Create_Customer.as_view(), name="Signup"),
@@ -116,7 +116,6 @@ urlpatterns = [
 
     path('redeem-reward/', User_Redeem_Rewards.as_view(), name="redeem-reward"),    
 
-    path('block-user/', BlockUserView.as_view(), name="block-user"),    
     path('report-user/', ReportingAndComplainsView.as_view(), name="report-user"),    
     path('accept-terms-and-conditions/', TermsAndConditionsAcceptView.as_view(), name="accept-terms-and-conditions"),    
 

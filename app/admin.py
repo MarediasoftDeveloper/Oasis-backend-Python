@@ -15,6 +15,9 @@ from .Models.notifications import Notifications
 from .Models.friendships import Friendships
 from .Models.earned_badges_by_user import Earned_Badges
 from .Models.stamps import Stamps
+from .Models.reporting_and_complains import ReportingAndComplains
+from .Models.users_blocking import UserBlocking
+from .Models.terms_and_conditions_accept import TermsAndConditionsAccept
 # Register your models here.
 
 admin.site.register(Customer)
@@ -34,3 +37,6 @@ admin.site.register(Notifications)
 admin.site.register(Friendships)
 admin.site.register(Earned_Badges)
 admin.site.register(Stamps)
+admin.site.register(ReportingAndComplains)
+admin.site.register(UserBlocking)
+admin.site.register(TermsAndConditionsAccept)

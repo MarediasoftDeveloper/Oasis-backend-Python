@@ -23,3 +23,6 @@ class Request_By_Current_Venue_Only(BasePermission):
 
         # Venues can edit only their own objects
         return user.user_role == "2" and obj.venue == user
+
+
+

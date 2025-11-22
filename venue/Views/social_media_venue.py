@@ -23,4 +23,4 @@ class SocialMediaAccountVenueViewSet(viewsets.ModelViewSet):
         # Prevent changing ownership
         serializer.save(user=self.request.user)
 
- 
+    

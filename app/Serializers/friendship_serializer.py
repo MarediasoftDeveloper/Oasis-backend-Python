@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework import status
+from app.Models.users_blocking import UserBlocking
 
 User = get_user_model()
 
@@ -47,7 +48,7 @@ class FriendshipSerializer(serializers.ModelSerializer):
 
         if request and request.method == 'POST':
             if sender == getter or sender.user_role in ['2', '3'] or getter.user_role in ['2', '3']:
-                raise serializers.ValidationError("You cannot send a friend request to this user!")
+                raise serializers.ValidationError({"error":"You cannot send a friend request to this user!"})
 
             # Check for existing friendship or pending request (both directions)
             existing = Friendships.objects.filter(
@@ -56,7 +57,22 @@ class FriendshipSerializer(serializers.ModelSerializer):
             ).exclude(status='declined')  # declined ones can be re-sent
 
             if existing.exists():
-                raise serializers.ValidationError("A friendship or pending request already exists between these users.")
+                raise serializers.ValidationError({"error":"A friendship or pending request already exists between you and this user!"})
+        
+        blocked = UserBlocking.objects.filter(
+            Q(blockedBy=sender, blockedUser=getter) |
+            Q(blockedBy=getter, blockedUser=sender)
+        )
+
+        if blocked.exists():
+            if blocked.first().blockedBy == sender:
+                raise serializers.ValidationError({
+                    "error": "You have blocked this profile. Unblock them to send a friend request."
+                })
+            else:
+                raise serializers.ValidationError({
+                    "error": "This user has blocked you. You cannot send a friend request."
+                })
 
         return attrs
 

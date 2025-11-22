@@ -4,12 +4,14 @@ from app.Serializers.blockSerializer import BlockSerializer
 from rest_framework.response import Response
 from app.Models.users_blocking import UserBlocking
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import viewsets
 
 
-class BlockUserView(generics.CreateAPIView):
+class BlockUserView(viewsets.ModelViewSet):
     permission_classes=[IsAuthenticated]
-    queryset=UserBlocking.objects.all()
     serializer_class=BlockSerializer
 
-
+    def get_queryset(self):
+        return UserBlocking.objects.filter(blockedBy=self.request.user)
+ 
     

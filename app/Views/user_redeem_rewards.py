@@ -25,14 +25,16 @@ class User_Redeem_Rewards(generics.CreateAPIView):
         deducted = deduct_points_to_user(user, required_points)
         if isinstance(deducted, dict) and deducted.get("error"):
             raise serializers.ValidationError({"error": deducted["error"]})
-
+        
         # Record spending
         record_spent_points(user, required_points)
 
         # Save reward redemption
         serializer.save(customer_taken=user)
+        reward.stock -= 1
+        reward.save()
         self.reward_title = reward.title  # store for response message
-
+        
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
         message = f"🎉👏 Congratulations! You redeemed a new reward {self.reward_title}"
