@@ -33,7 +33,7 @@ class User_Badges_Record(APIView):
                 earned_count = filtered_badges.count()       
                 f_badge = filtered_badges.first()
                 
-                if category.category.num_of_task_to_achieve_badge < earned_count:
+                if category.category.num_of_task_to_achieve_badge <= earned_count:
                     data.append({
                         **BadgesLevelSerializer(category).data,
                         'status':True,
