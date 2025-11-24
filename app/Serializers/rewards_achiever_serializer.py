@@ -3,6 +3,7 @@ from app.Models.rewards_achiever import Rewards_Achiever
 from app.Models.earned_badges_by_user import Earned_Badges
 from venue.models.badges import BadgesLevel
 from app.models import Customer_profile
+from venue.Serializers.rewards_serializer import RewardsSerializer
 from django.utils import timezone
 
 class RewardsAchieverSerializer(serializers.ModelSerializer):
@@ -77,3 +78,13 @@ class RewardsAchieverSerializer(serializers.ModelSerializer):
     def delete(self, instance):
         """Allow deletion with possible custom logic later."""
         instance.delete()
+
+
+
+
+class GetRewardsAchievmentsSerializer(serializers.ModelSerializer):
+    reward = RewardsSerializer()
+    class Meta:
+        model = Rewards_Achiever
+        fields = '__all__'
+        read_only_fields=['customer_taken']

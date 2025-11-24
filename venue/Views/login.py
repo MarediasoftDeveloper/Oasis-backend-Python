@@ -27,7 +27,7 @@ class Login(APIView):
             return Response({'error':"Credentials not provided!"})
 
         try:
-            venue_or_admin = Customer.objects.get(email=email)
+            venue_or_admin = Customer.objects.get(email__iexact=email)
            
             if not venue_or_admin.user_role in ['2', '3']:
                 return Response({'error': 'One or more information is incorrect!'}, status=status.HTTP_401_UNAUTHORIZED)

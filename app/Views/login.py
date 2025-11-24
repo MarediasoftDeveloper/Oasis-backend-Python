@@ -29,7 +29,7 @@ class Login(APIView):
 
 
         try:
-            customer = Customer.objects.get(email=email, user_role='1')
+            customer = Customer.objects.get(email__iexact=email, user_role='1')
             
             if not password:
                 return Response({'error': 'Password is required!'}, status=401)

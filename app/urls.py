@@ -44,6 +44,8 @@ from .Views.social_media_crud import SocialMediaAccountViewSet
 from .Views.terms_and_conditions_acceptance import TermsAndConditionsAcceptView
 from .Views.block_user_view import BlockUserView
 from .Views.reporting_and_complain_view import ReportingAndComplainsView
+from .Views.get_users_list import Customer_List
+from .Views.myRewardsList import Achieved_Rewards_List
 
 
 from rest_framework_simplejwt.views import (
@@ -113,8 +115,10 @@ urlpatterns = [
     path('raffles-entry/', User_Raffles_Entry.as_view(), name="raffles-entry"),    
     path('raffles-participant/<int:id>/', Raffles_Participant_List.as_view(), name="raffles-participant-list"),    
 
+    path('users-list/', Customer_List.as_view(), name='users-list'), #get users
 
     path('redeem-reward/', User_Redeem_Rewards.as_view(), name="redeem-reward"),    
+    path('redeemed-rewards-list/', Achieved_Rewards_List.as_view(), name="redeemed-rewards-list"),    
 
     path('report-user/', ReportingAndComplainsView.as_view(), name="report-user"),    
     path('accept-terms-and-conditions/', TermsAndConditionsAcceptView.as_view(), name="accept-terms-and-conditions"),    
