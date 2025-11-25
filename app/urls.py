@@ -46,6 +46,7 @@ from .Views.block_user_view import BlockUserView
 from .Views.reporting_and_complain_view import ReportingAndComplainsView
 from .Views.get_users_list import Customer_List
 from .Views.myRewardsList import Achieved_Rewards_List
+from .Views.saveFcmToken import SaveFCMToken
 
 
 from rest_framework_simplejwt.views import (
@@ -123,6 +124,7 @@ urlpatterns = [
     path('report-user/', ReportingAndComplainsView.as_view(), name="report-user"),    
     path('accept-terms-and-conditions/', TermsAndConditionsAcceptView.as_view(), name="accept-terms-and-conditions"),    
 
+    path('save-device-fcm/', SaveFCMToken.as_view(), name="device-fcm"),    
     # jwt token 
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),

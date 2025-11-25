@@ -29,7 +29,7 @@ class BlockSerializer(serializers.ModelSerializer):
 
         if user.user_role == '2':  # venue
             if hasattr(user, "venue_profile"):
-                return VenueInfoSerializer(user.venue_profile).data
+                return VenueInfoSerializer(user.venue_profile).data 
             return {"error": "Venue profile missing"}
 
         # customer

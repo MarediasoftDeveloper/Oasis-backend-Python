@@ -254,17 +254,30 @@ STORAGES = {
 # IMPORTANT: Remove or comment out STATICFILES_STORAGE and DEFAULT_FILE_STORAGE
 # to avoid a conflict.
 
+from firebase_admin import credentials, initialize_app
+
+param = ssm.get_parameter(Name="/myOasis/firebase/key", WithDecryption=True)
+key_json = param["Parameter"]["Value"]
+
+# Write to temporary file
+with open("/tmp/firebase_key.json", "w") as f:
+    f.write(key_json)
+
+cred = credentials.Certificate("/tmp/firebase_key.json")
+initialize_app(cred)
+
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Pacific/Auckland'
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = True               
 
 
 EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"

@@ -11,7 +11,7 @@ class Menu_Items(models.Model):
     item_name = models.CharField(max_length=30)
     item_description = models.CharField(max_length=150)
     item_specifications = models.CharField(max_length=80, null=True, blank=True)
-    item_quantity = models.PositiveIntegerField(default=1)
+    item_quantity = models.PositiveIntegerField(default=1, null=True, blank=True)
     item_price = models.DecimalField(max_digits=10, decimal_places=2)
     item_points = models.PositiveIntegerField(null=True, blank=True)
 

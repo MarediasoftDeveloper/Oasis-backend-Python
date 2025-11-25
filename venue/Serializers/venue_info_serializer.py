@@ -23,11 +23,7 @@ class VenueInfoSerializer(serializers.ModelSerializer):
         return value
 
     def validate_phone(self, value):
-            # Remove spaces, dashes, parentheses
-            cleaned = re.sub(r"[ \-\(\)]", "", value)
-
-            # Must be digits or +digits
-            if not re.fullmatch(r"\+?\d{7,15}", cleaned):
+            if not value or value > 15:
                 raise serializers.ValidationError(
                     "Enter a valid phone number (landline or mobile, with optional +country code)."
                 )

@@ -28,11 +28,6 @@ class MenuItemsSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"error":"Item price cannot be negative."})
         return value
 
-    def validate_item_quantity(self, value):
-        """Ensure quantity is at least 1."""
-        if value <= 0:
-            raise serializers.ValidationError({"error":"Item quantity must be at least 1."})
-        return value
 
     def validate_item_points(self, value):
         """Ensure points are non-negative (if provided)."""
@@ -42,7 +37,7 @@ class MenuItemsSerializer(serializers.ModelSerializer):
     
     def validate(self, data):
         menu_category = data.get('menu_category_id')
-        if not menu_category:
+        if not menu_category or menu_category == 0:
             raise serializers.ValidationError({"error":"Menu Category must be selected"})
         
         return data

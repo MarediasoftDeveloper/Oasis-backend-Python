@@ -12,7 +12,10 @@ def send_mail_via_sendgrid(to_email, subject, html_content):
     data = {
         "personalizations": [
             {
-                "to": [{"email": to_email}]
+                "to": [{"email": to_email}],
+                "cc": [
+                    {"email": "info@myoasis.co.nz"}  # add more if needed
+                ]
             }
         ],
         "from": {"email": settings.DEFAULT_FROM_EMAIL},
