@@ -31,7 +31,7 @@ class Send_Invite(APIView):
 
     def get(self, request):
         user = request.user
-        print(user)
+
         # Check if user already has a referral code
         referral= Referrals.objects.create(
             referral_code_sender=user,

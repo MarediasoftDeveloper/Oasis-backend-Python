@@ -21,7 +21,7 @@ class Login(APIView):
         password = data.get('password')
         refresh_token = data.get('refresh')
 
-        print(data)
+      
        
         if not email or not password:
             return Response({'error':"Credentials not provided!"})

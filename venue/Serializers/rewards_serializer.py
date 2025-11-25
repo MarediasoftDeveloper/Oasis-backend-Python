@@ -51,7 +51,6 @@ class RewardsSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         badge_ids = validated_data.pop('rewards_for_badge_holder_ids', None)
-        print(badge_ids)
         # Update normal fields
         for attr, value in validated_data.items():
             setattr(instance, attr, value)

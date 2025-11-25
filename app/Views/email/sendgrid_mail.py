@@ -33,9 +33,9 @@ def send_mail_via_sendgrid(to_email, subject, html_content):
         if response.status_code in [200, 202]:
             return True
         else:
-            print("SendGrid Error:", response.text)
+           
             return False
 
     except Exception as e:
-        print("Exception while sending email:", e)
+        # print("Exception while sending email:", e)
         return False

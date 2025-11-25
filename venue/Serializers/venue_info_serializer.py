@@ -23,12 +23,12 @@ class VenueInfoSerializer(serializers.ModelSerializer):
         return value
 
     def validate_phone(self, value):
-            if not value or value > 15:
-                raise serializers.ValidationError(
-                    "Enter a valid phone number (landline or mobile, with optional +country code)."
-                )
+        if not value or len(value) > 15:
+            raise serializers.ValidationError(
+                "Enter a valid phone number (landline or mobile, with optional +country code)."
+            )
 
-            return value
+        return value
 
     def validate(self, data):
         latitude = data.get('latitude')

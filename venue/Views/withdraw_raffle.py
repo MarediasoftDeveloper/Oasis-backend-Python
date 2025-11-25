@@ -59,8 +59,8 @@ class Withdraw_of_Raffle(APIView):
 
         # Serialize the winner's profile and return as a response
         serialized = CustomerProfileSerializer(get_winner)
-        print(serialized.data)
-        print(get_winner_entry)
+     
+      
         return Response({"winner": serialized.data,
                         "reward": get_winner_entry.raffle.rewards
                          })
