@@ -31,7 +31,7 @@ class Venue_SignUp_Serializer(ModelSerializer):
                     "code": "unverified_email",
                     "message": "Email exists but is not verified. We have sent an OTP to your email, Please verify it."
                 })
-            raise serializers.ValidationError({"message": "Email already exists."})
+            raise serializers.ValidationError({"message": "Oasis account with this email already exists. Please login"})
 
         return value  # If email is unique
 

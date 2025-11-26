@@ -48,7 +48,7 @@ class CustomerManager(BaseUserManager):
 
 class Customer(AbstractUser):
 
-    username = models.CharField(max_length=20, blank=True, null=True, unique=False)
+    username = models.CharField(max_length=40, blank=True, null=True, unique=False)
     email =   models.EmailField(unique=True)
     password = models.CharField(max_length=500, blank=True, null=True)
     user_role = models.CharField(max_length=15, choices=USER_ROLES, default='1')
