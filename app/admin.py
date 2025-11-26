@@ -18,6 +18,7 @@ from .Models.stamps import Stamps
 from .Models.reporting_and_complains import ReportingAndComplains
 from .Models.users_blocking import UserBlocking
 from .Models.terms_and_conditions_accept import TermsAndConditionsAccept
+from .Models.DeviceFcmToken import DeviceFCM
 # Register your models here.
 
 admin.site.register(Customer)
@@ -40,3 +41,4 @@ admin.site.register(Stamps)
 admin.site.register(ReportingAndComplains)
 admin.site.register(UserBlocking)
 admin.site.register(TermsAndConditionsAccept)
+admin.site.register(DeviceFCM)

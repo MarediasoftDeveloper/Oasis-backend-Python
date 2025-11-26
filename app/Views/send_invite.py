@@ -33,10 +33,14 @@ class Send_Invite(APIView):
         user = request.user
 
         # Check if user already has a referral code
-        referral= Referrals.objects.create(
-            referral_code_sender=user,
-            referral_code=generate_referral_code(),
-        )
+        referral= Referrals.objects.filter(
+            referral_code_sender=user
+        ).first()
+        if not referral:
+            referral= Referrals.objects.create(
+                referral_code_sender=user,
+                referral_code=generate_referral_code(),
+            )
 
         return Response({
             "referral_code": referral.referral_code,

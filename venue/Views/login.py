@@ -38,26 +38,27 @@ class Login(APIView):
                 if not venue_or_admin.is_verified:
                     return Response({'error': 'Your Admin account is under review please wait until it approved!'}, status=status.HTTP_406_NOT_ACCEPTABLE)
             
-            if refresh_token:
-                try:
-                    old_refresh = RefreshToken(refresh_token)
-                    old_refresh.blacklist()
-                except TokenError:
-                    pass  # Invalid or already blacklisted
+                if refresh_token:
+                    try:
+                        old_refresh = RefreshToken(refresh_token)
+                        old_refresh.blacklist()
+                    except TokenError:
+                        pass  # Invalid or already blacklisted
 
                 refresh = RefreshToken.for_user(venue_or_admin)
-
                 admin_data = {
-                    'id': venue_or_admin.id,
-                    'email': venue_or_admin.email,
-                    'user_role': venue_or_admin.user_role,
-                }
-
+                        'id': venue_or_admin.id,
+                        'email': venue_or_admin.email,
+                        'user_role': venue_or_admin.user_role,
+                    }
                 return Response({
                     'admin': admin_data,
                     'access_token': str(refresh.access_token),
                     'refresh_token': str(refresh),
                 }, status=status.HTTP_200_OK)
+            
+
+                
             
         
             venue_info = Venue_Info.objects.get(venue=venue_or_admin)
