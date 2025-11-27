@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework import generics
 from venue.models.raffles import Raffles
+from venue.models.venue_info import Venue_Info
 from app.Models.raffles_entry import Raffles_Entry
 from venue.Serializers.raffles_serializer import RafflesSerializer
 from rest_framework.permissions import IsAuthenticated
@@ -51,9 +52,10 @@ class RafflesRetrieveView(generics.RetrieveAPIView):
 
         # Serialize the raffle
         serialized_raffle = self.get_serializer(raffle).data
-
+        venue_profile = Venue_Info.objects.get(venue=raffle.venue)
         # Add the achieved count to the serialized raffle
         serialized_raffle["participants"] = raffle_achieve_count
+        serialized_raffle["venue_name"] = venue_profile.venue_name
 
         # Return the response with the serialized data and achieved count
         return Response(serialized_raffle)
