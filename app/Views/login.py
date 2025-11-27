@@ -10,7 +10,8 @@ from app.Views.use_referral_code import UseReferralCode
 from rest_framework import status
 from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
 from app.Models.terms_and_conditions_accept import TermsAndConditionsAccept
-
+from app.Models.DeviceFcmToken import DeviceFCM
+from app.Views.utils.fcm import send_push_notification
 
 class Login(APIView):   
 
@@ -23,6 +24,8 @@ class Login(APIView):
         password = data.get('password')
         referral_code = data.get('referral_code')
         refresh_token = data.get('refresh')
+        fcm_token = data.get("fcm_token")
+        print(fcm_token)    
 
         if not email or not password:
             return Response({'error':"Credentials not provided!"})
@@ -59,11 +62,17 @@ class Login(APIView):
 
             # ✅ Safely handle refresh token blacklist
             if refresh_token:
-                try:
+                try:    
                     old_refresh = RefreshToken(refresh_token)
                     old_refresh.blacklist()
                 except TokenError:
                     pass  # Invalid or already blacklisted
+            
+            if fcm_token:
+                DeviceFCM.objects.update_or_create(
+                    user=customer,
+                    defaults={"fcm_token": fcm_token}
+                )
 
             # ✅ Generate new token pair
             refresh = RefreshToken.for_user(customer)
@@ -71,6 +80,8 @@ class Login(APIView):
             # ✅ Serialize customer profile
             customer_profile, _ = Customer_profile.objects.get_or_create(customer=customer)
             serialized = CustomerProfileSerializer(customer_profile)
+
+            send_push_notification(customer, "Welcome to Oasis", "Thanks for joining us")
 
             return Response({
                 **serialized.data,
