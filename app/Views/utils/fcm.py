@@ -37,7 +37,7 @@ def send_push_notification(users, title, body, data=None):
             data=data or {},
         )
 
-        response = messaging.send_multicast(message)
+        response = messaging.send_each_for_multicast(message)
         results.append(response)
 
     return results
