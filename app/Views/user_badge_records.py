@@ -48,6 +48,7 @@ class User_Badges_Record(APIView):
             else:
                 data.append({
                     **BadgesLevelSerializer(category).data,
+                    'status':False,
                     'message': f"No Earned badges for this {category.category.category} level"
                 })
                         

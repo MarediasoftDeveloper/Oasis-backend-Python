@@ -8,7 +8,7 @@ from oasis import settings
 
 class Food_Menu_Category(models.Model):
     venue = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, limit_choices_to={'user_role':'2'})
-    name = models.CharField(max_length=50) 
+    name = models.CharField(max_length=80) 
 
     def __str__(self):
         return f'{self.venue}-{self.name}'  
