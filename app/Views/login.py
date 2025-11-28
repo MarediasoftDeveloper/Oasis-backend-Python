@@ -25,8 +25,7 @@ class Login(APIView):
         referral_code = data.get('referral_code')
         refresh_token = data.get('refresh')
         fcm_token = data.get("fcm_token")
-        print(fcm_token)    
-
+    
         if not email or not password:
             return Response({'error':"Credentials not provided!"})
 
@@ -80,8 +79,6 @@ class Login(APIView):
             # ✅ Serialize customer profile
             customer_profile, _ = Customer_profile.objects.get_or_create(customer=customer)
             serialized = CustomerProfileSerializer(customer_profile)
-
-            send_push_notification(customer, "Welcome to Oasis", "Thanks for joining us")
 
             return Response({
                 **serialized.data,
