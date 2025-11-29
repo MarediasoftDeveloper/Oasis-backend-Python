@@ -20,7 +20,6 @@ class User_Badges_Record(APIView):
 
     def get(self, request, id):
         
-       
         earned_badge = Earned_Badges.objects.filter(user=request.user, badge__id=id).first()    
         badges_category = BadgesLevel.objects.filter(badge__id=id).order_by('points_per_task')
         filtered_badges=None

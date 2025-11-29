@@ -30,15 +30,17 @@ class Venue_Badge_CRUD(APIView):
             # Active venue badges
             venue_badges = (
                 Venue_Badges.objects
+                .distinct()
                 .filter(venue=venue, is_active=True)
                 .values_list('badge__id', flat=True)
             )
 
-            # Badge levels (only category=1)
+       
             badges = BadgesLevel.objects.filter(
                 badge__id__in=venue_badges,
-                category_id=1
+                category__category__icontains='basic'
             )
+            print(badges)
             today = datetime.datetime.now()
 
             # Get the full weekday name
@@ -100,9 +102,11 @@ class Venue_Badge_CRUD_Retrieve(APIView):
             daily_hours = getattr(hours, day_of_week_attr, None)
         else:
             daily_hours = None
+
+
         badges = BadgesLevel.objects.filter(
             badge__id__in=venue_badge_ids,
-            category_id=1
+            category__category__icontains='basic'
         )
 
         venue_badges_data = BadgesLevelSerializer(badges, many=True).data
@@ -126,10 +130,10 @@ class Venue_Badge_list_for_dashboard(viewsets.ModelViewSet):
         queryset=self.get_queryset()
         try:
             venue_badges = queryset.values_list('badge__id', flat=True)
-            selected_badges = BadgesLevel.objects.filter(badge__in=venue_badges, category=1) 
+            selected_badges = BadgesLevel.objects.filter(badge__in=venue_badges, category__category__icontains='basic') 
             venue_badges_data = BadgesLevelSerializer(selected_badges, many=True)
             unselected_badges = BadgesLevel.objects.filter(
-                category=1
+                category__category__icontains='basic'
             ).exclude(
                 badge__id__in=venue_badges
             )
