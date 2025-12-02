@@ -83,7 +83,7 @@ def notify_post_upload(sender, instance, created, **kwargs):
     elif created and instance.user.user_role == "2":
 
         receivers = list(Customer.objects.all())  # Fix variable name
-        venue = Venue_Info.objects.filter(customer=instance.user).first()  # Fix queryset issue
+        venue = Venue_Info.objects.filter(venue=instance.user).first()  # Fix queryset issue
 
         venue_name = venue.venue_name if venue else instance.user.username  # Fallback
 

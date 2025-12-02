@@ -8,6 +8,10 @@ from venue.models.venue_info import Venue_Info
 from app.Views.utils.fcm import send_push_notification
 
 
+def get_venue_info(instance):
+    venue = Venue_Info.objects.filter(venue=instance.venue).first()
+    return venue
+
 @receiver(post_save, sender=Challenges) 
 def notify_challenge_created(sender, instance, created, **kwargs):
     
@@ -15,7 +19,7 @@ def notify_challenge_created(sender, instance, created, **kwargs):
         # All users → convert queryset to list
         receivers = list(Customer.objects.all())
         
-        venue = Venue_Info.objects.get(venue=instance.venue)
+        venue = get_venue_info(instance)
         
         send_push_notification(
             receivers,
@@ -24,9 +28,9 @@ def notify_challenge_created(sender, instance, created, **kwargs):
             data={
                 "type": "challenge_created",  
                 "route": "/allBadgesScreen", #venue_badges
-                "venue_id": instance.venue.id, #venueId
-                "venue_cover_image": venue.venue_cover_photo, #venueId
-                "venue_title": venue.venue_name, #venueId
+                "venue_id": str(instance.venue.id), #venueId
+                "venue_cover_image": str(venue.venue_cover_photo.url), #venueId
+                "venue_title": str(venue.venue_name), #venueId
             }
         )
 
@@ -41,16 +45,17 @@ def notify_reward_created(sender, instance, created, **kwargs):
         # All users → convert queryset to list
         receivers = list(Customer.objects.all())
         
-        venue_name = Venue_Info.objects.get(venue=instance.venue).venue_name
+        venue = get_venue_info(instance)
+
         
         send_push_notification(
             receivers,
-            f"🏆 New Reward from {venue_name}",
+            f"🏆 New Reward from {venue.venue_name}",
             "👉Hurry up! Don't be late to redeem your reward 🎉.",
             data={
                 "type": "reward_created",  
                 "route": "/rewardDetailScreen", #RewardsDetailScreen
-                "reward_id": instance.id, #reward_id
+                "reward_id": str(instance.id), #reward_id
             }
             )
         
@@ -61,16 +66,15 @@ def notify_raffle_created(sender, instance, created, **kwargs):
     if created and instance.is_approved == 'approved':
         # All users → convert queryset to list
         receivers = list(Customer.objects.all())
-        
-        venue_name = Venue_Info.objects.get(venue=instance.venue).venue_name
+        venue = get_venue_info(instance)
         
         send_push_notification(
             receivers,
-            f"🎟️ New Raffle from {venue_name}",
+            f"🎟️ New Raffle from {venue.venue_name}",
             "👉Hurry up! and participate in raffle to get exciting rewards 🎉.",
             data={
                 "type": "raffle_created",  
                 "route": "/rafflesDetailScreen", #RafflesDetailScreen
-                "raffle_id": instance.id, #raffle_id
-            }
-            )
+                "raffle_id": str(instance.id), #raffle_id
+        }
+        )
