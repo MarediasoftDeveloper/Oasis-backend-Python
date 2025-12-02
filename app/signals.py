@@ -68,7 +68,7 @@ def notify_post_upload(sender, instance, created, **kwargs):
 
         receivers = list(friends)
 
-        send_push_notification(
+        send_push_notification(                         
             receivers,
             "A New Post Created!",
             f"{instance.user.username} has created a new post.",
