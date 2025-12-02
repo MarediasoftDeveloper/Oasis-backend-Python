@@ -11,7 +11,7 @@ from rest_framework import status
 from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
 from app.Models.terms_and_conditions_accept import TermsAndConditionsAccept
 from app.Models.DeviceFcmToken import DeviceFCM
-from app.Views.utils.fcm import send_push_notification
+
 
 class Login(APIView):   
 

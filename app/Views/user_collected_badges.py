@@ -21,9 +21,10 @@ class Collected_badges(APIView):
         data=[]
         earned_badges = Earned_Badges.objects.filter(user=self.request.user)
         earned_badges_ids = earned_badges.distinct().values_list('badge__id', flat=True)
+        print(earned_badges_ids)
         for earned in earned_badges_ids:
             badge_count = earned_badges.filter(badge__id=earned).count()
-            badge = BadgesLevel.objects.filter(badge__id=earned, category=1)
+            badge = BadgesLevel.objects.filter(badge__id=earned, category__category__icontains='basic')
             data.append({
               "collected_badges":{
                 "badge": BadgesLevelSerializer(badge, many=True).data,
@@ -31,7 +32,7 @@ class Collected_badges(APIView):
               }  
             })
         unearned_badges = BadgesLevel.objects.exclude(badge__id__in=earned_badges_ids)
-        filtered_unearned_badges = unearned_badges.filter(category=1)
+        filtered_unearned_badges = unearned_badges.filter(category__category__icontains='basic')
         data.append({
             "uncollected_badges":BadgesLevelSerializer(filtered_unearned_badges, many=True).data,
         })
