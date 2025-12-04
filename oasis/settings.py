@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'storages',
+    'django_crontab',
 ]
 
 
@@ -307,5 +308,5 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 
 CRONJOBS = [
-    ('0 18 * * *', 'app.cron.send_daily_notification'),  
+    ('0 12 * * *', 'app.cron.send_daily_notification'),  
 ]

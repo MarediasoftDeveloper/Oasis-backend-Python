@@ -3,6 +3,9 @@ from app.Models.posts import Post
 from app.Serializers.interests_serializer import InterestSerializer
 from app.Serializers.customer_signup_serializer import Customer_Serializer
 from app.Models.interests import Customer_Interest
+from app.Models.post_venues_tags import PostVenueTag
+from venue.models.venue_info import Venue_Info
+from rest_framework.response import Response
 from app.Serializers.customer_profile_serializer import CustomerProfileSerializer
 from venue.Serializers.venue_info_serializer import VenueInfoSerializer
 from django.utils.text import slugify
@@ -15,7 +18,9 @@ class PostSerializer(serializers.ModelSerializer):
         many=True,
         write_only=True
     )
-   
+    tagged_venues = serializers.SerializerMethodField(required=False)
+    
+    
     class Meta:
         model = Post
         fields = '__all__'
@@ -49,19 +54,39 @@ class PostSerializer(serializers.ModelSerializer):
                 )
         return data
     
-    
+    def get_tagged_venues(self, instance):
+        tag = PostVenueTag.objects.filter(post=instance).first()
+        if not tag:
+            return None
+
+        venue = tag.venue
+        return {
+            "id": venue.id,
+            "name": venue.venue_name,
+            "image": venue.image.url if venue.image else None
+        }
 
 
     def create(self, validated_data):
         """Create a new post with slug and categories."""
+        request = self.context.get('request')
         category_ids = validated_data.pop('category_ids', [])
+        
         instance = Post.objects.create(**validated_data)
+        
+        if request.user.user_role == "1":
+            tagged_venue = request.data.get("tagged_venue")
+
+            if tagged_venue:
+                venue = Venue_Info.objects.filter(id=tagged_venue).first()
+                if venue:
+                    PostVenueTag.objects.create(post=instance, venue=venue)
 
         # Default category if none
-        if not category_ids:
-            instance.categories.add(1)
-        else:
+        if category_ids:
             instance.categories.set(category_ids)
+        else:
+            instance.categories.clear()
        
         instance.save()
         return instance
@@ -71,9 +96,19 @@ class PostSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         """Update post and handle category updates."""
         category_ids = validated_data.pop('category_ids', None)
+        request = self.context.get('request')
+
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
+
+        if request.user.user_role == "1":
+            tagged_venue = request.data.get("tagged_venue")
+
+            if tagged_venue:
+                venue = Venue_Info.objects.filter(id=tagged_venue).first()
+                if venue:
+                    PostVenueTag.objects.create(post=instance, venue=venue)
 
         if category_ids is not None:
             instance.categories.set(category_ids)

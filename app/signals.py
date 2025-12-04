@@ -4,9 +4,8 @@ from app.Models.friendships import Friendships
 from app.Models.posts import Post
 from app.models import Customer
 from venue.models.venue_info import Venue_Info
-from app.Views.utils.fcm import send_push_notification
+from app.Views.utils.fcm import send_push_notification, send_push_posts_notification
 from django.db.models import Q
-
 @receiver(post_save, sender=Friendships)
 def notify_friend_request(sender, instance, created, **kwargs):
     if created:
@@ -16,7 +15,7 @@ def notify_friend_request(sender, instance, created, **kwargs):
         send_push_notification(
             receiver,
             "👨‍👨 New Friend Request",
-            f"🤗 {sender_user.username} sent you a friend request",
+            f"{sender_user.username} sent you a friend request 🤗",
             data={
                 "type": "friend_request",
                 "route":"/socialUserProfileScreen",
@@ -36,7 +35,7 @@ def notify_friend_request_accepted(sender, instance, created, **kwargs):
         send_push_notification(
             receiver,
             "🤝 Friend Request Accepted",
-            f"🤗 {accepter.username} accepted your friend request",
+            f"{accepter.username} accepted your friend request",
             data={
                 "type": "friend_request",
                 "route":"/socialUserProfileScreen",
@@ -68,16 +67,16 @@ def notify_post_upload(sender, instance, created, **kwargs):
 
         receivers = list(friends)
 
-        send_push_notification(                         
+        send_push_posts_notification(
             receivers,
             "A New Post Created!",
             f"{instance.user.username} has created a new post.",
-            data={
-                "type": "post_created",
+            data={  
+                "image": instance.image.url,
                 "route": "/postDetailScreen",
                 "slug": str(instance.slug),
-                "image": instance.image.url,
-            }
+            },
+            image=instance.image.url
         )
 
     elif created and instance.user.user_role == "2":
@@ -86,15 +85,16 @@ def notify_post_upload(sender, instance, created, **kwargs):
         venue = Venue_Info.objects.filter(venue=instance.user).first()  # Fix queryset issue
 
         venue_name = venue.venue_name if venue else instance.user.username  # Fallback
-
-        send_push_notification(
+        send_push_posts_notification(
             receivers,
             "A New Post Created!",
             f"{venue_name} has created a new post.",
-            data={
-                "type": "post_created",
+            data={  
+                "image": instance.image.url,
                 "route": "/postDetailScreen",
                 "slug": str(instance.slug),
-                "image": instance.image.url,
-            }
+            },
+            image=instance.image.url
         )
+
+

@@ -36,6 +36,7 @@ from .Views.challenges_crud_for_venue import Challenges_Crud_for_Venue
 from .Views.venue_dashboard import VenueDashboard
 from .Views.venue_posts_crud import VenuePosts
 from .Views.update_venue import Update_Venue
+from .Views.search_venue import SearchVenueAPI
 from .Views.venue_specific_users import VenueSpecificUser, VenueSpecificUserActivity
 from .Views.protected_route_api import ProtectedRouteAPI
 from rest_framework.routers import DefaultRouter
@@ -74,6 +75,9 @@ urlpatterns = [
     path('get-my-raffle/', MyRafflesGetView.as_view(), name='getmyraffle'),
     path('retrieve-my-raffle/<int:pk>/', MyRafflesRetrieveView.as_view(), name='retrievemyraffle'),
     path('', include(router.urls)),
+
+    path('search-venue/', SearchVenueAPI.as_view(), name='search-venue'),  
+
 
     path('venue-hours-list/', Venue_Opening_Hours_View_List.as_view(), name='venue-hours-list'),    
     path('venue-users/', VenueSpecificUser.as_view(), name='venue-users'),    
