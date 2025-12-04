@@ -62,6 +62,7 @@ class PostSerializer(serializers.ModelSerializer):
         venue = tag.venue
         return {
             "id": venue.id,
+            "venue_id": venue.venue.id,
             "name": venue.venue_name,
             "image": venue.venue_logo.url if venue.venue_logo else None
         }

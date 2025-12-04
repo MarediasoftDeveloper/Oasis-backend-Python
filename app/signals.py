@@ -24,6 +24,7 @@ def notify_friend_request(sender, instance, created, **kwargs):
         )
 
 
+
 @receiver(post_save, sender=Friendships)
 def notify_friend_request_accepted(sender, instance, created, **kwargs):
     # Only act on updates (not creation)
