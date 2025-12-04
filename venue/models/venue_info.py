@@ -26,7 +26,7 @@ class Venue_Info(models.Model):
 
 
     def __str__(self):
-        return self.venue_name
+        return str(self.id) + "-" + str(self.venue_name)
 
 
 

@@ -72,6 +72,8 @@ class Customer_profile(models.Model):
     gender= models.CharField(max_length=12, choices=GENDERS, null=True, blank=True)
     total_redeemed_points = models.PositiveIntegerField(default=0)
 
-
+    def __str__(self):
+        return  str(self.customer.id) + "-" + str(self.customer.first_name) + "-" + str(self.customer.last_name)
+    
 
 

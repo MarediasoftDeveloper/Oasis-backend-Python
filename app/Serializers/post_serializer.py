@@ -63,7 +63,7 @@ class PostSerializer(serializers.ModelSerializer):
         return {
             "id": venue.id,
             "name": venue.venue_name,
-            "image": venue.image.url if venue.image else None
+            "image": venue.venue_logo.url if venue.venue_logo else None
         }
 
 
@@ -75,8 +75,7 @@ class PostSerializer(serializers.ModelSerializer):
         instance = Post.objects.create(**validated_data)
         
         if request.user.user_role == "1":
-            tagged_venue = request.data.get("tagged_venue")
-
+            tagged_venue = request.data.get("tagged_venues")
             if tagged_venue:
                 venue = Venue_Info.objects.filter(id=tagged_venue).first()
                 if venue:
