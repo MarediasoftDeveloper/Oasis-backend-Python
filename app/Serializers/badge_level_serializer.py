@@ -12,6 +12,7 @@ class BadgesLevelSerializer(serializers.ModelSerializer):
         model = BadgesLevel
         fields = ['id', 'badge', 'category', 'image', 'points_per_task']
 
+
     # ---------------------------------------
     # Field-level validation
     # ---------------------------------------

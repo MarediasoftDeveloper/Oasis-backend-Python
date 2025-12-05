@@ -35,6 +35,7 @@ class Venue_Badge_CRUD(APIView):
                 .values_list('badge__id', flat=True)
             )
 
+       
             badges = BadgesLevel.objects.filter(
                 badge__id__in=venue_badges,
                 category__category__icontains='basic'
