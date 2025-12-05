@@ -103,7 +103,7 @@ class PostSerializer(serializers.ModelSerializer):
         instance.save()
 
         if request.user.user_role == "1":
-            tagged_venue = request.data.get("tagged_venue")
+            tagged_venue = request.data.get("tagged_venues")
 
             if tagged_venue:
                 # Remove old venue tag
