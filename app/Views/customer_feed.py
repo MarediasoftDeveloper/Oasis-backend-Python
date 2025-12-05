@@ -11,6 +11,7 @@ from app.Models.users_blocking import UserBlocking
 from rest_framework.pagination import PageNumberPagination
 from itertools import chain
 from django.db.models import Q
+from app.Models.friendships import Friendships
 
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -23,32 +24,52 @@ class Customer_Feed(APIView):
 
     def get(self, request):
         paginator = StandardResultsSetPagination()
+        user = request.user
 
-        public_profiles_ids = Customer_profile.objects.filter(is_private=False).values_list('customer', flat=True)
-        customer_posts = Post.objects.filter(user__id__in=public_profiles_ids)
-        venue_posts = Post.objects.filter(user__user_role='2')
-        
-        
-        blocked_relations = UserBlocking.objects.filter(Q(blockedBy=self.request.user)|Q(blockedUser=self.request.user))
+        # ---- FRIEND LIST ----
+        friend_rels = Friendships.objects.filter(
+            Q(request_sender=user) | Q(request_getter=user),
+            status="accepted"
+        )
 
-        blocked_ids = set(blocked_relations.values_list("blockedBy_id", flat=True)) | \
-            set(blocked_relations.values_list("blockedUser_id", flat=True))
+        friends_ids = set(friend_rels.values_list("request_sender_id", flat=True)) | \
+                      set(friend_rels.values_list("request_getter_id", flat=True))
+        friends_ids.discard(user.id)
 
-        if blocked_relations.exists():
-            blocked_ids.discard(self.request.user.id)
-            customer_posts = customer_posts.exclude(user__id__in=blocked_ids)
-            venue_posts = venue_posts.exclude(user__id__in=blocked_ids)
-            
+        # ---- BLOCKED USERS ----
+        blocked = UserBlocking.objects.filter(Q(blockedBy=user) | Q(blockedUser=user))
+        blocked_ids = set(blocked.values_list("blockedBy_id", flat=True)) | \
+                      set(blocked.values_list("blockedUser_id", flat=True))
+        blocked_ids.discard(user.id)
 
+        # ---- PUBLIC PROFILES ----
+        public_ids = set(
+            Customer_profile.objects.filter(is_private=False)
+            .values_list("customer_id", flat=True)
+        )
 
-        posts = customer_posts.union(venue_posts).order_by('-id')  #  Optimized
+        # ---- PRIVATE PROFILES (ONLY FRIENDS allowed) ----
+        private_ids = set(
+            Customer_profile.objects.filter(is_private=True)
+            .values_list("customer_id", flat=True)
+        )
 
-            
-        # Apply pagination
-        paginated_posts = paginator.paginate_queryset(posts, request)
-        serialized_posts = PostSerializer(paginated_posts, many=True)
+        allowed_private_ids = private_ids & friends_ids
 
-        return paginator.get_paginated_response(serialized_posts.data)
+        # Final allowed customers
+        allowed_customer_ids = (public_ids | allowed_private_ids) - blocked_ids
+
+        # ---- GET POSTS ----
+        customer_posts = Post.objects.filter(user_id__in=allowed_customer_ids)
+        venue_posts = Post.objects.filter(user__user_role="2").exclude(user_id__in=blocked_ids)
+
+        posts = (customer_posts | venue_posts).order_by("-id")
+
+        # ---- PAGINATION ----
+        paginated = paginator.paginate_queryset(posts, request)
+        serialized = PostSerializer(paginated, many=True)
+
+        return paginator.get_paginated_response(serialized.data)
 
 
 

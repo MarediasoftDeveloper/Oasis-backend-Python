@@ -11,6 +11,8 @@ from rest_framework.response import Response
 from random import randint
 from django.db.models import Max
 from app.Views.functions.referrals_utils import add_points_to_user
+from venue.models.venue_info import Venue_Info
+from app.Views.utils.fcm import send_push_notification
 
 class Withdraw_of_Raffle(APIView):
     permission_classes = [IsAuthenticated]
@@ -56,7 +58,16 @@ class Withdraw_of_Raffle(APIView):
         # Mark the entry as the winner
         get_winner_entry.is_winner = True
         get_winner_entry.save()
-
+        venue = Venue_Info.objects.filter(venue=get_winner_entry.raffle.venue).first()
+        send_push_notification(
+            get_winner.customer,
+            f"Congratulations!🎉 You won a reward in the raffle's draw!",
+            f"You are the winner of the raffle {get_winner_entry.raffle.title}, visit {venue.venue_name} and get your reward 🎁!",
+            data={
+                "type": "winner_of_withdraw",
+                "route":"/notificationScreen"
+            }
+        )
         # Serialize the winner's profile and return as a response
         serialized = CustomerProfileSerializer(get_winner)
      

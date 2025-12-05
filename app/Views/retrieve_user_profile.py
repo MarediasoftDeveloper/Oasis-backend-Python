@@ -19,14 +19,25 @@ class Retrieve_User_Profile(APIView):
         serialized_posts =None
         friendship_status =None
         friendship_id =None
+        friends = Friendships.objects.filter(Q(request_sender=user_info.customer) | Q(request_getter=user_info.customer))
+        is_friend_obj = Friendships.objects.filter(Q(request_sender=user_info.customer, request_getter=self.request.user) | Q(request_sender=self.request.user, request_getter=user_info.customer)).first()
         
 
 
         if not user_info.is_private:
-            posts= Post.objects.filter(user__id=id)
+            allowed = True
+        else:
+            # Check friendship
+            is_friend = is_friend_obj.status="accepted"
+            allowed = is_friend_obj is not None
+
+        if allowed:
+            posts = Post.objects.filter(user_id=id).order_by('-id')
             posts = PostSerializer(posts, many=True).data
         else:
-            posts="This is a private account you can't see the posts of this user!"
+            posts = "This is a private account. You can't see the posts of this user!"
+
+            
         
         check_blocking = UserBlocking.objects.filter(Q(blockedBy=self.request.user, blockedUser__id=id) | Q(blockedBy__id=id, blockedUser=self.request.user))
         blockedByCurrentUser = False
@@ -37,8 +48,6 @@ class Retrieve_User_Profile(APIView):
 
         posts_count= Post.objects.filter(user__id=id).count()
         user_profile = CustomerProfileSerializer(user_info)
-        friends = Friendships.objects.filter(Q(request_sender=user_info.customer) | Q(request_getter=user_info.customer))
-        is_friend_obj = Friendships.objects.filter(Q(request_sender=user_info.customer, request_getter=self.request.user) | Q(request_sender=self.request.user, request_getter=user_info.customer)).first()
        
         if is_friend_obj and is_friend_obj.status=='accepted':
             friendship_id=is_friend_obj.id

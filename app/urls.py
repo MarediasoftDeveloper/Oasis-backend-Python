@@ -47,6 +47,7 @@ from .Views.reporting_and_complain_view import ReportingAndComplainsView
 from .Views.get_users_list import Customer_List
 from .Views.myRewardsList import Achieved_Rewards_List
 from .Views.saveFcmToken import SaveFCMToken
+from .Views.notifications_list import NotificationsListView
 
 
 from rest_framework_simplejwt.views import (
@@ -126,6 +127,9 @@ urlpatterns = [
 
     path('save-device-fcm/', SaveFCMToken.as_view(), name="device-fcm"),    
     # jwt token 
+    path('notifications/', NotificationsListView.as_view(), name="notifications"),    
+
+
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('', include(router.urls)),  #  Include DRF ViewSet routes
