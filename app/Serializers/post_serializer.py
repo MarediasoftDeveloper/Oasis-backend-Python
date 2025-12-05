@@ -94,26 +94,37 @@ class PostSerializer(serializers.ModelSerializer):
        
 
     def update(self, instance, validated_data):
-        """Update post and handle category updates."""
         category_ids = validated_data.pop('category_ids', None)
         request = self.context.get('request')
 
+        # Update other fields normally
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
 
         if request.user.user_role == "1":
-            tagged_venue = request.data.get("tagged_venues")
+            tagged_venue = request.data.get("tagged_venue")
 
             if tagged_venue:
-                venue = Venue_Info.objects.filter(id=tagged_venue).first()
-                if venue:
-                    PostVenueTag.objects.update_or_create(post=instance, venue=venue)
+                # Remove old venue tag
+                PostVenueTag.objects.filter(post=instance).delete()
 
+                # Convert to int if needed
+                try:
+                    vid = int(tagged_venue)
+                except:
+                    vid = tagged_venue
+
+                venue = Venue_Info.objects.filter(id=vid).first()
+                if venue:
+                    PostVenueTag.objects.create(post=instance, venue=venue)
+
+        # Update categories
         if category_ids is not None:
             instance.categories.set(category_ids)
 
         return instance
+
 
 
     def delete(self, instance):
