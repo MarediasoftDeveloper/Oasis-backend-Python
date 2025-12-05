@@ -60,7 +60,7 @@ class PostSerializer(serializers.ModelSerializer):
             return None
 
         venue = tag.venue
-        return {
+        return { 
             "id": venue.id,
             "venue_id": venue.venue.id,
             "name": venue.venue_name,
@@ -103,7 +103,7 @@ class PostSerializer(serializers.ModelSerializer):
         instance.save()
 
         if request.user.user_role == "1":
-            tagged_venue = request.data.get("tagged_venue")
+            tagged_venue = request.data.get("tagged_venues")
 
             if tagged_venue:
                 venue = Venue_Info.objects.filter(id=tagged_venue).first()
