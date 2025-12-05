@@ -10,5 +10,5 @@ class NotificationsListView(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        return Notifications.objects.filter(user=user)
+        return Notifications.objects.filter(user=user).order_by('-id')
     
