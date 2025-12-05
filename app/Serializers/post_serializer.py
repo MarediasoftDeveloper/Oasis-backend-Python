@@ -108,7 +108,7 @@ class PostSerializer(serializers.ModelSerializer):
             if tagged_venue:
                 venue = Venue_Info.objects.filter(id=tagged_venue).first()
                 if venue:
-                    PostVenueTag.objects.create(post=instance, venue=venue)
+                    PostVenueTag.objects.update_or_create(post=instance, venue=venue)
 
         if category_ids is not None:
             instance.categories.set(category_ids)
