@@ -166,3 +166,12 @@ class ChallengeAchieverSerializer(serializers.ModelSerializer):
 
 
 
+
+
+class GetChallengeAchieverSerializer(serializers.ModelSerializer):
+
+    challenge = ChallengesSerializer(read_only=True)
+    class Meta:
+        model = Challenge_Achiever
+        read_only_fields = ['scanned_at']  # automatically handled
+        exclude=['customer_taken']

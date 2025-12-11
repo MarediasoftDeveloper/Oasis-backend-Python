@@ -1,0 +1,212 @@
+
+# Create your views here.
+from rest_framework.views import APIView
+from rest_framework import status, generics, filters
+from rest_framework.response import Response
+from venue.Serializers.venue_info_serializer import VenueInfoSerializer
+from app.Serializers.challenge_achiever_serializer import GetChallengeAchieverSerializer
+from app.Serializers.rewards_achiever_serializer import GetRewardsAchievmentsSerializer
+from app.Serializers.raffles_entry_serializer import GetRafflesEntrySerializer
+from app.Models.posts import Post
+from app.models import Customer_profile
+from app.Serializers.customer_profile_serializer import CustomerProfileSerializer
+from app.Serializers.post_serializer import PostSerializer
+from venue.models.venue_info import Venue_Info
+from venue.models.venue_badges import Venue_Badges
+from venue.models.badges import BadgesLevel
+from app.Models.challenge_achiever import Challenge_Achiever
+from app.Models.earned_badges_by_user import Earned_Badges
+from app.Models.rewards_achiever import Rewards_Achiever
+from app.Models.raffles_entry import Raffles_Entry
+from app.Models.earned_badges_by_user import Earned_Badges
+from venue.models.venue_badges import Venue_Badges
+from rest_framework.permissions import IsAuthenticated
+from django.utils import timezone
+import datetime
+from datetime import timedelta
+from staff.Permissions.admin_only_permission import Request_By_Admin_Only
+from rest_framework.pagination import PageNumberPagination
+from django.db.models import Sum, Count
+from django.db.models import Count, Sum, OuterRef, Subquery, Prefetch
+from rest_framework import generics, filters
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
+
+
+
+
+
+
+
+
+
+
+def format_number_ui(value):
+    value = float(value)
+
+    if value >= 1_000_000_000:
+        return f"{value / 1_000_000_000:.2f}B"
+    elif value >= 1_000_000:
+        return f"{value / 1_000_000:.2f}M"
+    elif value >= 1_000:
+        return f"{value / 1_000:.2f}K"
+    else:
+        return str(int(value)) if value.is_integer() else f"{value:.2f}"
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 20         
+    page_size_query_param = 'page_size'
+    max_page_size = 50
+
+class UsersDataAPI(generics.ListAPIView):
+    permission_classes = [IsAuthenticated, Request_By_Admin_Only]
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [filters.SearchFilter]
+    serializer_class = CustomerProfileSerializer
+    search_fields = ['customer__username', 'customer__email','customer__first_name', 'customer__last_name']
+
+    def get_queryset(self):
+
+        total_scans_subquery = Challenge_Achiever.objects.filter(
+            customer_taken=OuterRef('customer')
+        ).values('customer_taken').annotate(
+            total=Count('id')
+        ).values('total')
+
+        badges_subquery = Earned_Badges.objects.filter(
+            user=OuterRef('customer'),
+        ).values('user').annotate(
+            total=Count('id')
+        ).values('total')
+    
+        return (
+            Customer_profile.objects
+            .select_related('customer')
+            .annotate(
+                total_scans=Subquery(total_scans_subquery),
+                total_badges=Subquery(badges_subquery),
+            )
+            .order_by('-customer__date_joined')
+        )
+        
+    def list(self, request, *args, **kwargs):
+        # THIS LINE FIXES SEARCH
+        queryObj = self.get_queryset()
+        queryset = self.filter_queryset(queryObj)
+        total_users = queryObj.count()
+        paginator = self.pagination_class()
+        paginated_customers = paginator.paginate_queryset(queryset, request)
+        
+        badges_earned = Earned_Badges.objects.all().count()
+        logged_in_users = OutstandingToken.objects.filter(
+            expires_at__gte=timezone.now()
+        ).values("user_id").distinct().count()
+        points_in_circulation = Customer_profile.objects.all().aggregate(circulation_points=Sum('total_redeemed_points'))
+
+        users_data={
+            'total_users':total_users,
+            'badges_earned':badges_earned,
+            'logged_in_users':logged_in_users,
+            "points_in_millions": format_number_ui(points_in_circulation['circulation_points']),
+
+        }
+
+        data = []
+
+        for user in paginated_customers:
+            serialized_user = CustomerProfileSerializer(user).data
+
+            serialized_user['total_scans'] = user.total_scans or 0
+            serialized_user['total_badges'] = user.total_badges or 0
+            serialized_user['joined_at'] = user.customer.date_joined
+        
+
+            data.append(serialized_user)
+
+        data.append(users_data)
+        return paginator.get_paginated_response(data)
+    
+
+class UserRetrieveAPI(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated, Request_By_Admin_Only]
+    serializer_class = CustomerProfileSerializer
+    lookup_field='customer_id'
+
+    def get_queryset(self):
+
+        total_scans_subquery = Challenge_Achiever.objects.filter(
+            customer_taken=OuterRef('customer')
+        ).values('customer_taken').annotate(
+            total=Count('id')
+        ).values('total')
+
+        badges_subquery = Earned_Badges.objects.filter(
+            user=OuterRef('customer'),
+        ).values('user').annotate(
+            total=Count('id')
+        ).values('total')
+    
+        return (
+            Customer_profile.objects
+            .select_related('customer')
+            .annotate(
+                total_scans=Subquery(total_scans_subquery),
+                total_badges=Subquery(badges_subquery),
+            )
+            .order_by('-customer__date_joined')
+        )
+    
+
+    def retrieve(self, request, *args, **kwargs):
+        customer = self.get_object()
+        posts = Post.objects.filter(user=customer.customer)
+        #  Last 5 scans
+        recent_scans = Challenge_Achiever.objects.filter(
+            customer_taken=customer.customer
+        ).order_by('-scanned_at')
+
+        #  Last 5 rewards
+        recent_rewards = Rewards_Achiever.objects.filter(
+            customer_taken=customer.customer
+        ).order_by('-achieved_at')
+
+        #  Last 5 raffles
+        recent_raffles = Raffles_Entry.objects.filter(
+            user=customer.customer
+        ).order_by('-joined_at')
+
+        data = CustomerProfileSerializer(customer).data
+        
+        # Attach computed values safely
+        data['total_scans'] = customer.total_scans or 0
+        data['total_badges'] = customer.total_badges or 0
+        data['joined_at'] = customer.customer.date_joined
+
+        data['posts'] = PostSerializer(posts, many=True).data
+        #  Attach related activity
+        data['customer_scans'] = GetChallengeAchieverSerializer(
+            recent_scans, many=True
+        ).data
+
+        data['customer_rewards_achieved'] = GetRewardsAchievmentsSerializer(
+            recent_rewards, many=True
+        ).data
+
+        data['customer_raffles_activity'] = GetRafflesEntrySerializer(
+            recent_raffles, many=True
+        ).data
+
+        return Response(data)
+
+
+
+
+
+
+class StaffPostUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
+    
+    permission_classes=[IsAuthenticated, Request_By_Admin_Only]
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    lookup_field='slug'
+

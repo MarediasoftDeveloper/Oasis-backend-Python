@@ -72,13 +72,13 @@ class VenueDashboard(APIView):
                 "points": sum([item.points_issued for item in challenge_by_day])
             })
 
-        points_issued = challenges_qs.aggregate(points=Sum('points_issued'))
        
-        
 
+        weekly_points_issued = sum([issued['points'] for issued in weekly_points_issue]) 
+      
         return Response({
             **venue_serialized.data,
-            "points_issued":points_issued['points'],
+            "points_issued":weekly_points_issued,
             "weekly_scans":weekly_scans,
             "weekly_points_issued":weekly_points_issue,
             "stats": {
