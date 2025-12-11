@@ -6,4 +6,3 @@ media/uploads
 firebase
 oasis/__pycache__/
 *.pyc
-Procfile
