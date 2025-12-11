@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'storages',
+    'django_crontab'
 ]
 
 
@@ -245,11 +246,22 @@ DEFAULT_FROM_EMAIL =config('EMAIL_HOST_USER')
 import firebase_admin
 from firebase_admin import credentials
 
-FIREBASE_CRED = credentials.Certificate(
-    BASE_DIR / "firebase/my-oasis-e7bca-firebase-adminsdk-fbsvc-c27b05b1f3.json"   # update path as peryour file
-)
+import firebase_admin
+from firebase_admin import credentials
+import json 
 
-default_app = firebase_admin.initialize_app(FIREBASE_CRED)
+firebase_json = config("FIREBASE_CREDENTIALS")
+
+if firebase_json:
+    firebase_dict = json.loads(firebase_json)
+
+    # Fix private key formatting (VERY important)
+    firebase_dict["private_key"] = firebase_dict["private_key"].replace("\\n", "\n")
+
+    cred = credentials.Certificate(firebase_dict)
+
+    if not firebase_admin._apps:
+        firebase_admin.initialize_app(cred)
 
 
 # Optional – Disable sandbox mode (real emails will be sent)
