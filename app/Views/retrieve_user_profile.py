@@ -16,6 +16,7 @@ class Retrieve_User_Profile(APIView):
     def get(self, request, id):
         user_info= Customer_profile.objects.get(customer__id=id)
         earned_badges= Earned_Badges.objects.filter(user__id=id).count()
+        print(user_info)
         serialized_posts =None
         friendship_status =None
         friendship_id =None
@@ -28,7 +29,7 @@ class Retrieve_User_Profile(APIView):
             allowed = True
         else:
             # Check friendship
-            is_friend = is_friend_obj.status="accepted"
+            is_friend = is_friend_obj and is_friend_obj.status == "accepted"
             allowed = is_friend_obj is not None
 
         if allowed:
@@ -37,7 +38,6 @@ class Retrieve_User_Profile(APIView):
         else:
             posts = "This is a private account. You can't see the posts of this user!"
 
-            
         
         check_blocking = UserBlocking.objects.filter(Q(blockedBy=self.request.user, blockedUser__id=id) | Q(blockedBy__id=id, blockedUser=self.request.user))
         blockedByCurrentUser = False
@@ -46,9 +46,9 @@ class Retrieve_User_Profile(APIView):
                 blockedByCurrentUser =True
             return Response({"error":"You can't see this profile!", "blockedByCurrentUser":blockedByCurrentUser})
 
+
         posts_count= Post.objects.filter(user__id=id).count()
         user_profile = CustomerProfileSerializer(user_info)
-       
         if is_friend_obj and is_friend_obj.status=='accepted':
             friendship_id=is_friend_obj.id
             friendship_status = {'status':True}

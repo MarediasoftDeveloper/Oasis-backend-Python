@@ -62,3 +62,11 @@ class RafflesEntrySerializer(serializers.ModelSerializer):
     def delete(self, instance):
         """Allow deletion with future custom logic."""
         instance.delete()
+
+
+
+class GetRafflesEntrySerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Raffles_Entry
+        exclude=['user']

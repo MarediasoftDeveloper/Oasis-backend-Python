@@ -5,13 +5,22 @@ from venue.Serializers.badges_serializer import BadgesSerializer
 from venue.Serializers.badge_category_serializer import BadgesCategorySerializer
 
 class BadgesLevelSerializer(serializers.ModelSerializer):
-    badge = BadgesSerializer()
-    category = BadgesCategorySerializer()
+    badge = BadgesSerializer(read_only=True)
+    category = BadgesCategorySerializer(read_only=True)
+
+    category_name = serializers.CharField(max_length=40, write_only=True, required=True)
+    num_of_task_to_achieve_badge = serializers.IntegerField(write_only=True, required=True)
+
+    badge_id = serializers.PrimaryKeyRelatedField(
+        source=badge,
+        queryset=Badges.objects.all(),
+        write_only=True, 
+    )
 
     class Meta:
         model = BadgesLevel
-        fields = ['id', 'badge', 'category', 'image', 'points_per_task']
-
+        fields = ['id', 'badge', 'category', 'image', 'points_per_task', 'category_name', 'num_of_task_to_achieve_badge', 'badge_id']
+        read_only_fields=['category', 'badge']
 
     # ---------------------------------------
     # Field-level validation
@@ -58,3 +67,21 @@ class BadgesLevelSerializer(serializers.ModelSerializer):
             )
 
         return attrs
+    
+    def create(self, validated_data):
+        category_name = validated_data.pop('category_name')
+        num_of_task_to_achieve_badge = validated_data.pop('num_of_task_to_achieve_badge')
+        
+        badge_name = validated_data.pop('badge_name')
+        badge_description = validated_data.pop('badge_description', None)
+        badge=None
+        if badge_description is not None: 
+            badge = Badges.objects.create(name=badge_name, description=badge_description)
+        else:
+            badge = Badges.objects.create(name=badge_name) 
+
+        category_saved = Badge_Category.objects.get_or_create(category=category_name, num_of_task_to_achieve_badge=num_of_task_to_achieve_badge)    
+        
+        
+
+        return BadgesLevel.objects.create(category=category_saved, **validated_data)

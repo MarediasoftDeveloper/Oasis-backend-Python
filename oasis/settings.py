@@ -95,6 +95,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'storages',
+    'django_crontab'
 ]
 
 
@@ -352,6 +353,11 @@ MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/{MEDIAFILES_LOCATION}/"
 # ✅ Local fallback
 STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_ROOT = BASE_DIR / "media"
+
+
+CRONJOBS = [
+    ('0 18 * * *', 'app.cron.send_daily_notification')
+]
 
 
 

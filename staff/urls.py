@@ -16,10 +16,17 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-
+from staff.Views.admin_dashboard import AdminDashboardAPI
+from staff.Views.venues_data import VenuesDataAPI, VenueRetrieveAPI
+from staff.Views.users_data import UsersDataAPI, UserRetrieveAPI
 
 
 
 urlpatterns = [
-    # path('user/', get_user.Get_User.as_view(), name='get_user'),
+    path('admin-dashboard/', AdminDashboardAPI.as_view(), name='admin-dashboard'),
+    path('venue-data/', VenuesDataAPI.as_view(), name='venue-data'),
+    path('venue-data/<int:venue_id>/', VenueRetrieveAPI.as_view(), name='venue-data-retrieve'),
+
+    path('user-data/', UsersDataAPI.as_view(), name='user-data'),
+    path('user-data/<int:customer_id>/', UserRetrieveAPI.as_view(), name='user-data-retrieve'),
 ]   
