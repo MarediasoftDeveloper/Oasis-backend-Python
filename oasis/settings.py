@@ -15,60 +15,22 @@ from decouple import config
 import dj_database_url
 import ssl
 import certifi
-import os
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-
-
-#For production
-AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")  # leave empty in production
-AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")  # leave empty in production
-AWS_S3_REGION_NAME = "us-east-1"
-
-
-import boto3
-
-
-
-#For Production
-ssm = boto3.client( 'ssm', region_name=AWS_S3_REGION_NAME)
-
-
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-
-secret_key = ssm.get_parameter(
-    Name='/myOasis/DJANGO_SECRET_KEY',
-    WithDecryption=True
-)['Parameter']['Value']
-
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = secret_key
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-debug_value = ssm.get_parameter(
-    Name='/myOasis/DEBUG',
-    WithDecryption=False
-)['Parameter']['Value']
+# DEBUG = config("DEBUG", default=False, cast=bool)
+DEBUG= True
 
-DEBUG = debug_value.lower() == 'true'
-
-
-hosts = ssm.get_parameter(
-    Name='/myOasis/ALLOWED_HOSTS',
-    WithDecryption=False
-)['Parameter']['Value']
-
-ALLOWED_HOSTS = hosts.split(",")
-
-
-
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="").split(",")
 
 # Optional: trust your Railway domain for CSRF
 CSRF_TRUSTED_ORIGINS = [
@@ -76,7 +38,14 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 
-    
+# CSRF_TRUSTED_ORIGINS = [
+#     "http://localhost:8080",
+#     "http://127.0.0.1:8080",
+#     "http://localhost:5173",
+#     "http://127.0.0.1:5173",
+# ]
+
+
 
 # Application definition
 
@@ -95,7 +64,6 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'storages',
-    'django_crontab'
 ]
 
 
@@ -121,14 +89,12 @@ REST_FRAMEWORK = {
 
 CORS_ALLOW_ALL_ORIGINS = False 
 
-
-cross_origins = ssm.get_parameter(
-    Name='/myOasis/CORS_ALLOWED_ORIGINS',
-    WithDecryption=False
-)['Parameter']['Value']
-
-CORS_ALLOWED_ORIGINS = cross_origins.split(",")
-
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  # Vite default
+    "http://127.0.0.1:5173",
+    "http://localhost:8080",  # Vue/React settings
+    "http://127.0.0.1:8080",
+]
 
 CORS_ALLOW_METHODS = [
     'DELETE',
@@ -153,12 +119,13 @@ CORS_ALLOW_HEADERS = [
 
 CORS_ALLOW_CREDENTIALS = True
 
+GOOGLE_WEB_CLIENT_ID = config("GOOGLE_WEB_CLIENT_ID")
 
 from datetime import timedelta
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=14),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'AUTH_HEADER_TYPES': ('Bearer',),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
@@ -198,13 +165,6 @@ WSGI_APPLICATION = 'oasis.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
-db_url = ssm.get_parameter(
-    Name='/myOasis/DATABASE_URL',
-    WithDecryption=True
-)['Parameter']['Value']
-os.environ['DATABASE_URL'] = db_url
-
 
 DATABASES = {
     'default': {
@@ -260,19 +220,6 @@ STORAGES = {
 # IMPORTANT: Remove or comment out STATICFILES_STORAGE and DEFAULT_FILE_STORAGE
 # to avoid a conflict.
 
-from firebase_admin import credentials, initialize_app
-
-param = ssm.get_parameter(Name="/myOasis/firebase/key", WithDecryption=True)
-key_json = param["Parameter"]["Value"]
-
-# Write to temporary file
-with open("/tmp/firebase_key.json", "w") as f:
-    f.write(key_json)
-
-cred = credentials.Certificate("/tmp/firebase_key.json")
-initialize_app(cred)
-
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
@@ -283,29 +230,26 @@ TIME_ZONE = 'Pacific/Auckland'
 
 USE_I18N = True
 
-USE_TZ = True               
+USE_TZ = True
 
 
 EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
-
-
-sendgrid_api = ssm.get_parameter(
-    Name='/myOasis/SENDGRID_API_KEY',
-    WithDecryption=True
-)['Parameter']['Value']
-SENDGRID_API_KEY = sendgrid_api
-
-email_host = ssm.get_parameter(
-    Name='/myOasis/EMAIL_HOST_USER',
-    WithDecryption=False
-)['Parameter']['Value']
-DEFAULT_FROM_EMAIL =email_host
+SENDGRID_API_KEY = config("SENDGRID_API_KEY")
+DEFAULT_FROM_EMAIL =config('EMAIL_HOST_USER')
 
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
+import firebase_admin
+from firebase_admin import credentials
+
+FIREBASE_CRED = credentials.Certificate(
+    BASE_DIR / "firebase/my-oasis-e7bca-firebase-adminsdk-fbsvc-c27b05b1f3.json"   # update path as peryour file
+)
+
+default_app = firebase_admin.initialize_app(FIREBASE_CRED)
 
 
 # Optional – Disable sandbox mode (real emails will be sent)
@@ -316,16 +260,14 @@ SENDGRID_ECHO_TO_STDOUT = False
 
 
 
-
-
 # Public files (STATIC)
 
 
-bucket = ssm.get_parameter(
-    Name='/myOasis/AWS_STORAGE_BUCKET_NAME',
-    WithDecryption=True
-)['Parameter']['Value']
-AWS_STORAGE_BUCKET_NAME = bucket
+
+AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = config("AWS_STORAGE_BUCKET_NAME")
+AWS_S3_REGION_NAME = "us-east-1"
 AWS_S3_SIGNATURE_VERSION = "s3v4"
 AWS_DEFAULT_ACL = None
 AWS_S3_FILE_OVERWRITE = False
@@ -353,13 +295,3 @@ MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/{MEDIAFILES_LOCATION}/"
 # ✅ Local fallback
 STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_ROOT = BASE_DIR / "media"
-
-
-CRONJOBS = [
-    ('0 18 * * *', 'app.cron.send_daily_notification')
-]
-
-
-
-
-

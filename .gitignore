@@ -4,3 +4,5 @@ docs
 db.sqlite3
 media/uploads
 firebase
+oasis/__pycache__/
+*.pyc
