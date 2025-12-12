@@ -19,6 +19,7 @@ from django.urls import path
 from staff.Views.admin_dashboard import AdminDashboardAPI
 from staff.Views.venues_data import VenuesDataAPI, VenueRetrieveAPI
 from staff.Views.users_data import UsersDataAPI, UserRetrieveAPI
+from staff.Views.referral_users_list import ReferralUsersList
 
 
 
@@ -29,4 +30,5 @@ urlpatterns = [
 
     path('user-data/', UsersDataAPI.as_view(), name='user-data'),
     path('user-data/<int:customer_id>/', UserRetrieveAPI.as_view(), name='user-data-retrieve'),
+    # path('referrals/', ReferralUsersList.as_view(), name='referrals'),
 ]   

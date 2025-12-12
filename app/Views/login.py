@@ -43,7 +43,7 @@ class Login(APIView):
             if not check_password(password, customer.password):
                 return Response({'error': 'One or more information is incorrect!'}, status=401)
 
-            customer_data = {}
+            customer_data = {} 
 
             if TermsAndConditionsAccept.objects.filter(user=customer).exists():
                 customer_data['termsAccepted']=True
