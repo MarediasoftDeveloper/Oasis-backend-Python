@@ -74,7 +74,7 @@ class Google_Signup(APIView):
                 customer_profile= Customer_profile.objects.create(customer=customer, profile_picture=picture)
 
 
-            customer_data["new_user"]= created
+            customer_data["new_user"] = created
 
             customer_profile= Customer_profile.objects.filter(customer=customer).first()
             serialized = CustomerProfileSerializer(customer_profile)

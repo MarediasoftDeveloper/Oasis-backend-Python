@@ -12,6 +12,7 @@ from app.Models.terms_and_conditions_accept import TermsAndConditionsAccept
 from app.models import Customer_profile
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from app.Serializers.customer_profile_serializer import CustomerProfileSerializer
 
@@ -23,6 +24,8 @@ def generate_apple_username(apple_sub: str) -> str:
 
 
 class AppleLogin(APIView):
+    
+    permission_classes = [AllowAny]
 
     def post(self, request):
         data = request.data 
