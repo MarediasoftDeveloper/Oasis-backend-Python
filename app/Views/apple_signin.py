@@ -15,6 +15,7 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from app.Serializers.customer_profile_serializer import CustomerProfileSerializer
+from django.db.models import Q
 
 User = get_user_model()
 
@@ -24,7 +25,7 @@ def generate_apple_username(apple_sub: str) -> str:
 
 
 class AppleLogin(APIView):
-    
+
     permission_classes = [AllowAny]
 
     def post(self, request):
@@ -67,7 +68,10 @@ class AppleLogin(APIView):
         apple_sub = decoded["sub"]
         email = decoded.get("email")
 
-        user = User.objects.filter(apple_sub=apple_sub).first()
+        print(email)
+        print(apple_sub)
+
+        user = User.objects.filter(Q(apple_sub=apple_sub) | Q(email=email)).first()
         created = False
         customer_data={}
 

@@ -9,11 +9,13 @@ from venue.Serializers.badges_serializer import BadgesSerializer
 class VenueBadgesSerializer(serializers.ModelSerializer):
     venue= Customer_Serializer(read_only=True)    
     badge= BadgesSerializer(read_only=True)
+    
     venue_badge = serializers.PrimaryKeyRelatedField(
         queryset=Badges.objects.all(),
         required=True,
         write_only=True
     )
+    
     class Meta:
         model = Venue_Badges
         fields = '__all__'
