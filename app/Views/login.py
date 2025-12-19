@@ -11,6 +11,7 @@ from rest_framework import status
 from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
 from app.Models.terms_and_conditions_accept import TermsAndConditionsAccept
 from app.Models.DeviceFcmToken import DeviceFCM
+from app.Models.user_current_app_version import UserCurrentAppVersion
 
 
 class Login(APIView):   
@@ -25,6 +26,8 @@ class Login(APIView):
         referral_code = data.get('referral_code')
         refresh_token = data.get('refresh')
         fcm_token = data.get("fcm_token")
+        app_current_version = data.get("app_current_version")  
+
     
         if not email or not password:
             return Response({'error':"Credentials not provided!"})
@@ -59,24 +62,31 @@ class Login(APIView):
                 if error_or_message.get('status') != 200:
                     return Response({"error": error_or_message['error']}, status=status.HTTP_400_BAD_REQUEST)
 
-            # ✅ Safely handle refresh token blacklist
+            # Safely handle refresh token blacklist
             if refresh_token:
                 try:    
                     old_refresh = RefreshToken(refresh_token)
                     old_refresh.blacklist()
                 except TokenError:
-                    pass  # Invalid or already blacklisted
+                    pass  # Invalid or already blacklisted  
             
-            if fcm_token:
-                DeviceFCM.objects.update_or_create(
-                    user=customer,
-                    defaults={"fcm_token": fcm_token}
+            if app_current_version:
+                UserCurrentAppVersion.objects.update_or_create(
+                    user=request.user,
+                    defaults={"app_version": app_current_version}
                 )
 
-            # ✅ Generate new token pair
+            if fcm_token: 
+                if not DeviceFCM.objects.filter(fcm_token=fcm_token).exists():
+                    DeviceFCM.objects.update_or_create(
+                        user=request.user,
+                        defaults={"fcm_token": fcm_token}
+                    )
+
+            # Generate new token pair
             refresh = RefreshToken.for_user(customer)
 
-            # ✅ Serialize customer profile
+            # Serialize customer profile
             customer_profile, _ = Customer_profile.objects.get_or_create(customer=customer)
             serialized = CustomerProfileSerializer(customer_profile)
 

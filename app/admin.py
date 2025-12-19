@@ -20,6 +20,7 @@ from .Models.users_blocking import UserBlocking
 from .Models.terms_and_conditions_accept import TermsAndConditionsAccept
 from .Models.DeviceFcmToken import DeviceFCM
 from .Models.post_venues_tags import PostVenueTag
+from .Models.user_current_app_version import UserCurrentAppVersion
 from .Models.referrals_Users import ReferralsUsers
 # Register your models here.
 
@@ -46,3 +47,4 @@ admin.site.register(TermsAndConditionsAccept)
 admin.site.register(DeviceFCM)
 admin.site.register(PostVenueTag)
 admin.site.register(ReferralsUsers)
+admin.site.register(UserCurrentAppVersion)

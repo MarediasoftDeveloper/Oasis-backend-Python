@@ -50,7 +50,7 @@ class Customer_Serializer(ModelSerializer):
 
             # If changing to another email — make sure it's unique
             if Customer.objects.filter(email__iexact=value).exists():
-                raise serializers.ValidationError("This email is already registered.")
+                raise serializers.ValidationError({"error":"This email is already registered."})
 
         return value  # ensure return in all paths
                 

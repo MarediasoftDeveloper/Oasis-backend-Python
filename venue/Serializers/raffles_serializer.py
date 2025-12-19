@@ -1,7 +1,11 @@
 from rest_framework import serializers
 from venue.models.raffles import Raffles
+from venue.models.raffles import Raffles
+from venue.Serializers.venue_info_serializer import VenueInfoSerializer
 
 class RafflesSerializer(serializers.ModelSerializer):
+    venue = VenueInfoSerializer(source="venue.venue_profile", read_only=True)
+
     class Meta:
         model = Raffles
         fields = '__all__'
@@ -10,7 +14,7 @@ class RafflesSerializer(serializers.ModelSerializer):
     def validate_title(self, value):
         """Ensure title is not empty."""
         if not value or not value.strip():
-            raise serializers.ValidationError("Title cannot be empty.")
+            raise serializers.ValidationError({"error":"Title cannot be empty."})
         return value
 
     def validate(self, data):

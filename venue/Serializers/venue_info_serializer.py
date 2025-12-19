@@ -9,11 +9,13 @@ class VenueInfoSerializer(serializers.ModelSerializer):
     username = serializers.CharField(max_length=25, allow_blank=True, write_only=True)
     password = serializers.CharField(max_length=50, allow_blank=True, write_only=True)
     venue= Venue_SignUp_Serializer(read_only=True)
-    
+
     class Meta:
         model = Venue_Info
         fields = '__all__'
         read_only_fields=['status']
+
+   
     
     def validate_venue_name(self, value):
         if not value.strip():

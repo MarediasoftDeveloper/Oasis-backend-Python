@@ -41,7 +41,7 @@ class PostSerializer(serializers.ModelSerializer):
     def validate_image(self, value):
         """Ensure an image is provided."""
         if not value:
-            raise serializers.ValidationError("An image is required for the post.")
+            raise serializers.ValidationError({"error":"An image is required for the post."})
         return value
 
     def validate(self, data):

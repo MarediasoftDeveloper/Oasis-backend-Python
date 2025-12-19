@@ -45,6 +45,7 @@ from .Views.terms_and_conditions_acceptance import TermsAndConditionsAcceptView
 from .Views.block_user_view import BlockUserView
 from .Views.reporting_and_complain_view import ReportingAndComplainsView
 from .Views.get_users_list import Customer_List
+from .Views.apple_signin import AppleLogin
 from .Views.myRewardsList import Achieved_Rewards_List
 from .Views.saveFcmToken import SaveFCMToken
 from .Views.notifications_list import NotificationsListView
@@ -74,6 +75,7 @@ urlpatterns = [
     path('auth/logout/', logout.Logout.as_view(), name='logout'),
     
     path('auth/google/', google_signup.Google_Signup.as_view(), name='google-auth'),
+    path('auth/apple/', AppleLogin.as_view(), name='apple-auth'),
    
     path('user/', oasis_home.Oasis_Home.as_view(), name='get_user'),
     path('user-profile/<int:id>/', Retrieve_User_Profile.as_view(), name='retrieve-user'),

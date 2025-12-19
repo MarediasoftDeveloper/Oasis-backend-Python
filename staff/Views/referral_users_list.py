@@ -3,14 +3,16 @@ from rest_framework.filters import SearchFilter
 from rest_framework import status, generics, filters
 from rest_framework.response import Response
 from app.Models.referrals_Users import ReferralsUsers
-from staff.models.set_refferal_points import Set_Refferal_Points
+from app.Models.referrals import Referrals
 from app.Serializers.referral_users_serializer import ReferralSerializer
+from app.Serializers.referral_code_invite import Referral_Code_Serializer
 from staff.Permissions.admin_only_permission import Request_By_Admin_Only
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
 import datetime
-from datetime import timedelta, timezone
-from django.db.models import Count
+from django.utils import timezone
+from datetime import timedelta
+from django.db.models import Count, Sum
 
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 20         
@@ -51,10 +53,16 @@ class ReferralUsersList(generics.ListAPIView):
             .first()
         )
 
-        referral_points = Set_Refferal_Points.objects.first()
-        points_value = referral_points.reward_points if referral_points else 0
+        referral_obj = Referrals.objects.filter(id=int(weekly_most_used_referral['referral'])).first()
 
-        points_circulate_this_week = weekly_used_referrals.count() * points_value
+        if referral_obj:
+            weekly_most_used_referral['referralDetials'] = Referral_Code_Serializer(referral_obj).data
+        
+        points_issued_by_referrals_this_week = (
+            weekly_used_referrals.aggregate(
+                total_points=Sum('points_issued')
+            )['total_points'] or 0
+        )
 
         serializer = self.get_serializer(paginated_referrals, many=True)
 
@@ -63,5 +71,5 @@ class ReferralUsersList(generics.ListAPIView):
             "total_referrals": queryset.count(),
             "weekly_referrals": weekly_used_referrals.count(),
             "most_used_referral": weekly_most_used_referral,
-            "points_circulate_this_week": points_circulate_this_week,
+            "referral_points_this_week": points_issued_by_referrals_this_week,
         })

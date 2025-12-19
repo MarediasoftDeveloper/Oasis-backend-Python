@@ -38,12 +38,12 @@ class BadgesLevelSerializer(serializers.ModelSerializer):
 
     def validate_num_of_task_to_achieve_badge(self, value):
         if value <= 0:
-            raise serializers.ValidationError("Tasks required must be greater than zero.")
+            raise serializers.ValidationError({"error":"Tasks required must be greater than zero."})
         return value
 
     def validate_points_per_task(self, value):
         if value < 0:
-            raise serializers.ValidationError("Points per task cannot be negative.")
+            raise serializers.ValidationError({"error":"Points per task cannot be negative."})
         return value
 
     # ---------------------------
@@ -60,7 +60,7 @@ class BadgesLevelSerializer(serializers.ModelSerializer):
             badge=badge,
             category__category=category_name
         ).exists():
-            raise serializers.ValidationError("This badge already has this category level.")
+            raise serializers.ValidationError({"error":"This badge already has this category level."})
 
         return attrs
 

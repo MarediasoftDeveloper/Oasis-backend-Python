@@ -53,6 +53,7 @@ class Customer(AbstractUser):
     password = models.CharField(max_length=500, blank=True, null=True)
     user_role = models.CharField(max_length=15, choices=USER_ROLES, default='1')
     is_verified = models.BooleanField(default=False)
+    apple_sub = models.CharField(max_length=255, unique=True, null=True)
 
     USERNAME_FIELD = 'email'        # 🔹 use email for login
     REQUIRED_FIELDS = []            # 🔹 no extra required fields

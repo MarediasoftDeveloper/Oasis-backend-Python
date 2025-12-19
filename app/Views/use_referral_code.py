@@ -26,9 +26,9 @@ def UseReferralCode(customer, referral_code):
         return {"error": "You cannot use your own referral code", "status": 400}
     
     # Mark as used
-    save_referral_user = ReferralsUsers.objects.create(code_user=customer, referral=referral) 
     referral_code_sender = referral.referral_code_sender
     get_points = get_reward_points()
+    save_referral_user = ReferralsUsers.objects.create(code_user=customer, referral=referral, points_issued=get_points) 
     record_earned_points(referral_code_sender, customer, get_points)
     update_customer_profiles_after_refferal_completion(referral.referral_code_sender, customer, get_points)
     send_push_notification(

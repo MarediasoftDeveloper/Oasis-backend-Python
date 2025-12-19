@@ -40,7 +40,7 @@ class Venue_Badge_CRUD(APIView):
                 badge__id__in=venue_badges,
                 category__category__icontains='basic'
             )
-            print(badges)
+            
             today = datetime.datetime.now()
 
             # Get the full weekday name

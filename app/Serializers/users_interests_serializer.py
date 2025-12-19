@@ -11,14 +11,14 @@ class UserInterestSerializer(serializers.ModelSerializer):
     def validate_user(self, value):
         """Ensure a user can have only one User_Interest entry."""
         if self.instance is None and User_Interest.objects.filter(user=value).exists():
-            raise serializers.ValidationError("User already has an interest record.")
+            raise serializers.ValidationError({"error":"User already has an interest record."})
         return value
 
     def validate(self, data):
         """Minimal cross-field validation."""
         interests = data.get('interests')
         if not interests or len(interests) == 0:
-            raise serializers.ValidationError({"interests": "At least one interest must be selected."})
+            raise serializers.ValidationError({"error": "At least one interest must be selected."})
         return data
 
     def create(self, validated_data):

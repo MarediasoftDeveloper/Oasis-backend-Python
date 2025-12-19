@@ -31,7 +31,7 @@ class ChallengeAchieverSerializer(serializers.ModelSerializer):
         venue_badge_obj = challenge.badge
         
         if not challenge:
-            raise serializers.ValidationError("Invalid QR Code")
+            raise serializers.ValidationError({"error":"Invalid QR Code"})
         
         user = request.user
         

@@ -11,6 +11,6 @@ class BadgesSerializer(serializers.ModelSerializer):
     def validate_name(self, value):
         """Ensure badge name is not empty."""
         if not value or not value.strip():
-            raise serializers.ValidationError("Badge name cannot be empty.")
+            raise serializers.ValidationError({"error":"Badge name cannot be empty."})
         return value
 

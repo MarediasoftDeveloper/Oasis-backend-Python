@@ -3,19 +3,20 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from venue.models.challenges import Challenges
 from app.Models.challenge_achiever import Challenge_Achiever
-from venue.Serializers.challenge_serializer import VenueChallengesSerializer
+from venue.Serializers.challenge_serializer import StaffChallengesSerializer
 from rest_framework.permissions import IsAuthenticated
-from venue.Permissions.venue_only_permission import Request_By_Venue_Only
+from staff.Permissions.admin_only_permission import Request_By_Admin_Only
 from venue.Permissions.write_by_venue_only import WriteByVenueOnly
 from django.db.models import Count, Sum
+from django.utils import timezone
+from rest_framework.renderers import JSONRenderer
 
-class Challenges_Crud_for_Venue(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated, Request_By_Venue_Only]
-    serializer_class = VenueChallengesSerializer
 
-    def get_queryset(self):
-        """Return challenges belonging to the logged-in venue."""
-        return Challenges.objects.filter(venue=self.request.user).order_by('-created_at')
+class Challenges_Crud_for_Staff(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated, Request_By_Admin_Only]
+    queryset = Challenges.objects.all().order_by('-created_at')
+    serializer_class = StaffChallengesSerializer
+ 
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
@@ -46,7 +47,7 @@ class Challenges_Crud_for_Venue(viewsets.ModelViewSet):
         )
         
         # All achievers for this venue’s challenges
-        challenges_achieved = Challenge_Achiever.objects.filter(challenge__venue=self.request.user)
+        challenges_achieved = Challenge_Achiever.objects.all()
         
         unique_users = challenges_achieved.values("customer_taken").distinct().count()
 
@@ -78,9 +79,7 @@ class Challenges_Crud_for_Venue(viewsets.ModelViewSet):
         }
 
         return Response(data, status=200)
-
-    def perform_create(self, serializer):
-        """Automatically assign venue when creating a challenge."""
-        serializer.save(venue=self.request.user)
+    
+    
     
 

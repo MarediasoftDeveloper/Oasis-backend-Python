@@ -1,7 +1,9 @@
 from rest_framework import serializers
 from app.Models.referrals import Referrals
+from app.Serializers.customer_signup_serializer import Customer_Serializer
 
 class Referral_Code_Serializer(serializers.ModelSerializer):
+    referral_code_sender = Customer_Serializer(read_only=True)
     class Meta:
         model = Referrals
         fields = '__all__'

@@ -11,7 +11,7 @@ from app.models import Customer_profile
 from app.Models.DeviceFcmToken import DeviceFCM
 from app.Models.terms_and_conditions_accept import TermsAndConditionsAccept
 from app.Serializers.customer_profile_serializer import CustomerProfileSerializer
-
+from app.Models.user_current_app_version import UserCurrentAppVersion
 
 
 User = get_user_model()
@@ -23,6 +23,7 @@ class Google_Signup(APIView):
    def post(self, request):
         id_token_value = request.data.get("id_token")
         fcm_token = request.data.get("fcm_token")
+        app_current_version = request.data.get("app_current_version")  
 
         if not id_token_value:
             return Response({"error": "ID token is required"}, status=status.HTTP_400_BAD_REQUEST)
@@ -44,6 +45,9 @@ class Google_Signup(APIView):
             name = idinfo.get("name", "")
             picture = idinfo.get("picture", "")
 
+
+
+          
             if not email:
                 return Response({"error": "Email not found in token"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -76,11 +80,19 @@ class Google_Signup(APIView):
             serialized = CustomerProfileSerializer(customer_profile)
             
 
-            if fcm_token:
-                DeviceFCM.objects.update_or_create(
-                    user=customer,
-                    defaults={"fcm_token": fcm_token}
+            if app_current_version:
+                UserCurrentAppVersion.objects.update_or_create(
+                    user=request.user,
+                    defaults={"app_version": app_current_version}
                 )
+
+            if fcm_token:
+                if not DeviceFCM.objects.filter(fcm_token=fcm_token).exists():
+                    DeviceFCM.objects.update_or_create(
+                        user=request.user,
+                        defaults={"fcm_token": fcm_token}
+                    )
+
             #  Generate JWT tokens
             refresh = RefreshToken.for_user(customer)
 

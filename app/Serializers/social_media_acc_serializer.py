@@ -26,7 +26,7 @@ class SocialMediaAccountsSerializer(serializers.ModelSerializer):
         social_media = data.get('social_media')
 
         if not user:
-            raise serializers.ValidationError("User context missing.")
+            raise serializers.ValidationError({"error":"User context missing."})
 
         # Exclude current instance when updating
         existing_accounts = Social_Media_Accounts.objects.filter(user=user)
