@@ -16,6 +16,8 @@ from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from app.Serializers.customer_profile_serializer import CustomerProfileSerializer
 from django.db.models import Q
+from jwt import PyJWKClient
+
 
 User = get_user_model()
 
@@ -54,18 +56,22 @@ class AppleLogin(APIView):
         if "error" in token_data:
             return Response(token_data, status=400)
 
-        # Decode identity token
+        identity_token = token_data.get("id_token")
+
+        # Verify Apple token
+        jwks_client = PyJWKClient("https://appleid.apple.com/auth/keys")
+        signing_key = jwks_client.get_signing_key_from_jwt(identity_token)
+
         decoded = jwt.decode(
             identity_token,
-            options={"verify_signature": True},
-            audience=settings.APPLE_CLIENT_ID
+            signing_key.key,
+            algorithms=["RS256"],
+            audience=settings.APPLE_CLIENT_ID,
+            issuer="https://appleid.apple.com",
         )
 
-        if decoded.get("iss") != "https://appleid.apple.com":
-            return Response({"error": "Invalid issuer"}, status=400)
-
         apple_sub = decoded["sub"]
-        email = decoded.get("email")
+        email = decoded.get("email") or f"{apple_sub}@appleid.apple"
 
         if email is None:
             return Response({"error":"looks like there is some issue while logging you in, Please try another way to join oasis."})
