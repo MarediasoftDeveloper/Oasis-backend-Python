@@ -8,8 +8,8 @@ from rest_framework.response import Response
 
 class ReferrlCodeUseView(APIView):
 
-    def get(self, request):
-        
+    def post(self, request):
+
         id = request.data.get('customer_id')
         referral_code = request.data.get('referral_code')
         customer=Customer.objects.filter(id=id).first()
