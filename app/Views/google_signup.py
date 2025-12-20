@@ -89,7 +89,7 @@ class Google_Signup(APIView):
             if fcm_token:
                 if not DeviceFCM.objects.filter(fcm_token=fcm_token).exists():
                     DeviceFCM.objects.update_or_create(
-                        user=request.user,
+                        user=customer,
                         defaults={"fcm_token": fcm_token}
                     )
 

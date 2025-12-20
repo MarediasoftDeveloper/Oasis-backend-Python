@@ -73,9 +73,7 @@ class AppleLogin(APIView):
         apple_sub = decoded["sub"]
         email = decoded.get("email") or f"{apple_sub}@appleid.apple"
 
-        if email is None:
-            return Response({"error":"looks like there is some issue while logging you in, Please try another way to join oasis."})
-
+ 
         user = User.objects.filter(apple_sub=apple_sub).first()
         created = False
         customer_data={}
@@ -116,7 +114,7 @@ class AppleLogin(APIView):
         if fcm_token:
             if not DeviceFCM.objects.filter(fcm_token=fcm_token).exists():
                 DeviceFCM.objects.update_or_create(
-                    user=request.user,
+                    user=user,
                     defaults={"fcm_token": fcm_token}
                )
 

@@ -72,14 +72,14 @@ class Login(APIView):
             
             if app_current_version:
                 UserCurrentAppVersion.objects.update_or_create(
-                    user=request.user,
+                    user=customer,
                     defaults={"app_version": app_current_version}
                 )
 
             if fcm_token: 
                 if not DeviceFCM.objects.filter(fcm_token=fcm_token).exists():
                     DeviceFCM.objects.update_or_create(
-                        user=request.user,
+                        user=customer,
                         defaults={"fcm_token": fcm_token}
                     )
 
