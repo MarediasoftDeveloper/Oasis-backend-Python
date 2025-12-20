@@ -11,9 +11,6 @@ from app.Models.posts import Post
 from app.models import Customer_profile
 from app.Serializers.customer_profile_serializer import CustomerProfileSerializer
 from app.Serializers.post_serializer import PostSerializer
-from venue.models.venue_info import Venue_Info
-from venue.models.venue_badges import Venue_Badges
-from venue.models.badges import BadgesLevel
 from app.Models.challenge_achiever import Challenge_Achiever
 from app.Models.earned_badges_by_user import Earned_Badges
 from app.Models.rewards_achiever import Rewards_Achiever
@@ -31,14 +28,6 @@ from django.db.models import Count, Sum, OuterRef, Subquery, Prefetch
 from rest_framework import generics, filters
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
-
-
-
-
-
-
-
-
 
 
 def format_number_ui(value):

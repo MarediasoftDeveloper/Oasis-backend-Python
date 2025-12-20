@@ -41,8 +41,7 @@ class Withdraw_of_Raffle(APIView):
         if get_raffle_entries.filter(is_winner=True).count() >= get_winner_entry.raffle.num_of_winners:
             return Response({"error": "This Raffle has reached its number of winners!"}, status=400)
 
-        # Check if the raffle has already reached its winner limit
-
+       
         # Try to get the winner's customer profile
         try:
             get_winner = Customer_profile.objects.get(customer=get_winner_entry.user)

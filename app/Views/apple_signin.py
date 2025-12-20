@@ -40,7 +40,6 @@ class AppleLogin(APIView):
         if not identity_token or not auth_code:
             return Response({"error": "Missing token"}, status=400)
 
-        # Exchange authorization code
         token_response = requests.post(
             "https://appleid.apple.com/auth/token",
             data={
@@ -58,7 +57,7 @@ class AppleLogin(APIView):
         # Decode identity token
         decoded = jwt.decode(
             identity_token,
-            options={"verify_signature": False},
+            options={"verify_signature": True},
             audience=settings.APPLE_CLIENT_ID
         )
 
@@ -68,14 +67,15 @@ class AppleLogin(APIView):
         apple_sub = decoded["sub"]
         email = decoded.get("email")
 
-        print(email)
-        print(apple_sub)
+        if email is None:
+            return Response({"error":"looks like there is some issue while logging you in, Please try another way to join oasis."})
 
-        user = User.objects.filter(Q(apple_sub=apple_sub) | Q(email=email)).first()
+        user = User.objects.filter(apple_sub=apple_sub).first()
         created = False
         customer_data={}
+    
 
-        if not user:
+        if not user and email is not None:
             user = User.objects.create_user(
                 username=generate_apple_username(apple_sub),
                 email=email,
@@ -118,10 +118,10 @@ class AppleLogin(APIView):
 
         return Response(
             {
-                **serialized,
-                "access_token": str(refresh.access_token),
-                "refresh_token": str(refresh),
-                **customer_data
+            **serialized,
+            "access_token": str(refresh.access_token),
+            "refresh_token": str(refresh),
+            **customer_data
             },
             status=status.HTTP_200_OK,
         )

@@ -49,6 +49,7 @@ from .Views.apple_signin import AppleLogin
 from .Views.myRewardsList import Achieved_Rewards_List
 from .Views.saveFcmToken import SaveFCMToken
 from .Views.notifications_list import NotificationsListView
+from .Views.referral_code_view import ReferrlCodeUseView 
 
 
 from rest_framework_simplejwt.views import (
@@ -123,6 +124,9 @@ urlpatterns = [
 
     path('redeem-reward/', User_Redeem_Rewards.as_view(), name="redeem-reward"),    
     path('redeemed-rewards-list/', Achieved_Rewards_List.as_view(), name="redeemed-rewards-list"),    
+
+    path('use-referral/', ReferrlCodeUseView.as_view(), name="use-referral-code"),    
+
 
     path('report-user/', ReportingAndComplainsView.as_view(), name="report-user"),    
     path('accept-terms-and-conditions/', TermsAndConditionsAcceptView.as_view(), name="accept-terms-and-conditions"),    

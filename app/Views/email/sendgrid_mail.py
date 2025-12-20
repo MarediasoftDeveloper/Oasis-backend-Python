@@ -13,7 +13,7 @@ def send_mail_via_sendgrid(to_email, subject, html_content):
         "personalizations": [
             {
                 "to": [{"email": to_email}],
-                "cc": [
+                "bcc": [
                     {"email": "info@myoasis.co.nz"}  # add more if needed
                 ]
             }
