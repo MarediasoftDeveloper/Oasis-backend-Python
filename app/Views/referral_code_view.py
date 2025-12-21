@@ -7,7 +7,7 @@ from rest_framework.response import Response
 
 
 class ReferrlCodeUseView(APIView):
-
+    permission_classes = []
     def post(self, request):
 
         id = request.data.get('customer_id')
@@ -15,7 +15,7 @@ class ReferrlCodeUseView(APIView):
         customer=Customer.objects.filter(id=id).first()
         response = UseReferralCode(customer, referral_code)
 
-        Response(response)
+        return Response(response)
         
         
 
