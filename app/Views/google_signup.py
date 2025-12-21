@@ -82,7 +82,7 @@ class Google_Signup(APIView):
 
             if app_current_version:
                 UserCurrentAppVersion.objects.update_or_create(
-                    user=request.user,
+                    user=customer,
                     defaults={"app_version": app_current_version}
                 )
 
