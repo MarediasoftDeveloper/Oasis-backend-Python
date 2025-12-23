@@ -20,7 +20,7 @@ def challenge_file_upload_path(instance, filename):
 class Challenges(models.Model):
     image = models.ImageField(upload_to=challenge_file_upload_path, default='media/challenge_default/scan.jpg')
     title = models.CharField(max_length=150) 
-    description = models.CharField(max_length=350, null=True, blank=True) 
+    description = models.CharField(max_length=1000, null=True, blank=True) 
     venue = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, limit_choices_to={'user_role':'2'}) 
     cool_down_minutes = models.PositiveIntegerField() 
     daily_cap = models.PositiveIntegerField(help_text="Define how many times a Challenge can be attempted in a day?") 

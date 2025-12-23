@@ -13,7 +13,7 @@ STATUS_CHOICES = [
 class Raffles(models.Model):
     image = models.ImageField(upload_to=raffle_file_upload_path, default='raffle_default/raffle.png')
     title = models.CharField(max_length=100)
-    description = models.CharField(max_length=300, null=True, blank=True)
+    description = models.CharField(max_length=1000, null=True, blank=True)
     rewards = models.CharField(max_length=250, null=True, blank=True)
     points_to_join = models.PositiveIntegerField()
     is_approved = models.CharField(max_length=50, choices=STATUS_CHOICES, default='approved')

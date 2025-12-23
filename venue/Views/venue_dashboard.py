@@ -72,8 +72,6 @@ class VenueDashboard(APIView):
                 "points": sum([item.points_issued for item in challenge_by_day])
             })
 
-       
-
         weekly_points_issued = sum([issued['points'] for issued in weekly_points_issue]) 
       
         return Response({

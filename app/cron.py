@@ -13,10 +13,9 @@ def send_daily_notification():
         stamped_at__date=today
     ).values_list('user_id', flat=True)
 
-    # users who did NOT stamp today
     receivers =list(Customer.objects.exclude(id__in=stamped_users))
 
-    title = "⏰ Don't miss your today's stamp!"
+    title = "⏰ Don't forget to collect today's stamp!"
     body = "Here is your daily reminder — get your daily stamp and win 30 points! 🎉🚀"
 
     send_push_notification(

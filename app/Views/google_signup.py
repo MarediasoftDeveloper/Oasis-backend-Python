@@ -70,6 +70,7 @@ class Google_Signup(APIView):
                 parts = name.split()
                 customer.first_name = parts[0] if parts else ""
                 customer.last_name = " ".join(parts[1:]) if len(parts) > 1 else ""
+                customer.is_active = True
                 customer.save()
                 customer_profile= Customer_profile.objects.create(customer=customer, profile_picture=picture)
 

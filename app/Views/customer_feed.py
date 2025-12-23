@@ -15,7 +15,7 @@ from app.Models.friendships import Friendships
 
 
 class StandardResultsSetPagination(PageNumberPagination):
-    page_size = 10                     # ✅ Return 10 posts by default
+    page_size = 10    # Return 10 posts by default
     page_size_query_param = 'page_size'
     max_page_size = 50
 

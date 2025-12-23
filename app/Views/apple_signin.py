@@ -75,7 +75,9 @@ class AppleLogin(APIView):
 
  
         user = User.objects.filter(apple_sub=apple_sub).first()
+
         created = False
+        
         customer_data={}
     
 
@@ -92,6 +94,7 @@ class AppleLogin(APIView):
                 user.last_name = " ".join(parts[1:])
                 user.save()
 
+            user.is_active = True
             Customer_profile.objects.create(customer=user)
             created = True
 
@@ -104,6 +107,7 @@ class AppleLogin(APIView):
         # Terms check AFTER user exists
         terms_accepted = TermsAndConditionsAccept.objects.filter(user=user).exists()
         customer_data['termsAccepted'] = terms_accepted
+        
         # Correct user reference
         if app_current_version:
             UserCurrentAppVersion.objects.update_or_create(
