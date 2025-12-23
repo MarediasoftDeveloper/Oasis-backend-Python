@@ -90,11 +90,11 @@ class AppleLogin(APIView):
 
             if full_name:
                 parts = full_name.strip().split()
-                user.first_name = parts[0]
+                user.first_name = parts[0] 
                 user.last_name = " ".join(parts[1:])
                 user.save()
 
-            user.is_active = True
+            user.is_verified = True
             Customer_profile.objects.create(customer=user)
             created = True
 
