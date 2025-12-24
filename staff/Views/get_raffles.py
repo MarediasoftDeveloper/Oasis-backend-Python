@@ -3,7 +3,7 @@ from rest_framework import generics
 from venue.models.raffles import Raffles
 from app.Models.raffles_entry import Raffles_Entry
 from app.Serializers.raffles_entry_serializer import RafflesEntrySerializer
-from venue.Serializers.raffles_serializer import RafflesSerializer
+from venue.Serializers.raffles_serializer import RafflesStaffSerializer
 from rest_framework.permissions import IsAuthenticated
 from staff.Permissions.admin_only_permission import Request_By_Admin_Only
 from rest_framework.response import Response
@@ -11,7 +11,7 @@ from django.db.models import Count, Sum
 
 class GetRafflesForAdmin(generics.ListAPIView):
     permission_classes = [IsAuthenticated, Request_By_Admin_Only]
-    serializer_class = RafflesSerializer
+    serializer_class = RafflesStaffSerializer
 
     def list(self, request, *args, **kwargs):
         queryset = Raffles.objects.all().order_by('-id')

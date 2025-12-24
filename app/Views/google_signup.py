@@ -12,7 +12,7 @@ from app.Models.DeviceFcmToken import DeviceFCM
 from app.Models.terms_and_conditions_accept import TermsAndConditionsAccept
 from app.Serializers.customer_profile_serializer import CustomerProfileSerializer
 from app.Models.user_current_app_version import UserCurrentAppVersion
-
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -24,6 +24,7 @@ class Google_Signup(APIView):
         id_token_value = request.data.get("id_token")
         fcm_token = request.data.get("fcm_token")
         app_current_version = request.data.get("app_current_version")  
+
 
         if not id_token_value:
             return Response({"error": "ID token is required"}, status=status.HTTP_400_BAD_REQUEST)

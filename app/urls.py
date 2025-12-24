@@ -50,6 +50,7 @@ from .Views.myRewardsList import Achieved_Rewards_List
 from .Views.saveFcmToken import SaveFCMToken
 from .Views.notifications_list import NotificationsListView
 from .Views.referral_code_view import ReferrlCodeUseView 
+from .Views.facebook_signin import Facebook_Signup
 
 
 from rest_framework_simplejwt.views import (
@@ -77,6 +78,7 @@ urlpatterns = [
     
     path('auth/google/', google_signup.Google_Signup.as_view(), name='google-auth'),
     path('auth/apple/', AppleLogin.as_view(), name='apple-auth'),
+    path('auth/facebook/', Facebook_Signup.as_view(), name='facebook-auth'),
    
     path('user/', oasis_home.Oasis_Home.as_view(), name='get_user'),
     path('user-profile/<int:id>/', Retrieve_User_Profile.as_view(), name='retrieve-user'),

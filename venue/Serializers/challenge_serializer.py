@@ -24,7 +24,14 @@ class ChallengesSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields=['venue', 'qr_code', 'badge']
     
-    
+    def validate_description(self, value):
+        """Ensure ending date is after starting date and badge is valid."""
+        if value and len(value) > 1000:
+            raise serializers.ValidationError(
+                {"error": "Description is too long."}
+            )
+        return value
+
     def validate(self, data):
         """Ensure ending date is after starting date and badge is valid."""
 
@@ -134,7 +141,15 @@ class VenueChallengesSerializer(serializers.ModelSerializer):
         model = Challenges
         fields = '__all__'
         read_only_fields=['venue', 'qr_code', 'badge', 'is_approved']
-        
+    
+    def validate_description(self, value):
+        """Ensure ending date is after starting date and badge is valid."""
+        if value and len(value) > 1000:
+            raise serializers.ValidationError(
+                {"error": "Description is too long."}
+            )
+        return value
+
     
     def validate(self, data):
         """Ensure ending date is after starting date and badge is valid."""
@@ -253,6 +268,14 @@ class StaffChallengesSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields=['venue', 'qr_code', 'badge']
     
+    def validate_description(self, value):
+        """Ensure ending date is after starting date and badge is valid."""
+        if value and len(value) > 1000:
+            raise serializers.ValidationError(
+                {"error": "Description is too long."}
+            )
+        return value
+
     
     def validate(self, data):
         """Ensure ending date is after starting date and badge is valid."""
@@ -271,8 +294,6 @@ class StaffChallengesSerializer(serializers.ModelSerializer):
         # Validate badge_id existence
         if not venue_badge:
             raise serializers.ValidationError({"error": "Badge should be selected"})
-        print(venue)
-        print(venue_badge)
        
         
         request = self.context.get('request')

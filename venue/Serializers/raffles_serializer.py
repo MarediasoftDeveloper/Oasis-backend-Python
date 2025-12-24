@@ -5,7 +5,6 @@ from app.models import Customer
 from venue.Serializers.venue_info_serializer import VenueInfoSerializer
 
 class RafflesSerializer(serializers.ModelSerializer):
-    venue = VenueInfoSerializer(source="venue.venue_profile", read_only=True)
 
     class Meta:
         model = Raffles
@@ -17,6 +16,8 @@ class RafflesSerializer(serializers.ModelSerializer):
         if not value or not value.strip():
             raise serializers.ValidationError({"error":"Title cannot be empty."})
         return value
+    
+
 
     def validate(self, data):
         """Basic, necessary validations."""
@@ -57,7 +58,7 @@ class RafflesSerializer(serializers.ModelSerializer):
 
 
 
-class RafflesSerializer(serializers.ModelSerializer):
+class RafflesStaffSerializer(serializers.ModelSerializer):
     venue = VenueInfoSerializer(source="venue.venue_profile", read_only=True)
     venue_id = serializers.PrimaryKeyRelatedField(
         queryset=Customer.objects.filter(user_role='2'),
@@ -73,6 +74,12 @@ class RafflesSerializer(serializers.ModelSerializer):
         """Ensure title is not empty."""
         if not value or not value.strip():
             raise serializers.ValidationError({"error":"Title cannot be empty."})
+        return value
+    
+    def validate_description(self, value):
+        """Ensure description is not too long."""
+        if value and len(value) > 1000:
+            raise serializers.ValidationError({"error":"Description is too long."})
         return value
 
     def validate(self, data):
@@ -97,7 +104,7 @@ class RafflesSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         """Create new raffle entry."""
         venue = validated_data.pop('venue_id')
-        
+         
         return Raffles.objects.create(venue=venue, **validated_data)
 
     def update(self, instance, validated_data):

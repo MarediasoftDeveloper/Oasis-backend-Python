@@ -14,7 +14,7 @@ class MyRafflesGetView(generics.ListAPIView):
     serializer_class = RafflesSerializer
 
     def list(self, request, *args, **kwargs):
-        queryset = Raffles.objects.filter(venue=request.user)
+        queryset = Raffles.objects.filter(venue=request.user).order_by('-created_at')
         data=[]
 
         serialized=self.get_serializer(queryset)

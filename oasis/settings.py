@@ -245,6 +245,13 @@ APPLE_TEAM_ID=config('APPLE_TEAM_ID')
 APPLE_KEY_ID=config('APPLE_KEY_ID')
 
 
+
+
+FACEBOOK_APP_ID = config('FACEBOOK_APP_ID')
+FACEBOOK_APP_SECRET = config('FACEBOOK_APP_SECRET')
+
+
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 

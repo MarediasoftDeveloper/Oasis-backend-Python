@@ -20,5 +20,4 @@ class Oasis_Home(APIView):
             termsAccepted=True
         
 
-
         return Response({**info_serializer.data, 'is_verified':password_created, 'termsAccepted':termsAccepted})

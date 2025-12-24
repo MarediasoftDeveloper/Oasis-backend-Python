@@ -27,6 +27,8 @@ class RewardsSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"error":"Title cannot be empty."})
         return value
 
+    
+
     def validate(self, data):
         """Only necessary cross-field checks."""
         start = data.get('started_at')
@@ -94,6 +96,13 @@ class StaffRewardsSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"error":"Title cannot be empty."})
         return value
 
+    def validate_condition(self, value):
+        """Ensure condition is not empty."""
+        if value and len(value) > 1000:
+            raise serializers.ValidationError({"error":"Description is too long."})
+        return value
+    
+    
     def validate(self, data):
         """Only necessary cross-field checks."""
         start = data.get('started_at')
