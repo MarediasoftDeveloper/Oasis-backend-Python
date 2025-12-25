@@ -29,7 +29,7 @@ class GetRafflesForAdmin(generics.ListAPIView):
             participants = Raffles_Entry.objects.filter(raffle=raffle)
 
             # Serialize the raffle itself
-            serialized_raffle = RafflesSerializer(raffle).data  # Serializing the raffle object
+            serialized_raffle = RafflesStaffSerializer(raffle).data  # Serializing the raffle object
 
             # Add the achiever count to the serialized raffle data
             serialized_raffle["participants"] = participants.count()

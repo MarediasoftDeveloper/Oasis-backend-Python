@@ -15,7 +15,6 @@ class VenueInfoSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields=['status']
 
-   
     
     def validate_venue_name(self, value):
         if not value.strip():

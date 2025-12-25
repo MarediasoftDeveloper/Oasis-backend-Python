@@ -3,9 +3,12 @@ import time
 from pathlib import Path
 from django.conf import settings
 
-def generate_apple_client_secret():
-    private_key = Path(settings.APPLE_PRIVATE_KEY_PATH).read_text()
 
+
+
+def generate_apple_client_secret():
+    private_key = Path(settings.APPLE_PRIVATE_KEY).read_text() # for Local
+   
     payload = {
         "iss": settings.APPLE_TEAM_ID,
         "iat": int(time.time()),

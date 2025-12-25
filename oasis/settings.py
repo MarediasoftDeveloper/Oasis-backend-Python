@@ -34,8 +34,7 @@ ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="").split(",")
 
 # Optional: trust your Railway domain for CSRF
 CSRF_TRUSTED_ORIGINS = [
-    f"https://{host}" for host in ALLOWED_HOSTS if host not in ["localhost", "127.0.0.1"]
-]
+    f"https://{host}" for host in ALLOWED_HOSTS if host not in ["localhost", "127.0.0.1"]]
 
 
 # CSRF_TRUSTED_ORIGINS = [
@@ -56,15 +55,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'app',
+    'app.apps.AppConfig',
     'staff',
-    'venue',
+    'venue.apps.VenueConfig',
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'storages',
+    'django_crontab'
 ]
+
 
 
 
@@ -239,7 +240,7 @@ DEFAULT_FROM_EMAIL =config('EMAIL_HOST_USER')
 
 
 
-APPLE_PRIVATE_KEY_PATH = config('APPLE_PRIVATE_KEY_PATH')
+APPLE_PRIVATE_KEY = config('APPLE_PRIVATE_KEY_PATH')
 APPLE_CLIENT_ID=config('APPLE_CLIENT_ID')
 APPLE_TEAM_ID=config('APPLE_TEAM_ID') 
 APPLE_KEY_ID=config('APPLE_KEY_ID')
@@ -271,12 +272,7 @@ SENDGRID_SANDBOX_MODE_IN_DEBUG = False
 SENDGRID_ECHO_TO_STDOUT = False
 
 
-
-
 # Public files (STATIC)
-
-
-
 AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY")
 AWS_STORAGE_BUCKET_NAME = config("AWS_STORAGE_BUCKET_NAME")

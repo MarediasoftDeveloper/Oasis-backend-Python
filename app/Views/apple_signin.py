@@ -19,6 +19,7 @@ from django.db.models import Q
 from jwt import PyJWKClient
 
 
+
 User = get_user_model()
 
 def generate_apple_username(apple_sub: str) -> str:

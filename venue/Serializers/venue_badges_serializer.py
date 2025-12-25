@@ -22,7 +22,6 @@ class VenueBadgesSerializer(serializers.ModelSerializer):
         read_only_fields =['venue', 'venue_badge']
 
    
-   
     def create(self, validated_data):
         """Create a new Challenge."""
         venue = self.context.get('request').user
