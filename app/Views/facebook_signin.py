@@ -27,8 +27,9 @@ class Facebook_Signup(APIView):
 
 
         if not access_token:
+            # something went wrong! please try again.
             return Response(
-                {"error": "Facebook access token is required"},
+                {"error": "something went wrong! please try again."},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -44,8 +45,9 @@ class Facebook_Signup(APIView):
             fb_data = fb_response.json()
 
             if "error" in fb_data:
+                # invalid token 
                 return Response(
-                    {"error": "Invalid Facebook token", "details": fb_data},
+                    {"error": "something went wrong! please try again.", "details": fb_data},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
@@ -53,8 +55,9 @@ class Facebook_Signup(APIView):
             name = fb_data.get("name", "")
            
             if not email:
+                # email permission not granted from facebook 
                 return Response(
-                    {"error": "Email permission not granted by Facebook"},
+                    {"error": "something went wrong! please try again."},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
@@ -116,7 +119,8 @@ class Facebook_Signup(APIView):
             )
 
         except Exception as e:
+            # Facebook authentication failed 
             return Response(
-                {"error": "Facebook authentication failed", "details": str(e)},
+                {"error": "something went wrong! please try again.", "details": str(e)},
                 status=status.HTTP_400_BAD_REQUEST
             )

@@ -22,7 +22,7 @@ from datetime import timedelta
 from staff.Permissions.admin_only_permission import Request_By_Admin_Only
 from django.db.models import Sum
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
-
+from staff.Serializers.venue_info_staff_serializers import VenueInfoStaffSerializer
 
 def format_number_ui(value):
     value = float(value)
@@ -38,6 +38,7 @@ def format_number_ui(value):
 
 class AdminDashboardAPI(APIView):
     permission_classes = [IsAuthenticated, Request_By_Admin_Only]
+
 
     def get(self, request):
         
@@ -152,7 +153,7 @@ class AdminDashboardAPI(APIView):
             .select_related('venue')
             .order_by('-venue__date_joined')[:10]
         )
-        venue_serialized = VenueInfoSerializer(venue_profiles, many=True)
+        venue_serialized = VenueInfoStaffSerializer(venue_profiles, many=True)
 
      
         return Response({

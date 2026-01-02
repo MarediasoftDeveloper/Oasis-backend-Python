@@ -63,8 +63,9 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'storages',
-    'django_crontab'
+    'django_crontab',
 ]
+
 
 
 
@@ -252,6 +253,8 @@ FACEBOOK_APP_ID = config('FACEBOOK_APP_ID')
 FACEBOOK_APP_SECRET = config('FACEBOOK_APP_SECRET')
 
 
+
+STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY')
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/

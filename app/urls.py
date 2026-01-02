@@ -53,6 +53,7 @@ from .Views.referral_code_view import ReferrlCodeUseView
 from .Views.facebook_signin import Facebook_Signup
 
 
+
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -135,7 +136,7 @@ urlpatterns = [
     # jwt token 
     path('notifications/', NotificationsListView.as_view(), name="notifications"),    
 
-
+   
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('', include(router.urls)),  #  Include DRF ViewSet routes
