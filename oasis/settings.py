@@ -254,7 +254,6 @@ FACEBOOK_APP_SECRET = config('FACEBOOK_APP_SECRET')
 
 
 
-STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY')
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
@@ -283,27 +282,27 @@ AWS_S3_REGION_NAME = "us-east-1"
 AWS_S3_SIGNATURE_VERSION = "s3v4"
 AWS_DEFAULT_ACL = None
 AWS_S3_FILE_OVERWRITE = False
-AWS_QUERYSTRING_AUTH = False  # ✅ public URLs without ?signature= params
+AWS_QUERYSTRING_AUTH = False  # public URLs without ?signature= params
 
 AWS_S3_OBJECT_PARAMETERS = {
     "CacheControl": "max-age=86400",
 }
 AWS_LOCATION = ""
-# ✅ Custom domain (public endpoint)
+# Custom domain (public endpoint)
 AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
 
-# ✅ Optional: specify the subfolders for static and media (recommended)
+# Optional: specify the subfolders for static and media (recommended)
 STATICFILES_LOCATION = "static"
 MEDIAFILES_LOCATION = "media"
 
-# ✅ Use custom storage classes (best practice)
+# Use custom storage classes (best practice)
 STATICFILES_STORAGE = "oasis.storage_backends.StaticStorage"
 DEFAULT_FILE_STORAGE = "oasis.storage_backends.MediaStorage"
 
-# ✅ URLs
+# URLs
 STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/{STATICFILES_LOCATION}/"
 MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/{MEDIAFILES_LOCATION}/"
 
-# ✅ Local fallback
+# Local fallback
 STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_ROOT = BASE_DIR / "media"
