@@ -88,6 +88,7 @@ class AppleLogin(APIView):
                 username=generate_apple_username(apple_sub),
                 email=email,
                 apple_sub=apple_sub,
+                is_google_or_apple_account=True         
             )
 
             if full_name:
@@ -123,6 +124,13 @@ class AppleLogin(APIView):
                     user=user,
                     defaults={"fcm_token": fcm_token}
                )
+        
+        
+        if not user.is_google_or_apple_account:
+                 return Response(
+                    {"error": "Account with this email already exists, please login by using email and password!"},
+                    status=status.HTTP_401_UNAUTHORIZED
+                )
 
         refresh = RefreshToken.for_user(user)
 

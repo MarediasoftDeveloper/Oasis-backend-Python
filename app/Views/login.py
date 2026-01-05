@@ -32,7 +32,7 @@ class Login(APIView):
         if not email or not password:
             return Response({'error':"Credentials not provided!"})
 
-
+        
         try:
             customer = Customer.objects.get(email__iexact=email, user_role='1')
             
@@ -40,8 +40,10 @@ class Login(APIView):
                 return Response({'error': 'Password is required!'}, status=401)
             
             if not bool(customer.password) or not customer.has_usable_password():
-                return Response({'error': 'One or more information is incorrect!'}, status=401)
+                return Response({'error': 'Please signup again!'}, status=401)
 
+            if customer.is_google_or_apple_account:
+                return Response({'error': 'Please try to sign in with social!'}, status=401)
 
             if not check_password(password, customer.password):
                 return Response({'error': 'One or more information is incorrect!'}, status=401)

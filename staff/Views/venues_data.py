@@ -5,8 +5,8 @@ from rest_framework import status, generics, filters
 from rest_framework.response import Response
 from venue.Serializers.venue_info_serializer import VenueInfoSerializer
 from app.Serializers.challenge_achiever_serializer import ChallengeAchieverSerializer
-from app.Serializers.rewards_achiever_serializer import RewardsAchieverSerializer
-from app.Serializers.raffles_entry_serializer import RafflesEntrySerializer
+from app.Serializers.rewards_achiever_serializer import GetRewardsAchievmentsSerializer
+from staff.Serializers.raffles_entry_serializer_staff import GetRafflesEntrySerializerStaff
 from app.models import Customer
 from app.models import Customer_profile
 from venue.models.venue_info import Venue_Info
@@ -168,11 +168,11 @@ class VenueRetrieveAPI(generics.RetrieveAPIView):
                 recent_scans, many=True
             ).data
 
-            data['venues_recent_rewards_achieved'] = RewardsAchieverSerializer(
+            data['venues_recent_rewards_achieved'] = GetRewardsAchievmentsSerializer(
                 recent_rewards, many=True
             ).data
 
-            data['venues_recent_raffles_activity'] = RafflesEntrySerializer(
+            data['venues_recent_raffles_activity'] = GetRafflesEntrySerializerStaff(
                 recent_raffles, many=True
             ).data
 

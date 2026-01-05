@@ -4,6 +4,7 @@ from app.Models.earned_badges_by_user import Earned_Badges
 from venue.models.badges import BadgesLevel
 from app.models import Customer_profile
 from venue.Serializers.rewards_serializer import RewardsSerializer
+from app.Serializers.customer_profile_serializer import CustomerProfileSerializer
 from django.utils import timezone
 
 class RewardsAchieverSerializer(serializers.ModelSerializer):
@@ -83,8 +84,10 @@ class RewardsAchieverSerializer(serializers.ModelSerializer):
 
 
 class GetRewardsAchievmentsSerializer(serializers.ModelSerializer):
-    reward = RewardsSerializer()
+    reward = RewardsSerializer(read_only=True)
+    customer_taken = CustomerProfileSerializer(source='customer_taken.customer_profile', read_only=True)
+
     class Meta:
         model = Rewards_Achiever
         fields = '__all__'
-        read_only_fields=['customer_taken']
+        read_only_fields=['customer_taken', 'reward']

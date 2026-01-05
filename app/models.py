@@ -54,6 +54,7 @@ class Customer(AbstractUser):
     user_role = models.CharField(max_length=15, choices=USER_ROLES, default='1')
     is_verified = models.BooleanField(default=False)
     apple_sub = models.CharField(max_length=255, unique=True, null=True)
+    is_google_or_apple_account = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'        # 🔹 use email for login
     REQUIRED_FIELDS = []            # 🔹 no extra required fields

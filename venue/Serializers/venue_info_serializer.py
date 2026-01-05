@@ -28,7 +28,6 @@ class VenueInfoSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "Enter a valid phone number (landline or mobile, with optional +country code)."
             )
-
         return value
 
     def validate(self, data):
@@ -39,7 +38,6 @@ class VenueInfoSerializer(serializers.ModelSerializer):
         if longitude is not None and not (-180 <= longitude <= 180):
             raise serializers.ValidationError({"longitude": "Longitude must be between -180 and 180."})
 
-
         return data
 
 
@@ -48,10 +46,10 @@ class VenueInfoSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
+    
         password = validated_data.pop("password", None)
-        username = validated_data.get("username", None)
-       
-
+        username = validated_data.pop("username", None)
+    
         # Validate username
         if username and username.lower() != instance.venue.username.lower():
             if Customer.objects.filter(username__iexact=username).exists():
@@ -66,10 +64,10 @@ class VenueInfoSerializer(serializers.ModelSerializer):
 
         # Update other fields in instance (excluding special fields)
         for attr, value in validated_data.items():
+            print(attr, value)
             setattr(instance, attr, value)
 
         # Save both profile + instance
         instance.venue.save()
         instance.save()
-
         return instance

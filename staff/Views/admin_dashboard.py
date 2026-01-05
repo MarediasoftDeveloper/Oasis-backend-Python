@@ -128,8 +128,10 @@ class AdminDashboardAPI(APIView):
         points_in_circulation = Customer_profile.objects.all().aggregate(circulation_points=Sum('total_redeemed_points'))
 
         logged_in_users = OutstandingToken.objects.filter(
-            expires_at__gte=timezone.now()
+            expires_at__gte=timezone.now(), user__user_role='1'
         ).values("user_id").distinct().count()
+
+        
 
         weekly_scans = []
         weekly_points_issue = []
