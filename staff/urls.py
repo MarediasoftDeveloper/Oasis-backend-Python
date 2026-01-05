@@ -28,6 +28,7 @@ from staff.Views.get_raffles import GetRafflesForAdmin
 from staff.Views.raffles_crud_for_staff import Raffles_Crud_for_Staff
 from staff.Views.rewards_crud_for_staff import Rewards_Crud_for_Staff
 from staff.Views.SellBadges.available_badge_calculation import AvailableBadgesSellCalculation
+from staff.Views.venues_crud import Venues_Crud
 
 from rest_framework.routers import DefaultRouter
 
@@ -35,6 +36,8 @@ router = DefaultRouter()
 router.register(r'challenges-crud', Challenges_Crud_for_Staff, basename='challenges-crud')
 router.register(r'raffles-crud', Raffles_Crud_for_Staff, basename='raffles-crud-for-staff')
 router.register(r'rewards-crud', Rewards_Crud_for_Staff, basename='rewards-crud')
+router.register(r'venues-crud', Venues_Crud, basename='venues-crud')
+
 
 urlpatterns = [
     path('admin-dashboard/', AdminDashboardAPI.as_view(), name='admin-dashboard'),

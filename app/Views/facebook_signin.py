@@ -66,7 +66,6 @@ class Facebook_Signup(APIView):
             customer, created = User.objects.get_or_create(
                 email=email,
                 defaults={"username": email.split("@")[0]},
-                is_google_or_apple_account=True
             )
 
             customer_data = {}
@@ -82,10 +81,18 @@ class Facebook_Signup(APIView):
                 customer.first_name = parts[0] if parts else ""
                 customer.last_name = " ".join(parts[1:]) if len(parts) > 1 else ""
                 customer.is_verified = True
+                customer.is_google_or_apple_account=True
                 customer.save()
 
                 Customer_profile.objects.create(
                     customer=customer
+                )
+            
+            
+            if not customer.is_google_or_apple_account:
+                 return Response(
+                    {"error": "Account with this email already exists, please login by using email and password!"},
+                    status=status.HTTP_401_UNAUTHORIZED
                 )
 
             customer_data["new_user"] = created
@@ -93,11 +100,7 @@ class Facebook_Signup(APIView):
             customer_profile = Customer_profile.objects.filter(customer=customer).first()
             serialized = CustomerProfileSerializer(customer_profile)
 
-            if not customer.is_google_or_apple_account:
-                 return Response(
-                    {"error": "Account with this email already exists, please login by using email and password!"},
-                    status=status.HTTP_401_UNAUTHORIZED
-                )
+           
 
 
             # 4️⃣ Save app version

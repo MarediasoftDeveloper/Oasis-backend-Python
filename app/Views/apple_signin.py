@@ -40,6 +40,7 @@ class AppleLogin(APIView):
         fcm_token = data.get("fcm_token")  
         app_current_version = data.get("app_current_version")  
 
+
         if not identity_token or not auth_code:
             # Missing token 
             return Response({"error": "something went wrong! please try again."}, status=400)
@@ -87,8 +88,7 @@ class AppleLogin(APIView):
             user = User.objects.create_user(
                 username=generate_apple_username(apple_sub),
                 email=email,
-                apple_sub=apple_sub,
-                is_google_or_apple_account=True         
+                apple_sub=apple_sub
             )
 
             if full_name:
@@ -97,7 +97,9 @@ class AppleLogin(APIView):
                 user.last_name = " ".join(parts[1:])
                 user.save()
 
-            user.is_verified = True
+            user.is_verified =True
+            user.is_google_or_apple_account=True         
+            user.save()
             Customer_profile.objects.create(customer=user)
             created = True
 

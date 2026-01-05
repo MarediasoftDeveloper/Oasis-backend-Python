@@ -74,7 +74,7 @@ class VenuesDataAPI(generics.ListAPIView):
         )
     
     def list(self, request, *args, **kwargs):
-        # ✅ THIS LINE FIXES SEARCH
+        # THIS LINE FIXES SEARCH
         queryset = self.filter_queryset(self.get_queryset())
 
         paginator = self.pagination_class()
