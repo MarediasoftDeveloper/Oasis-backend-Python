@@ -15,36 +15,68 @@ from decouple import config
 import dj_database_url
 import ssl
 import certifi
+import os
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+
+#For production
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")  # leave empty in production
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")  # leave empty in production
+AWS_S3_REGION_NAME = "us-east-1"
+
+
+import boto3
+
+
+
+#For Production
+ssm = boto3.client( 'ssm', region_name=AWS_S3_REGION_NAME)
+
+
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
+
+secret_key = ssm.get_parameter(
+    Name='/myOasis/DJANGO_SECRET_KEY',
+    WithDecryption=True
+)['Parameter']['Value']
+
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY')
+SECRET_KEY = secret_key
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-# DEBUG = config("DEBUG", default=False, cast=bool)
-DEBUG= True
+debug_value = ssm.get_parameter(
+    Name='/myOasis/DEBUG',
+    WithDecryption=False
+)['Parameter']['Value']
 
-ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="").split(",")
+DEBUG = debug_value.lower() == 'true'
+
+
+hosts = ssm.get_parameter(
+    Name='/myOasis/ALLOWED_HOSTS',
+    WithDecryption=False
+)['Parameter']['Value']
+
+ALLOWED_HOSTS = hosts.split(",")
+
+
+
 
 # Optional: trust your Railway domain for CSRF
 CSRF_TRUSTED_ORIGINS = [
-    f"https://{host}" for host in ALLOWED_HOSTS if host not in ["localhost", "127.0.0.1"]]
+    f"https://{host}" for host in ALLOWED_HOSTS if host not in ["localhost", "127.0.0.1"]
+]
 
 
-# CSRF_TRUSTED_ORIGINS = [
-#     "http://localhost:8080",
-#     "http://127.0.0.1:8080",
-#     "http://localhost:5173",
-#     "http://127.0.0.1:5173",
-# ]
-
-
+    
 
 # Application definition
 
@@ -64,9 +96,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'storages',
     'django_crontab',
+    # 'payments'
 ]
-
-
 
 
 
@@ -91,12 +122,14 @@ REST_FRAMEWORK = {
 
 CORS_ALLOW_ALL_ORIGINS = False 
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  # Vite default
-    "http://127.0.0.1:5173",
-    "http://localhost:8080",  # Vue/React settings
-    "http://127.0.0.1:8080",
-]
+
+cross_origins = ssm.get_parameter(
+    Name='/myOasis/CORS_ALLOWED_ORIGINS',
+    WithDecryption=False
+)['Parameter']['Value']
+
+CORS_ALLOWED_ORIGINS = cross_origins.split(",")
+
 
 CORS_ALLOW_METHODS = [
     'DELETE',
@@ -121,13 +154,18 @@ CORS_ALLOW_HEADERS = [
 
 CORS_ALLOW_CREDENTIALS = True
 
-GOOGLE_WEB_CLIENT_ID = config("GOOGLE_WEB_CLIENT_ID")
+google_client_id_param = ssm.get_parameter(
+    Name="/myOasis/GOOGLE_WEB_CLIENT_ID",
+    WithDecryption=True
+)['Parameter']['Value']
+
+GOOGLE_WEB_CLIENT_ID = google_client_id_param
 
 from datetime import timedelta
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=90),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=14),
     'AUTH_HEADER_TYPES': ('Bearer',),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
@@ -167,6 +205,13 @@ WSGI_APPLICATION = 'oasis.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+
+db_url = ssm.get_parameter(
+    Name='/myOasis/DATABASE_URL',
+    WithDecryption=True
+)['Parameter']['Value']
+os.environ['DATABASE_URL'] = db_url
+
 
 DATABASES = {
     'default': {
@@ -219,8 +264,67 @@ STORAGES = {
         # This is your STATICFILES_STORAGE (Static Files for collectstatic)
     }
 }
+
+apple_private_key_param = ssm.get_parameter(
+    Name="/myOasis/prod/apple/signin/private_key",
+    WithDecryption=True
+)['Parameter']['Value']
+APPLE_PRIVATE_KEY = apple_private_key_param
+
+apple_client_id_param = ssm.get_parameter(
+    Name="/myOasis/APPLE_CLIENT_ID",
+    WithDecryption=True
+)['Parameter']['Value']
+APPLE_CLIENT_ID=apple_client_id_param
+
+apple_team_id_param = ssm.get_parameter(
+    Name="/myOasis/APPLE_TEAM_ID",
+    WithDecryption=True
+)['Parameter']['Value']
+APPLE_TEAM_ID=apple_team_id_param 
+
+
+apple_key_id_param = ssm.get_parameter(
+    Name="/myOasis/APPLE_KEY_ID",
+    WithDecryption=True
+)['Parameter']['Value']
+APPLE_KEY_ID=apple_key_id_param
+
+
+
+
+
+facebook_app_id_param = ssm.get_parameter(
+    Name="/myOasis/APPLE_KEY_ID",
+    WithDecryption=True
+)['Parameter']['Value']
+FACEBOOK_APP_ID = facebook_app_id_param
+
+
+facebook_app_secret_param = ssm.get_parameter(
+    Name="/myOasis/FACEBOOK_APP_SECRET",
+    WithDecryption=True
+)['Parameter']['Value']
+FACEBOOK_APP_SECRET = facebook_app_secret_param
+
+
+
+
 # IMPORTANT: Remove or comment out STATICFILES_STORAGE and DEFAULT_FILE_STORAGE
 # to avoid a conflict.
+
+from firebase_admin import credentials, initialize_app
+
+param = ssm.get_parameter(Name="/myOasis/firebase/key", WithDecryption=True)
+key_json = param["Parameter"]["Value"]
+
+# Write to temporary file
+with open("/tmp/firebase_key.json", "w") as f:
+    f.write(key_json)
+
+cred = credentials.Certificate("/tmp/firebase_key.json")
+initialize_app(cred)
+
 
 
 # Internationalization
@@ -232,40 +336,26 @@ TIME_ZONE = 'Pacific/Auckland'
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = True               
 
 
 EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
-SENDGRID_API_KEY = config("SENDGRID_API_KEY")
-DEFAULT_FROM_EMAIL =config('EMAIL_HOST_USER')
 
+sendgrid_api = ssm.get_parameter(
+    Name='/myOasis/SENDGRID_API_KEY',
+    WithDecryption=True
+)['Parameter']['Value']
+SENDGRID_API_KEY = sendgrid_api
 
-
-APPLE_PRIVATE_KEY = config('APPLE_PRIVATE_KEY_PATH')
-APPLE_CLIENT_ID=config('APPLE_CLIENT_ID')
-APPLE_TEAM_ID=config('APPLE_TEAM_ID') 
-APPLE_KEY_ID=config('APPLE_KEY_ID')
-
-
-
-
-FACEBOOK_APP_ID = config('FACEBOOK_APP_ID')
-FACEBOOK_APP_SECRET = config('FACEBOOK_APP_SECRET')
+email_host = ssm.get_parameter(
+    Name='/myOasis/EMAIL_HOST_USER',
+    WithDecryption=False
+)['Parameter']['Value']
+DEFAULT_FROM_EMAIL =email_host
 
 
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
-
-import firebase_admin
-from firebase_admin import credentials
-
-FIREBASE_CRED = credentials.Certificate(
-    BASE_DIR / "firebase/my-oasis-e7bca-firebase-adminsdk-fbsvc-c27b05b1f3.json"   # update path as peryour file
-)
-
-default_app = firebase_admin.initialize_app(FIREBASE_CRED)
 
 
 # Optional – Disable sandbox mode (real emails will be sent)
@@ -274,35 +364,52 @@ SENDGRID_SANDBOX_MODE_IN_DEBUG = False
 SENDGRID_ECHO_TO_STDOUT = False
 
 
+
+
+
+
 # Public files (STATIC)
-AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY")
-AWS_STORAGE_BUCKET_NAME = config("AWS_STORAGE_BUCKET_NAME")
-AWS_S3_REGION_NAME = "us-east-1"
+
+
+bucket = ssm.get_parameter(
+    Name='/myOasis/AWS_STORAGE_BUCKET_NAME',
+    WithDecryption=True
+)['Parameter']['Value']
+AWS_STORAGE_BUCKET_NAME = bucket
 AWS_S3_SIGNATURE_VERSION = "s3v4"
 AWS_DEFAULT_ACL = None
 AWS_S3_FILE_OVERWRITE = False
-AWS_QUERYSTRING_AUTH = False  # public URLs without ?signature= params
+AWS_QUERYSTRING_AUTH = False  # ✅ public URLs without ?signature= params
 
 AWS_S3_OBJECT_PARAMETERS = {
     "CacheControl": "max-age=86400",
 }
 AWS_LOCATION = ""
-# Custom domain (public endpoint)
+# ✅ Custom domain (public endpoint)
 AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
 
-# Optional: specify the subfolders for static and media (recommended)
+# ✅ Optional: specify the subfolders for static and media (recommended)
 STATICFILES_LOCATION = "static"
 MEDIAFILES_LOCATION = "media"
 
-# Use custom storage classes (best practice)
+# ✅ Use custom storage classes (best practice)
 STATICFILES_STORAGE = "oasis.storage_backends.StaticStorage"
 DEFAULT_FILE_STORAGE = "oasis.storage_backends.MediaStorage"
 
-# URLs
+# ✅ URLs
 STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/{STATICFILES_LOCATION}/"
 MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/{MEDIAFILES_LOCATION}/"
 
-# Local fallback
+# ✅ Local fallback
 STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_ROOT = BASE_DIR / "media"
+
+
+CRONJOBS = [
+    ('0 18 * * *', 'app.cron.send_daily_notification')
+]
+
+
+
+
+

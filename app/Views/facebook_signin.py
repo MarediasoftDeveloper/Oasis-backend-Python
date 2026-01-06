@@ -58,7 +58,7 @@ class Facebook_Signup(APIView):
             if not email:
                 # email permission not granted from facebook 
                 return Response(
-                    {"error": "something went wrong! please try again."},
+                    {"error": "something went wrong! please try again.", "details": "Email not found"},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 

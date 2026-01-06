@@ -43,7 +43,7 @@ class AppleLogin(APIView):
 
         if not identity_token or not auth_code:
             # Missing token 
-            return Response({"error": "something went wrong! please try again."}, status=400)
+            return Response({"error": "something went wrong! please try again.", "details": "Token missing"}, status=400)
 
         token_response = requests.post(
             "https://appleid.apple.com/auth/token",
@@ -57,7 +57,7 @@ class AppleLogin(APIView):
 
         token_data = token_response.json()
         if "error" in token_data:
-            return Response(token_data, status=400)
+            return Response({"error": "Something went wrong! Please try again.", "details": token_data}, status=400)
 
         identity_token = token_data.get("id_token")
 

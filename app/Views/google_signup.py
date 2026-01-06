@@ -28,7 +28,7 @@ class Google_Signup(APIView):
 
         if not id_token_value:
             # ID token is required 
-            return Response({"error": "something went wrong! please try again."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "something went wrong! please try again.", "details": "token is required"}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             #  Verify token with Google — only your Web Client ID is needed
@@ -36,6 +36,7 @@ class Google_Signup(APIView):
                 id_token_value,
                 requests.Request(),
                 settings.GOOGLE_WEB_CLIENT_ID,  # <— use Web Client ID only
+                clock_skew_in_seconds=10
             )
 
             # Ensure it's issued by Google
@@ -52,7 +53,7 @@ class Google_Signup(APIView):
           
             if not email:
                 # Email not found in token 
-                return Response({"error": "something went wrong! please try again."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"error": "something went wrong! please try again.", "details": "Email not found"},  status=status.HTTP_400_BAD_REQUEST)
 
             #  Create or fetch user
             customer, created = User.objects.get_or_create(
@@ -120,7 +121,7 @@ class Google_Signup(APIView):
 
         except ValueError as e:
             # Token invalid or expired str(e)
-            return Response({"error": "something went wrong! please try again."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "something went wrong! please try again.", "details": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             # Catch any other errors
             # Authentication failed 
