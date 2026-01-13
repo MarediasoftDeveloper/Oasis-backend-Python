@@ -1,8 +1,9 @@
 from rest_framework import serializers
 from app.Models.users_interests import User_Interest
-
+from app.Serializers.interests_serializer import InterestSerializer
 
 class UserInterestSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = User_Interest
         fields = '__all__'
@@ -43,3 +44,11 @@ class UserInterestSerializer(serializers.ModelSerializer):
     def delete(self, instance):
         """Allow deletion with future custom logic."""
         instance.delete()
+
+
+class UserInterestSerializerStaff(serializers.ModelSerializer):
+    interests = InterestSerializer(many=True, read_only=True)
+    class Meta:
+        model = User_Interest
+        fields = '__all__'
+        read_only_fields = ('user','interests')

@@ -3,7 +3,7 @@ from venue.models.badges import BadgesLevel, Badges
 
 
 class BadgesSerializer(serializers.ModelSerializer):
-    
+
     class Meta:
         model = Badges
         fields = '__all__'
@@ -13,4 +13,11 @@ class BadgesSerializer(serializers.ModelSerializer):
         if not value or not value.strip():
             raise serializers.ValidationError({"error":"Badge name cannot be empty."})
         return value
+
+
+
+
+
+
+
 

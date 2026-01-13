@@ -6,16 +6,18 @@ from rest_framework.response import Response
 from venue.Serializers.venue_info_serializer import VenueInfoSerializer
 from app.Serializers.challenge_achiever_serializer import GetChallengeAchieverSerializer
 from app.Serializers.rewards_achiever_serializer import GetRewardsAchievmentsSerializer
-from app.Serializers.raffles_entry_serializer import GetRafflesEntrySerializer
+from staff.Serializers.raffles_entry_serializer_staff import GetRafflesEntrySerializerStaff
 from app.Models.posts import Post
-from app.models import Customer_profile
-from app.Serializers.customer_profile_serializer import CustomerProfileSerializer
+from app.models import Customer_profile, Customer
+from app.Serializers.customer_profile_serializer import CustomerProfileSerializerStaff
 from app.Serializers.post_serializer import PostSerializer
 from app.Models.challenge_achiever import Challenge_Achiever
 from app.Models.earned_badges_by_user import Earned_Badges
 from app.Models.rewards_achiever import Rewards_Achiever
 from app.Models.raffles_entry import Raffles_Entry
 from app.Models.earned_badges_by_user import Earned_Badges
+from app.Models.users_interests import User_Interest
+from app.Serializers.users_interests_serializer import UserInterestSerializerStaff
 from venue.models.venue_badges import Venue_Badges
 from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
@@ -28,7 +30,8 @@ from django.db.models import Count, Sum, OuterRef, Subquery, Prefetch
 from rest_framework import generics, filters
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
-
+from app.Views.utils.fcm import send_push_notification
+from django.db import transaction
 
 def format_number_ui(value):
     value = float(value)
@@ -51,7 +54,7 @@ class UsersDataAPI(generics.ListAPIView):
     permission_classes = [IsAuthenticated, Request_By_Admin_Only]
     pagination_class = StandardResultsSetPagination
     filter_backends = [filters.SearchFilter]
-    serializer_class = CustomerProfileSerializer
+    serializer_class = CustomerProfileSerializerStaff
     search_fields = ['customer__username', 'customer__email','customer__first_name', 'customer__last_name']
 
     def get_queryset(self):
@@ -103,7 +106,7 @@ class UsersDataAPI(generics.ListAPIView):
         data = []
 
         for user in paginated_customers:
-            serialized_user = CustomerProfileSerializer(user).data
+            serialized_user = CustomerProfileSerializerStaff(user).data
 
             serialized_user['total_scans'] = user.total_scans or 0
             serialized_user['total_badges'] = user.total_badges or 0
@@ -118,7 +121,7 @@ class UsersDataAPI(generics.ListAPIView):
 
 class UserRetrieveAPI(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated, Request_By_Admin_Only]
-    serializer_class = CustomerProfileSerializer
+    serializer_class = CustomerProfileSerializerStaff
     lookup_field='customer_id'
 
     def get_queryset(self):
@@ -164,7 +167,7 @@ class UserRetrieveAPI(generics.RetrieveAPIView):
             user=customer.customer
         ).order_by('-joined_at')
 
-        data = CustomerProfileSerializer(customer).data
+        data = CustomerProfileSerializerStaff(customer).data
         
         # Attach computed values safely
         data['total_scans'] = customer.total_scans or 0
@@ -181,7 +184,7 @@ class UserRetrieveAPI(generics.RetrieveAPIView):
             recent_rewards, many=True
         ).data
 
-        data['customer_raffles_activity'] = GetRafflesEntrySerializer(
+        data['customer_raffles_activity'] = GetRafflesEntrySerializerStaff(
             recent_raffles, many=True
         ).data
 
@@ -190,12 +193,121 @@ class UserRetrieveAPI(generics.RetrieveAPIView):
 
 
 
+class UserUpdateDestroyAPI(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated, Request_By_Admin_Only]
+    queryset = Customer_profile.objects.all()
+    serializer_class = CustomerProfileSerializerStaff
+    lookup_field='customer_id'
+
+    def destroy(self, request, *args, **kwargs):
+        profile = self.get_object()
+
+        with transaction.atomic():
+            profile.customer.delete()
+
+        return Response(
+            {"message": "User deleted successfully"},
+            status=status.HTTP_200_OK
+        )
 
 
-class StaffPostUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
+class SendNotificationToUser(APIView):
+    permission_classes = [IsAuthenticated, Request_By_Admin_Only]
+
+    def post(self, request):
+        user = request.data.get('user_id')
+        title = request.data.get('title')
+        description = request.data.get('description')
+        customer = Customer.objects.filter(id=user).first()
+        result = send_push_notification(
+            customer,
+            title,
+            description
+        )
+        print(result)
+        return Response({"message":"Notificaiton have been sent successfully"})
+
+
+
+
+
+
+
+
+class AdjustPointsOfUser(APIView):
+
+    permission_classes = [IsAuthenticated, Request_By_Admin_Only]  # add admin-only if required
+
+    def post(self, request):
+        user_id = request.data.get('user_id')
+        points = request.data.get('points')
+        add_or_remove = request.data.get('add_or_remove')
+
+        #  Basic validation
+        if not user_id or not points or not add_or_remove:
+            return Response(
+                {"message": "user_id, points and add_or_remove are required"},
+                status=400
+            )
+
+        try:
+            points = int(points)
+            if points <= 0:
+                return Response(
+                    {"message": "Points must be greater than 0"},
+                    status=400
+                )
+        except ValueError:
+            return Response(
+                {"message": "Points must be a valid integer"},
+                status=400
+            )
+
+        profile = Customer_profile.objects.filter(customer__id=user_id).first()
+
+        if not profile:
+            return Response(
+                {"message": "Customer profile not found"},
+                status=404
+            )
+
+        #  Atomic update
+        with transaction.atomic():
+            if add_or_remove == 'add':
+                profile.total_redeemed_points += points
+
+            elif add_or_remove == 'remove':
+                if profile.total_redeemed_points < points:
+                    return Response(
+                        {"message": "Insufficient points to remove"},
+                        status=400
+                    )
+                profile.total_redeemed_points -= points
+
+            else:
+                return Response(
+                    {"message": "add_or_remove must be 'add' or 'remove'"},
+                    status=400
+                )
+
+            profile.save()
+
+        return Response({
+            "message": "Points updated successfully",
+            "user_id": user_id,
+            "total_redeemed_points": profile.total_redeemed_points
+        }, status=200)
+
+
+
+
+
+class UserInterestsStaff(APIView):
+
+    permission_classes = [IsAuthenticated, Request_By_Admin_Only]  # add admin-only if required
+
+    def get(self, request, pk):
+        user_interests = User_Interest.objects.filter(user__id=pk)
+        serialized = UserInterestSerializerStaff(user_interests, many=True)
+        return Response({"interests": serialized.data})
     
-    permission_classes=[IsAuthenticated, Request_By_Admin_Only]
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-    lookup_field='slug'
-

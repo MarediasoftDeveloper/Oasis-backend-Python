@@ -9,13 +9,3 @@ class Venues_Crud(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, Request_By_Admin_Only]
     queryset = Venue_Info.objects.all()
     serializer_class=VenueInfoSerializer
-    
-    def get_object(self):
-        venue_id = self.kwargs.get("pk")
-        if not venue_id:
-            raise NotFound("venue_id is required")
-
-        return get_object_or_404(
-            Venue_Info,
-            venue__id=venue_id
-        )

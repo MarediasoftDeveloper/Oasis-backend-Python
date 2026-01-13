@@ -7,7 +7,8 @@ from venue.Serializers.venue_info_serializer import VenueInfoSerializer
 from app.Serializers.challenge_achiever_serializer import ChallengeAchieverSerializer
 from app.Serializers.rewards_achiever_serializer import GetRewardsAchievmentsSerializer
 from staff.Serializers.raffles_entry_serializer_staff import GetRafflesEntrySerializerStaff
-from app.models import Customer
+from app.Models.posts import Post
+from app.Serializers.post_serializer import PostSerializer
 from app.models import Customer_profile
 from venue.models.venue_info import Venue_Info
 from venue.models.venue_badges import Venue_Badges
@@ -29,8 +30,9 @@ from rest_framework import generics, filters
 from rest_framework.permissions import IsAuthenticated
 
 
+
 class StandardResultsSetPagination(PageNumberPagination):
-    page_size = 20         
+    page_size = 10         
     page_size_query_param = 'page_size'
     max_page_size = 50
 
@@ -76,6 +78,8 @@ class VenuesDataAPI(generics.ListAPIView):
     def list(self, request, *args, **kwargs):
         # THIS LINE FIXES SEARCH
         queryset = self.filter_queryset(self.get_queryset())
+
+        print(queryset)
 
         paginator = self.pagination_class()
         paginated_venues = paginator.paginate_queryset(queryset, request)     
@@ -140,30 +144,36 @@ class VenueRetrieveAPI(generics.RetrieveAPIView):
     def retrieve(self, request, *args, **kwargs):
             venue = self.get_object()
 
-            # ✅ Last 5 scans
+            #  scans
             recent_scans = Challenge_Achiever.objects.filter(
                 challenge__venue=venue.venue_id
-            ).order_by('-scanned_at')[:5]
+            ).order_by('-scanned_at')
 
-            # ✅ Last 5 rewards
+            #  rewards
             recent_rewards = Rewards_Achiever.objects.filter(
                 reward__venue=venue.venue_id
-            ).order_by('-achieved_at')[:5]
+            ).order_by('-achieved_at')
 
-            # ✅ Last 5 raffles
+            #  raffles
             recent_raffles = Raffles_Entry.objects.filter(
                 raffle__venue=venue.venue_id
-            ).order_by('-joined_at')[:5]
+            ).order_by('-joined_at')
+
+            print(recent_scans)
+            print(recent_rewards)
+            print(recent_raffles)
+
+            venue_posts = Post.objects.filter(user=venue.venue)
 
             data = VenueInfoSerializer(venue).data
 
-            # ✅ Attach computed values safely
+            # Attach computed values safely
             data['total_scans'] = venue.total_scans or 0
             data['points_issued'] = venue.points_issued or 0
             data['active_badges'] = venue.active_badges or 0
             data['joined_at'] = venue.venue.date_joined
 
-            # ✅ Attach related activity
+            # Attach related activity
             data['venues_recent_scans'] = ChallengeAchieverSerializer(
                 recent_scans, many=True
             ).data
@@ -175,5 +185,28 @@ class VenueRetrieveAPI(generics.RetrieveAPIView):
             data['venues_recent_raffles_activity'] = GetRafflesEntrySerializerStaff(
                 recent_raffles, many=True
             ).data
+            
+            data['posts'] =  PostSerializer(venue_posts, many=True).data
 
             return Response(data)
+
+
+
+class AllPendingVenuesApproved(APIView):
+     
+    def post(self, request):
+        pending_venues = Venue_Info.objects.filter(status='pending')
+
+        if not pending_venues.exists():
+            return Response(
+                {"message": "No pending venues available!"},
+                status=200
+            )
+
+        # Bulk update (single DB query)
+        updated_count = pending_venues.update(status='approved')
+
+        return Response({
+            "message": "All pending venues have been approved!",
+            "approved_count": updated_count
+        }, status=200)

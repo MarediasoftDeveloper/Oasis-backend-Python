@@ -31,11 +31,8 @@ AWS_S3_REGION_NAME = "us-east-1"
 import boto3
 
 
-
 #For Production
-ssm = boto3.client( 'ssm', region_name=AWS_S3_REGION_NAME)
-
-
+ssm = boto3.client('ssm', region_name=AWS_S3_REGION_NAME)
 
 
 # Quick-start development settings - unsuitable for production
@@ -68,8 +65,6 @@ hosts = ssm.get_parameter(
 ALLOWED_HOSTS = hosts.split(",")
 
 
-
-
 # Optional: trust your Railway domain for CSRF
 CSRF_TRUSTED_ORIGINS = [
     f"https://{host}" for host in ALLOWED_HOSTS if host not in ["localhost", "127.0.0.1"]
@@ -96,7 +91,6 @@ INSTALLED_APPS = [
     'corsheaders',
     'storages',
     'django_crontab',
-    # 'payments'
 ]
 
 
@@ -158,8 +152,8 @@ google_client_id_param = ssm.get_parameter(
     Name="/myOasis/GOOGLE_WEB_CLIENT_ID",
     WithDecryption=True
 )['Parameter']['Value']
-
 GOOGLE_WEB_CLIENT_ID = google_client_id_param
+
 
 from datetime import timedelta
 
@@ -265,6 +259,7 @@ STORAGES = {
     }
 }
 
+
 apple_private_key_param = ssm.get_parameter(
     Name="/myOasis/prod/apple/signin/private_key",
     WithDecryption=True
@@ -293,9 +288,8 @@ APPLE_KEY_ID=apple_key_id_param
 
 
 
-
 facebook_app_id_param = ssm.get_parameter(
-    Name="/myOasis/APPLE_KEY_ID",
+    Name="/myOasis/FACEBOOK_APP_ID",
     WithDecryption=True
 )['Parameter']['Value']
 FACEBOOK_APP_ID = facebook_app_id_param
@@ -312,6 +306,7 @@ FACEBOOK_APP_SECRET = facebook_app_secret_param
 
 # IMPORTANT: Remove or comment out STATICFILES_STORAGE and DEFAULT_FILE_STORAGE
 # to avoid a conflict.
+
 
 from firebase_admin import credentials, initialize_app
 
@@ -341,6 +336,7 @@ USE_TZ = True
 
 EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
 
+
 sendgrid_api = ssm.get_parameter(
     Name='/myOasis/SENDGRID_API_KEY',
     WithDecryption=True
@@ -351,10 +347,12 @@ email_host = ssm.get_parameter(
     Name='/myOasis/EMAIL_HOST_USER',
     WithDecryption=False
 )['Parameter']['Value']
-DEFAULT_FROM_EMAIL =email_host
+DEFAULT_FROM_EMAIL=email_host
 
 
 
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 
 

@@ -55,12 +55,12 @@ class BadgesLevelSerializer(serializers.ModelSerializer):
 
         # Category does not exist yet; it is created in create()
         category_name = attrs.get("category_name")
-
-        if BadgesLevel.objects.filter(
-            badge=badge,
-            category__category=category_name
-        ).exists():
-            raise serializers.ValidationError({"error":"This badge already has this category level."})
+        if self.context.get('request') == 'POST':
+            if BadgesLevel.objects.filter(
+                badge=badge,
+                category__category=category_name
+            ).exists():
+                raise serializers.ValidationError({"error":"This badge already has this category level."})
 
         return attrs
 
@@ -96,13 +96,18 @@ class BadgesLevelSerializer(serializers.ModelSerializer):
         badge = validated_data.pop("badge", None)
 
         # Update category only if changed
-        if not category_name == instance.category.category and not num_tasks == instance.category.num_of_task_to_achieve_badge:
-            category_obj = Badge_Category.objects.create(
-                category=category_name,
-                num_of_task_to_achieve_badge=num_tasks,
-            )
-            instance.category = category_obj
-
+        if not category_name == instance.category.category:
+            instance.category.category = category_name
+            instance.category.save()
+            # category_obj = Badge_Category.objects.create(
+            #     category=category_name,
+            #     num_of_task_to_achieve_badge=num_tasks,
+            # )
+        elif not num_tasks == instance.category.num_of_task_to_achieve_badge:
+            instance.category.num_of_task_to_achieve_badge = num_tasks
+            instance.category.save()
+            
+        
         # Update badge if changed
         if badge:
             instance.badge = badge
@@ -135,3 +140,6 @@ class BadgesLevelSerializer(serializers.ModelSerializer):
 #             badge = Badges.objects.create(name=badge_name, description=badge_description)
 #         else:
 #             badge = Badges.objects.create(name=badge_name) 
+
+
+

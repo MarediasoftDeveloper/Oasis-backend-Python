@@ -9,7 +9,7 @@ from rest_framework.pagination import PageNumberPagination
 
 
 class StandardResultsSetPagination(PageNumberPagination):
-    page_size = 20         
+    page_size = 10         
     page_size_query_param = 'page_size'
     max_page_size = 50
 
@@ -18,7 +18,6 @@ class ReportsList(generics.ListAPIView):
     queryset = ReportingAndComplains.objects.all()
     serializer_class=ReportAndComplainListSerializer
     pagination_class = StandardResultsSetPagination
-
 
 
 class ReportsCreate(generics.CreateAPIView):

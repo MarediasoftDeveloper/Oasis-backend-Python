@@ -23,7 +23,7 @@ class Post_Crud(viewsets.ModelViewSet):
         slug = self.kwargs.get(self.lookup_field)
         obj = Post.objects.get(slug=slug)
 
-        # ⚠️ Only check object-level permissions for update/delete
+        # Only check object-level permissions for update/delete
         if self.request.method in ("PUT", "PATCH", "DELETE"):
             self.check_object_permissions(self.request, obj)
 

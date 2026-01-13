@@ -11,6 +11,7 @@ from venue.Serializers.venue_info_serializer import VenueInfoSerializer
 from django.utils.text import slugify
 
 
+
 class PostSerializer(serializers.ModelSerializer):
     categories = InterestSerializer(many=True, read_only=True)
     category_ids = serializers.PrimaryKeyRelatedField(
@@ -29,7 +30,8 @@ class PostSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         """Customize user data based on role."""
         data = super().to_representation(instance)
-
+        if instance.user.user_role == '3':  # Staff
+            return data
         if instance.user.user_role == '2':  # Venue
             data['user'] = VenueInfoSerializer(instance.user.venue_profile).data
         else:  # Customer
@@ -75,8 +77,9 @@ class PostSerializer(serializers.ModelSerializer):
         
         instance = Post.objects.create(**validated_data)
         
-        if request.user.user_role == "1":
+        if request.user.user_role in ["1","3"]:
             tagged_venue = request.data.get("tagged_venues")
+            print(tagged_venue)
             if tagged_venue:
                 venue = Venue_Info.objects.filter(id=tagged_venue).first()
                 if venue:
@@ -96,14 +99,16 @@ class PostSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         category_ids = validated_data.pop('category_ids', None)
         request = self.context.get('request')
+        print(category_ids)
 
         # Update other fields normally
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
 
-        if request.user.user_role == "1":
+        if request.user.user_role in ["1","3"]:
             tagged_venue = request.data.get("tagged_venues")
+            
 
             if tagged_venue:
                 # Remove old venue tag
