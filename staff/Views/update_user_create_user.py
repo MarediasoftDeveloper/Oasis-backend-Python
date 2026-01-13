@@ -17,10 +17,7 @@ class AdminUserListCreateUpdateDelete(ModelViewSet):
     
     def get_queryset(self):
         return Customer.objects.filter(user_role='3')
-
-
-        
-
+   
 
 
 

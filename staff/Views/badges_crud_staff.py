@@ -7,7 +7,7 @@ from rest_framework import viewsets
 
 class Badges_Crud_Staff(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, Request_By_Admin_Only]
-    queryset = Badges.objects.all()
+    queryset = Badges.objects.all().order_by('-id')
     serializer_class=BadgesSerializerStaff
 
     

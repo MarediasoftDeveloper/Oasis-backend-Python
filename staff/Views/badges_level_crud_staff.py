@@ -9,14 +9,14 @@ from rest_framework.pagination import PageNumberPagination
 
 
 class StandardResultsSetPagination(PageNumberPagination):
-    page_size = 10         
+    page_size = 12         
     page_size_query_param = 'page_size'
     max_page_size = 50
 
 class Badges_Levels_Crud_Staff(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, Request_By_Admin_Only]
     pagination_class = StandardResultsSetPagination
-    queryset = BadgesLevel.objects.all()
+    queryset = BadgesLevel.objects.all().order_by('-id')
     filter_backends=[filters.SearchFilter]
     serializer_class=BadgesLevelSerializer
     search_fields = ['badge__name', 'category__category','points_per_task', 'category__num_of_task_to_achieve_badge']

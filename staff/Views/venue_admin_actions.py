@@ -53,7 +53,7 @@ class Venue_Info_Approve_Delete(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        venue.delete()
+        venue.venue.delete()
 
         return Response(
             {"message": "Venue successfully deleted"},

@@ -2,6 +2,7 @@ from rest_framework.serializers import ModelSerializer, EmailField
 from rest_framework import serializers
 from app.models import Customer, Customer_profile
 from venue.models.venue_info import Venue_Info
+from venue.models.venue_opening_hours import Venue_Opening_Hours
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.hashers import make_password, check_password
 from app.Views.email.send_and_validate_email import Send_Otp_Mail
@@ -87,7 +88,11 @@ class Customer_Serializer_Staff(ModelSerializer):
             Customer_profile.objects.get_or_create(customer=instance)
         
         if user_role =='2':
-            venue, _ = Venue_Info.objects.get_or_create(venue=instance)
+            venue, created = Venue_Info.objects.get_or_create(venue=instance)
+            if created:
+                time_not_set = "Not Set"
+                Venue_Opening_Hours.objects.create(venue=instance, monday=time_not_set, tuesday=time_not_set, wednesday=time_not_set, thursday=time_not_set, friday=time_not_set,saturday=time_not_set,sunday=time_not_set)
+                
             if venue_name:
                 venue.venue_name = venue_name
             if venue_logo:
@@ -113,3 +118,5 @@ class Customer_Serializer_Staff(ModelSerializer):
         instance.save()
         
         return instance
+    
+    
