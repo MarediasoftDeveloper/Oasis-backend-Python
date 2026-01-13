@@ -55,7 +55,7 @@ class BadgesLevelSerializer(serializers.ModelSerializer):
 
         # Category does not exist yet; it is created in create()
         level_name = attrs.get("level_name")
-        badge_level_name = f"{badge.name + " " + level_name}"
+        badge_level_name = f"{badge.name + ' ' + level_name}"
         print(badge_level_name)
         if self.context.get('request') == 'POST':
             if BadgesLevel.objects.filter(
@@ -75,7 +75,7 @@ class BadgesLevelSerializer(serializers.ModelSerializer):
         num_tasks = validated_data.pop("num_of_task_to_achieve_badge")
 
         badge = validated_data.pop("badge")
-        badge_level_name = f"{badge.name + " " + level_name}"
+        badge_level_name = f"{badge.name + ' ' + level_name}"
 
         print(badge_level_name)
         # Create new category
@@ -98,7 +98,7 @@ class BadgesLevelSerializer(serializers.ModelSerializer):
         level_name = validated_data.pop("level_name", None)
         num_tasks = validated_data.pop("num_of_task_to_achieve_badge", None)
         badge = validated_data.pop("badge", None)
-        badge_level_name = f"{badge.name + " " + level_name}"
+        badge_level_name = f"{badge.name + ' ' + level_name}"
         
         # Update category only if changed
         if not badge_level_name == instance.category.category:
