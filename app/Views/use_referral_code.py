@@ -22,7 +22,7 @@ def UseReferralCode(customer, referral_code):
         return {"error": "Invalid referral code", "status": 404}
 
 
-    if referral.referral_code_sender == customer:
+    if referral.referral_code_sender == customer: 
         return {"error": "You cannot use your own referral code", "status": 400}
     
     # Mark as used
@@ -32,13 +32,13 @@ def UseReferralCode(customer, referral_code):
     record_earned_points(referral_code_sender, customer, get_points)
     update_customer_profiles_after_refferal_completion(referral.referral_code_sender, customer, get_points)
     send_push_notification(
-            referral_code_sender,
-            f"Congratulations!🎉 you won {get_points} points.",
-            f"🎁 {customer.username} has used your referral code.",
-            data={
-                "type": "referral_code_used",
-                "route":"/notificationScreen"
-            }
+        referral_code_sender,
+        f"Congratulations!🎉 you won {get_points} points.",
+        f"🎁 {customer.username} has used your referral code.",
+        data={
+            "type": "referral_code_used",
+            "route":"/notificationScreen"
+        }
     )
 
     

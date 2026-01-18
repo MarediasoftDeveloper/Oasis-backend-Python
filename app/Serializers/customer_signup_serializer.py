@@ -82,6 +82,7 @@ class Customer_Serializer(ModelSerializer):
         profile_picture = validated_data.pop('profile_picture', None)
         is_private = validated_data.pop('is_private', None)
 
+        
             
         for attr, value in validated_data.items():
             setattr(instance, attr, value)

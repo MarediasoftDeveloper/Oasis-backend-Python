@@ -18,7 +18,7 @@ class ReportsList(generics.ListAPIView):
     queryset = ReportingAndComplains.objects.all()
     serializer_class=ReportAndComplainListSerializer
     pagination_class = StandardResultsSetPagination
-
+    
 
 class ReportsCreate(generics.CreateAPIView):
     permission_classes=[IsAuthenticated, Request_By_Admin_Only]
