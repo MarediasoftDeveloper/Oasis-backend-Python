@@ -2,11 +2,11 @@ from django.utils import timezone
 from app.models import Customer   # adjust import
 from app.Models.stamps import Stamps    # adjust import
 from app.Views.utils.fcm import send_push_notification
-import datetime
+
 
 
 def send_daily_notification():
-    today = datetime.date.today()
+    today = timezone.now.date()
 
     # users who ALREADY did today's stamp
     stamped_users = Stamps.objects.filter(
