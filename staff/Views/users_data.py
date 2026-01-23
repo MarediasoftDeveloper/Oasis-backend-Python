@@ -85,7 +85,6 @@ class UsersDataAPI(generics.ListAPIView):
         # THIS LINE FIXES SEARCH
         queryObj = self.get_queryset()
         queryset = self.filter_queryset(queryObj)
-        total_users = queryObj.count()
         paginator = self.pagination_class()
         paginated_customers = paginator.paginate_queryset(queryset, request)
         
@@ -97,11 +96,10 @@ class UsersDataAPI(generics.ListAPIView):
         ).values("user_id").distinct().count()
 
         users_data={
-            'total_users':total_users,
+            'total_users':Customer.objects.filter(user_role='1').count(),
             'badges_earned':badges_earned,
             'logged_in_users':logged_in_users,
-            "points_in_millions": format_number_ui(points_in_circulation['circulation_points']),
-
+            "points_in_millions": points_in_circulation['circulation_points'],
         }
 
         data = []
@@ -112,7 +110,10 @@ class UsersDataAPI(generics.ListAPIView):
             serialized_user['total_scans'] = user.total_scans or 0
             serialized_user['total_badges'] = user.total_badges or 0
             serialized_user['joined_at'] = user.customer.date_joined
-        
+            serialized_user['logged_in'] = OutstandingToken.objects.filter(
+            expires_at__gte=timezone.now(),
+            user=user.customer
+            ).exists()
 
             data.append(serialized_user)
 

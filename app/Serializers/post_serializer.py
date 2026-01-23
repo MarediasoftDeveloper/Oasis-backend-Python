@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from app.Serializers.customer_profile_serializer import CustomerProfileSerializer
 from venue.Serializers.venue_info_serializer import VenueInfoSerializer
 from django.utils.text import slugify
-
+from app.models import Customer
 
 
 class PostSerializer(serializers.ModelSerializer):
@@ -135,3 +135,142 @@ class PostSerializer(serializers.ModelSerializer):
     def delete(self, instance):
         """Allow deletion with future custom logic."""
         instance.delete()
+
+
+
+
+
+
+
+
+class PostSerializerStaff(serializers.ModelSerializer):
+    categories = InterestSerializer(many=True, read_only=True)
+    category_ids = serializers.PrimaryKeyRelatedField(
+        queryset=Customer_Interest.objects.all(),
+        many=True,
+        write_only=True
+    )
+    tagged_venues = serializers.SerializerMethodField(required=False)
+    user = serializers.PrimaryKeyRelatedField(
+        queryset=Customer.objects.all(),
+        write_only=True
+    )
+    
+    
+    class Meta:
+        model = Post
+        fields = '__all__'
+        read_only_fields = ['slug', 'date', 'time']
+
+    def to_representation(self, instance):
+        """Customize user data based on role."""
+        data = super().to_representation(instance)
+        if instance.user.user_role == '3':  # Staff
+            return data
+        if instance.user.user_role == '2':  # Venue
+            data['user'] = VenueInfoSerializer(instance.user.venue_profile).data
+        else:  # Customer
+            data['user'] = CustomerProfileSerializer(instance.user.customer_profile).data
+
+        return data
+   
+   
+    def validate_image(self, value):
+        """Ensure an image is provided."""
+        if not value:
+            raise serializers.ValidationError({"error":"An image is required for the post."})
+        return value
+
+    def validate(self, data):
+        request = self.context.get('request')
+        if request.method == 'POST':
+            category_ids = data.get('category_ids')
+            if not category_ids or len(category_ids) == 0:
+                raise serializers.ValidationError(
+                    {"categories": "At least one category must be selected."}
+                )
+        return data
+    
+    def get_tagged_venues(self, instance):
+        tag = PostVenueTag.objects.filter(post=instance).first()
+        if not tag:
+            return None
+
+        venue = tag.venue
+        return { 
+            "id": venue.id,
+            "venue_id": venue.venue.id,
+            "name": venue.venue_name,
+            "image": venue.venue_logo.url if venue.venue_logo else None
+        }
+
+
+    def create(self, validated_data):
+        """Create a new post with slug and categories."""
+        request = self.context.get('request')
+        category_ids = validated_data.pop('category_ids', [])
+        
+        instance = Post.objects.create(**validated_data)
+        
+        if request.user.user_role in ["1","3"]:
+            tagged_venue = request.data.get("tagged_venues")
+            print(tagged_venue)
+            if tagged_venue:
+                venue = Venue_Info.objects.filter(id=tagged_venue).first()
+                if venue:
+                    PostVenueTag.objects.create(post=instance, venue=venue)
+
+        # Default category if none
+        if category_ids:
+            instance.categories.set(category_ids)
+        else:
+            instance.categories.clear()
+       
+        instance.save()
+        return instance
+
+       
+
+    def update(self, instance, validated_data):
+        category_ids = validated_data.pop('category_ids', None)
+        request = self.context.get('request')
+        print(category_ids)
+
+        # Update other fields normally
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        if request.user.user_role in ["1","3"]:
+            tagged_venue = request.data.get("tagged_venues")
+            
+
+            if tagged_venue:
+                # Remove old venue tag
+                PostVenueTag.objects.filter(post=instance).delete()
+
+                # Convert to int if needed
+                try:
+                    vid = int(tagged_venue)
+                except:
+                    vid = tagged_venue
+
+                venue = Venue_Info.objects.filter(id=vid).first()
+                if venue:
+                    PostVenueTag.objects.create(post=instance, venue=venue)
+
+        # Update categories
+        if category_ids is not None:
+            instance.categories.set(category_ids)
+
+        return instance
+
+
+
+    def delete(self, instance):
+        """Allow deletion with future custom logic."""
+        instance.delete()
+
+
+
+

@@ -60,6 +60,7 @@ class AdminDashboardAPI(APIView):
             date_joined__year=last_month_date.year,
             date_joined__month=last_month_date.month,
         )
+
         current = current_month_users.count()
         last = last_month_users.count()
 
@@ -103,8 +104,7 @@ class AdminDashboardAPI(APIView):
             scanned_at__date=yesterday
         ).count()
 
-        
-        
+
         if yesterday_scans > 0:
             scan_growth = ((today_scans - yesterday_scans) / yesterday_scans) * 100
         elif today_scans > 0:
@@ -127,27 +127,39 @@ class AdminDashboardAPI(APIView):
 
         points_in_circulation = Customer_profile.objects.all().aggregate(circulation_points=Sum('total_redeemed_points'))
         logged_in_users = OutstandingToken.objects.filter(
-            expires_at__gte=timezone.now()
+            expires_at__gte=timezone.now(), user__user_role='1'
         ).values("user_id").distinct().count()
-        
         
 
         weekly_scans = []
         weekly_points_issue = []
         
+        
+        today = now.date()
+
+        weekly_scans = []
+        weekly_points_issue = []
+
         for i in range(7):
-            current_day = start_of_week + timedelta(days=i)
-            challenge_by_day = Challenge_Achiever.objects.filter(scanned_at__date=current_day)
-            count = challenge_by_day.count()
+            current_day = today - timedelta(days=i)
+
+            challenge_by_day = Challenge_Achiever.objects.filter(
+                scanned_at__date=current_day
+            )
+
             weekly_scans.append({
-                "day": current_day.strftime("%A"),  # Day name (Monday, Tuesday...)
-                "scans": count
+                "day": current_day.strftime("%A"),
+                "scans": challenge_by_day.count()
             })
 
             weekly_points_issue.append({
-                "day": current_day.strftime("%A"),  # Day name (Monday, Tuesday...)
-                "points": sum([item.points_issued for item in challenge_by_day])
+                "day": current_day.strftime("%A"),
+                "points": sum(item.points_issued for item in challenge_by_day)
             })
+
+        # Optional: reverse to show oldest → newest
+        weekly_scans.reverse()
+        weekly_points_issue.reverse()
 
         venue_profiles = (
             Venue_Info.objects
@@ -162,7 +174,7 @@ class AdminDashboardAPI(APIView):
             "total_venues":total_venues,
             "scans_data":scans_data,
             "badges_data":badges_data,
-            "points_in_millions": format_number_ui(points_in_circulation['circulation_points']),
+            "points_in_millions": points_in_circulation['circulation_points'],
             "loggedIn_users":logged_in_users,
             'weekly_scans':weekly_scans,
             'weekly_points_issue':weekly_points_issue,

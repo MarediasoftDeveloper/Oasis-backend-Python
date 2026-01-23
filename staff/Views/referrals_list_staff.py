@@ -41,24 +41,26 @@ class ReferralsList(generics.ListAPIView):
         )
 
         # End of current week (Sunday)
-        end_of_week = start_of_week + timedelta(days=6, hours=23, minutes=59, seconds=59)
+        # end_of_week = start_of_week + timedelta(days=6, hours=23, minutes=59, seconds=59)
 
-        week_referrals = queryset.filter(
-            used_at__range=(start_of_week, end_of_week)
-        ).order_by('-used_at')
-
+        # week_referrals = queryset.filter(
+        #     used_at__range=(start_of_week, end_of_week)
+        # ).order_by('-used_at')
+        
+        week_referrals = queryset.order_by('-used_at')
+        
         total_points_exchange = queryset.aggregate(
             total_points=Sum('points_issued')
         )['total_points'] or 0
         
         most_used_referral = (
-            week_referrals
+            queryset
             .values('referral__id', 'referral__referral_code')
             .annotate(usage_count=Count('referral__id'))
             .order_by('-usage_count')
             .first()
         )
-        print(most_used_referral)
+       
         top_referrer =  (
             Referrals.objects.filter(id=most_used_referral['referral__id']).first()
             if most_used_referral
