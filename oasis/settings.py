@@ -65,7 +65,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'storages',
     'django_crontab',
-    'payments'
+    # 'payments'
 ]
 
 
