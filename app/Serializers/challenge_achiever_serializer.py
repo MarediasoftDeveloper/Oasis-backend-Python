@@ -14,6 +14,14 @@ from app.Views.functions.get_level_of_user_badge import get_level_points_per_tas
 from venue.models.badge_category import Badge_Category
 import calendar
 
+
+
+def is_time_in_range(start, end, now):
+    if start <= end:
+        return start <= now <= end
+    else:
+        return now >= start or now <= end
+
 class ChallengeAchieverSerializer(serializers.ModelSerializer):
 
     code = serializers.CharField(write_only=True, required=True)
@@ -66,7 +74,17 @@ class ChallengeAchieverSerializer(serializers.ModelSerializer):
             })
         
        
+        current_time = timezone.localtime().time()  # Get current local time
         
+        if challenge.specify_weekday is not None:
+            current_day = timezone.localdate().weekday()
+            print(current_day)
+            day_name = calendar.day_name[challenge.specify_weekday]
+
+            if not challenge.specify_weekday == current_day:
+                raise serializers.ValidationError({
+                    "error": f"The challenge is only available on {day_name}"
+                })
         # --- Check Cooldown Period ---
         last_entry = (
             Challenge_Achiever.objects
@@ -99,38 +117,47 @@ class ChallengeAchieverSerializer(serializers.ModelSerializer):
         #         })
 
         # --- Check Daily Cap ---
-        start_of_day = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
-        end_of_day = start_of_day + timedelta(days=1)
+       
+        local_now = timezone.localtime(now)
+
+        start_of_day_local = local_now.replace(
+            hour=0, minute=0, second=0, microsecond=0
+        )
+        end_of_day_local = start_of_day_local + timedelta(days=1)
+
+        # Convert back to UTC for DB query
+        start_of_day_utc = timezone.make_aware(
+            start_of_day_local.replace(tzinfo=None),
+            local_now.tzinfo
+        ).astimezone(timezone.utc)
+
+        end_of_day_utc = timezone.make_aware(
+            end_of_day_local.replace(tzinfo=None),
+            local_now.tzinfo
+        ).astimezone(timezone.utc)
 
         daily_count = Challenge_Achiever.objects.filter(
             customer_taken=user,
             challenge=challenge,
-            scanned_at__gte=start_of_day,
-            scanned_at__lt=end_of_day
+            scanned_at__gte=start_of_day_utc,
+            scanned_at__lt=end_of_day_utc
         ).count()
 
         if daily_count >= challenge.daily_cap:
             raise serializers.ValidationError({
-                "error": f"You have already reached the daily cap of {challenge.daily_cap} scans for this challenge."
+                "error": (
+                    f"You have already reached the daily cap of "
+                    f"{challenge.daily_cap} scans for this challenge."
+                )
             })
 
-        current_time = timezone.now().time()  # Get current local time
-        
-        if challenge.specify_weekday is not None:
-            current_day = timezone.localdate().weekday()
-            today_name = calendar.day_name[current_day]
-
-            if not challenge.specify_weekday == current_day:
-                raise serializers.ValidationError({
-                    "error": f"The challenge is only available on {today_name}"
-                })
+       
             
         # Ensure daily_open_time and daily_close_time are provided and are valid
-        if challenge.specify_weekday and challenge.open_time and challenge.close_time:
-            if not (challenge.open_time <= current_time <= challenge.close_time):
-                raise serializers.ValidationError({
-                    "error": f"The challenge is only available between {challenge.open_time} and {challenge.close_time}."
-                })
+        if not is_time_in_range(challenge.open_time, challenge.close_time, current_time):
+            raise serializers.ValidationError({
+                "error": f"This challenge is only available between {challenge.open_time} and {challenge.close_time}."
+            })
         
         return data
 

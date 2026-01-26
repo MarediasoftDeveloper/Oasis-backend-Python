@@ -12,18 +12,18 @@ class StampSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def validate(self, data):
-        now = timezone.now()
-        current_day = now.day
-        current_month = now.month
-        current_year = now.year
-        request = self.context.get('request')
-        # Check if a stamp already exists for today for this user
+        request = self.context["request"]
+        today = timezone.localdate()
+
         stamp_exists = Stamps.objects.filter(
             user=request.user,
-            stamped_at__day=current_day,
-            stamped_at__month=current_month,
-            stamped_at__year=current_year
+            stamped_at__date=today
         ).exists()
+
+        if stamp_exists:
+            raise serializers.ValidationError({
+                "error": "You have already stamped today."
+            })
 
         
         if stamp_exists:

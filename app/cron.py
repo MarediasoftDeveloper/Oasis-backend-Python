@@ -6,7 +6,7 @@ from app.Views.utils.fcm import send_push_notification
 
 
 def send_daily_notification():
-    today = timezone.now.date()
+    today = timezone.localtime().date()
 
     # users who ALREADY did today's stamp
     stamped_users = Stamps.objects.filter(

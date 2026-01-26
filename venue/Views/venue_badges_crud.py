@@ -39,9 +39,7 @@ class Venue_Badge_CRUD(APIView):
                 category__category__icontains='basic'
             )
             
-            today = timezone.now()
-
-            # Get the full weekday name
+            today = timezone.localtime()
             day_of_week_attr = today.strftime("%A").lower()
              
             
@@ -87,9 +85,7 @@ class Venue_Badge_CRUD_Retrieve(APIView):
             .filter(venue=venue, is_active=True)
             .values_list('badge_id', flat=True)
         )
-        today = timezone.now()
-
-        # Get the full weekday name
+        today = timezone.localtime()
         day_of_week_attr = today.strftime("%A").lower()
             
         

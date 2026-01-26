@@ -26,7 +26,7 @@ class VenueDashboard(APIView):
         venue_serialized = VenueInfoSerializer(venue_profile)
 
         # Dates
-        today = timezone.now().date()
+        today = timezone.localdate()
         yesterday = today - timedelta(days=1)
         start_of_week = today - timedelta(days=today.weekday())  # Monday
         end_of_week = start_of_week + timedelta(days=6)  # Sunday

@@ -38,22 +38,27 @@ def format_number_ui(value):
 class AdminDashboardAPI(APIView):
     permission_classes = [IsAuthenticated, Request_By_Admin_Only]
 
-
     def get(self, request):
-        
-        users = Customer.objects.filter(user_role='1').order_by('-id')
-        now = timezone.now()
-        yesterday = now.date() - timedelta(days=1)
-        start_of_week = now.date() - timedelta(days=now.date().weekday())  # Monday
-        end_of_week = start_of_week + timedelta(days=6)  # Sunday
 
+        # --- TIME SETUP (CORRECT) ---
+        now_utc = timezone.now()
+        now_local = timezone.localtime(now_utc)
 
-        first_day_this_month = now.replace(day=1)
+        today = now_local.date()
+        yesterday = today - timedelta(days=1)
+
+        start_of_week = today - timedelta(days=today.weekday())  # Monday
+        end_of_week = start_of_week + timedelta(days=6)          # Sunday
+
+        first_day_this_month = today.replace(day=1)
         last_month_date = first_day_this_month - timedelta(days=1)
 
+        # --- USERS ---
+        users = Customer.objects.filter(user_role='1')
+
         current_month_users = users.filter(
-            date_joined__year=now.year,
-            date_joined__month=now.month,
+            date_joined__year=today.year,
+            date_joined__month=today.month,
         )
         last_month_users = users.filter(
             date_joined__year=last_month_date.year,
@@ -63,46 +68,43 @@ class AdminDashboardAPI(APIView):
         current = current_month_users.count()
         last = last_month_users.count()
 
-        if last > 0:
-            users_growth_this_month = ((current - last) / last) * 100
-        else:
-
-            users_growth_this_month = 100  # or 0, depending on your business logic
+        users_growth_this_month = ((current - last) / last) * 100 if last > 0 else 100
 
         total_users = {
-            'users':users.count(),
-            'users_growth_this_month': round(users_growth_this_month, 2),
+            "users": users.count(),
+            "users_growth_this_month": round(users_growth_this_month, 2),
         }
 
-        venues = Customer.objects.filter(user_role='2').order_by('-id')
+        # --- VENUES ---
+        venues = Customer.objects.filter(user_role='2')
+
         current_month_venues = venues.filter(
-            date_joined__year=now.year,
-            date_joined__month=now.month,
+            date_joined__year=today.year,
+            date_joined__month=today.month,
         )
         last_month_venues = venues.filter(
             date_joined__year=last_month_date.year,
             date_joined__month=last_month_date.month,
         )
+
         current = current_month_venues.count()
         last = last_month_venues.count()
 
-        if last > 0:
-            venue_growth_this_month = ((current - last) / last) * 100
-        else:
-            venue_growth_this_month = 100  # or 0, depending on your business logic
+        venue_growth_this_month = ((current - last) / last) * 100 if last > 0 else 100
 
         total_venues = {
-            'venues':venues.count(),
-            'venue_growth_this_month': round(venue_growth_this_month, 2),
+            "venues": venues.count(),
+            "venue_growth_this_month": round(venue_growth_this_month, 2),
         }
+
+        # --- SCANS (LOCAL DATE) ---
         today_scans = Challenge_Achiever.objects.filter(
-            scanned_at__date=now.date()
+            scanned_at__date=today
         ).count()
 
         yesterday_scans = Challenge_Achiever.objects.filter(
             scanned_at__date=yesterday
         ).count()
-
 
         if yesterday_scans > 0:
             scan_growth = ((today_scans - yesterday_scans) / yesterday_scans) * 100
@@ -110,32 +112,36 @@ class AdminDashboardAPI(APIView):
             scan_growth = 100
         else:
             scan_growth = 0
-        
+
         scans_data = {
-            'total_scans_today':today_scans,
-            'scan_growth':scan_growth,
+            "total_scans_today": today_scans,
+            "scan_growth": round(scan_growth, 2),
         }
 
-        total_earned_badges = Earned_Badges.objects.all().count()
-        current_week_earned_badges = Earned_Badges.objects.filter(date__date__range=[start_of_week, end_of_week]).count()
+        # --- BADGES (LOCAL WEEK) ---
+        total_earned_badges = Earned_Badges.objects.count()
+
+        current_week_earned_badges = Earned_Badges.objects.filter(
+            date__date__range=[start_of_week, end_of_week]
+        ).count()
 
         badges_data = {
-            'total_badges':total_earned_badges,
-            'current_week_earned_badges':current_week_earned_badges,
+            "total_badges": total_earned_badges,
+            "current_week_earned_badges": current_week_earned_badges,
         }
 
-        points_in_circulation = Customer_profile.objects.all().aggregate(circulation_points=Sum('total_redeemed_points'))
+        # --- POINTS ---
+        points_in_circulation = Customer_profile.objects.aggregate(
+            circulation_points=Sum("total_redeemed_points")
+        )
+
+        # --- LOGGED IN USERS (UTC LOGIC – CORRECT) ---
         logged_in_users = OutstandingToken.objects.filter(
-            expires_at__gte=timezone.now(), user__user_role='1'
+            expires_at__gte=now_utc,
+            user__user_role='1'
         ).values("user_id").distinct().count()
-        
 
-        weekly_scans = []
-        weekly_points_issue = []
-        
-        
-        today = now.date()
-
+        # --- WEEKLY SCANS / POINTS (LOCAL DATE) ---
         weekly_scans = []
         weekly_points_issue = []
 
@@ -148,40 +154,37 @@ class AdminDashboardAPI(APIView):
 
             weekly_scans.append({
                 "day": current_day.strftime("%A"),
-                "scans": challenge_by_day.count()
+                "scans": challenge_by_day.count(),
             })
 
             weekly_points_issue.append({
                 "day": current_day.strftime("%A"),
-                "points": sum(item.points_issued for item in challenge_by_day)
+                "points": sum(item.points_issued for item in challenge_by_day),
             })
 
-        # Optional: reverse to show oldest → newest
         weekly_scans.reverse()
         weekly_points_issue.reverse()
 
+        # --- LATEST VENUES ---
         venue_profiles = (
             Venue_Info.objects
-            .select_related('venue')
-            .order_by('-venue__date_joined')[:10]
+            .select_related("venue")
+            .order_by("-venue__date_joined")[:10]
         )
+
         venue_serialized = VenueInfoStaffSerializer(venue_profiles, many=True)
 
-     
         return Response({
-            "total_users":total_users,
-            "total_venues":total_venues,
-            "scans_data":scans_data,
-            "badges_data":badges_data,
-            "points_in_millions": points_in_circulation['circulation_points'],
-            "loggedIn_users":logged_in_users,
-            'weekly_scans':weekly_scans,
-            'weekly_points_issue':weekly_points_issue,
-            'venues':venue_serialized.data,
+            "total_users": total_users,
+            "total_venues": total_venues,
+            "scans_data": scans_data,
+            "badges_data": badges_data,
+            "points_in_millions": points_in_circulation["circulation_points"],
+            "loggedIn_users": logged_in_users,
+            "weekly_scans": weekly_scans,
+            "weekly_points_issue": weekly_points_issue,
+            "venues": venue_serialized.data,
         })
-
-
-
 
 
 
