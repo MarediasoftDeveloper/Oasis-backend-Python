@@ -117,30 +117,18 @@ class ChallengeAchieverSerializer(serializers.ModelSerializer):
         #         })
 
         # --- Check Daily Cap ---
-       
-        local_now = timezone.localtime(now)
-
-        start_of_day_local = local_now.replace(
+      
+        start_of_day = timezone.localtime().replace(
             hour=0, minute=0, second=0, microsecond=0
         )
-        end_of_day_local = start_of_day_local + timedelta(days=1)
 
-        # Convert back to UTC for DB query
-        start_of_day_utc = timezone.make_aware(
-            start_of_day_local.replace(tzinfo=None),
-            local_now.tzinfo
-        ).astimezone(timezone.utc)
+        end_of_day = start_of_day + timedelta(days=1)
 
-        end_of_day_utc = timezone.make_aware(
-            end_of_day_local.replace(tzinfo=None),
-            local_now.tzinfo
-        ).astimezone(timezone.utc)
 
         daily_count = Challenge_Achiever.objects.filter(
             customer_taken=user,
             challenge=challenge,
-            scanned_at__gte=start_of_day_utc,
-            scanned_at__lt=end_of_day_utc
+            scanned_at__date=timezone.localdate()
         ).count()
 
         if daily_count >= challenge.daily_cap:
