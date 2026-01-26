@@ -13,9 +13,19 @@ STATUS_CHOICES = [
     ('suspended', 'Suspended'),
 ]
  
+WEEKDAYS = [
+    (0, 'Monday'),
+    (1, 'Tuesday'),
+    (2, 'Wednesday'),
+    (3, 'Thursday'),
+    (4, 'Friday'),
+    (5, 'Saturday'),
+    (6, 'Sunday'),
+]
 
 def challenge_file_upload_path(instance, filename):
     return f'uploads/challenges/{instance.id}/{filename}'
+
 
 class Challenges(models.Model):
     image = models.ImageField(upload_to=challenge_file_upload_path, default='media/challenge_default/scan.jpg')
@@ -31,8 +41,9 @@ class Challenges(models.Model):
     created_at=models.DateTimeField(auto_now_add=True)
     is_approved = models.CharField(max_length=50, choices=STATUS_CHOICES, default='approved')
     is_ended = models.BooleanField(default=False)
-    # daily_open_time = models.TimeField()
-    # daily_close_time = models.TimeField()
+    specify_weekday = models.PositiveSmallIntegerField(choices=WEEKDAYS, null=True, blank=True)
+    open_time = models.TimeField(null=True, blank=True)
+    close_time = models.TimeField(null=True, blank=True)
    
     def __str__(self):
         return self.title

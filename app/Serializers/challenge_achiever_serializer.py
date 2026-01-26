@@ -12,6 +12,7 @@ from app.Serializers.customer_profile_serializer import CustomerProfileSerialize
 from venue.Serializers.challenge_serializer import ChallengesSerializer
 from app.Views.functions.get_level_of_user_badge import get_level_points_per_task_and_save_it
 from venue.models.badge_category import Badge_Category
+import calendar
 
 class ChallengeAchieverSerializer(serializers.ModelSerializer):
 
@@ -36,10 +37,6 @@ class ChallengeAchieverSerializer(serializers.ModelSerializer):
         user = request.user
         
      
-
-            
-
-        
 
         now = timezone.now()  # Use timezone aware current time
     
@@ -117,14 +114,23 @@ class ChallengeAchieverSerializer(serializers.ModelSerializer):
                 "error": f"You have already reached the daily cap of {challenge.daily_cap} scans for this challenge."
             })
 
-        current_time = timezone.localtime(timezone.now()).time()  # Get current local time
+        current_time = timezone.now().time()  # Get current local time
+        
+        if challenge.specify_weekday is not None:
+            current_day = timezone.localdate().weekday()
+            today_name = calendar.day_name[current_day]
 
+            if not challenge.specify_weekday == current_day:
+                raise serializers.ValidationError({
+                    "error": f"The challenge is only available on {today_name}"
+                })
+            
         # Ensure daily_open_time and daily_close_time are provided and are valid
-        # if challenge.daily_open_time and challenge.daily_close_time:
-        #     if not (challenge.daily_open_time <= current_time <= challenge.daily_close_time):
-        #         raise serializers.ValidationError({
-        #             "error": f"The challenge is only available between {challenge.daily_open_time} and {challenge.daily_close_time}."
-        #         })
+        if challenge.specify_weekday and challenge.open_time and challenge.close_time:
+            if not (challenge.open_time <= current_time <= challenge.close_time):
+                raise serializers.ValidationError({
+                    "error": f"The challenge is only available between {challenge.open_time} and {challenge.close_time}."
+                })
         
         return data
 
