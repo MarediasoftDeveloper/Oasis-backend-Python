@@ -142,10 +142,11 @@ class ChallengeAchieverSerializer(serializers.ModelSerializer):
        
             
         # Ensure daily_open_time and daily_close_time are provided and are valid
-        if not is_time_in_range(challenge.open_time, challenge.close_time, current_time):
-            raise serializers.ValidationError({
-                "error": f"This challenge is only available between {challenge.open_time} and {challenge.close_time}."
-            })
+        if challenge.open_time and challenge.close_time:
+            if not is_time_in_range(challenge.open_time, challenge.close_time, current_time):
+                raise serializers.ValidationError({
+                    "error": f"This challenge is only available between {challenge.open_time} and {challenge.close_time}."
+                })
         
         return data
 
