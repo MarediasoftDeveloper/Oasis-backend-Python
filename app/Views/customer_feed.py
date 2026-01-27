@@ -60,9 +60,9 @@ class Customer_Feed(APIView):
         allowed_customer_ids = (public_ids | allowed_private_ids) - blocked_ids
 
         # ---- GET POSTS ----
-        customer_posts = Post.objects.filter(user_id__in=allowed_customer_ids)
+        customer_posts = Post.objects.filter(user_id__in=allowed_customer_ids, user__user_role="1")
         venue_posts = Post.objects.filter(user__user_role="2").exclude(user_id__in=blocked_ids)
-
+        
         posts = (customer_posts | venue_posts).order_by("-id")
 
         # ---- PAGINATION ----
@@ -76,7 +76,7 @@ class Customer_Feed(APIView):
 
 class Customer_Feed_Retrieve(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated, Request_By_Customer_Only]
-    queryset = Post.objects.all()
+    queryset = Post.objects.filter(user__user_role__in=['1','2'])
     serializer_class = PostSerializer
     lookup_field='slug'
 

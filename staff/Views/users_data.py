@@ -189,6 +189,23 @@ class UserRetrieveAPI(generics.RetrieveAPIView):
             recent_raffles, many=True
         ).data
 
+        data['scan_dict'] = {
+            "count": recent_scans.count(),
+            "total_win_points": recent_scans.aggregate(
+                total_win_points=Sum("points_issued")
+            )["total_win_points"] or 0
+        }
+
+        data['rewards_dict'] = {"count":recent_rewards.count(), "total_spent_points": recent_rewards.aggregate(
+                total_spent_points=Sum("reward__required_points_for_reward")
+            )["total_spent_points"] or 0}
+        
+        data['raffles_dict'] = {"count":recent_raffles.count(), "total_spent_points": recent_raffles.aggregate(
+                total_spent_points=Sum("raffle__points_to_join")
+            )["total_spent_points"] or 0, "total_win_points": recent_raffles.aggregate(
+                total_rewarded_points=Sum("raffle__rewarded_points")
+            )["total_rewarded_points"] or 0}
+
         return Response(data)
 
 
