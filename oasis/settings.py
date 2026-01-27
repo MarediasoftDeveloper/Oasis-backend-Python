@@ -23,23 +23,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 #For production
-# AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")  # leave empty in production
-# AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")  # leave empty in production
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")  # leave empty in production
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")  # leave empty in production
 AWS_S3_REGION_NAME = "us-east-1"
 
 
 import boto3
 
-ssm = boto3.client( 'ssm',
-    region_name=AWS_S3_REGION_NAME,
-    aws_access_key_id=config("AWS_ACCESS_KEY_ID"),
-    aws_secret_access_key=config("AWS_SECRET_ACCESS_KEY"))
-
 
 #For Production
-# ssm = boto3.client( 'ssm', region_name=AWS_S3_REGION_NAME)
-
-
+ssm = boto3.client('ssm', region_name=AWS_S3_REGION_NAME)
 
 
 # Quick-start development settings - unsuitable for production
@@ -72,8 +65,6 @@ hosts = ssm.get_parameter(
 ALLOWED_HOSTS = hosts.split(",")
 
 
-
-
 # Optional: trust your Railway domain for CSRF
 CSRF_TRUSTED_ORIGINS = [
     f"https://{host}" for host in ALLOWED_HOSTS if host not in ["localhost", "127.0.0.1"]
@@ -100,7 +91,6 @@ INSTALLED_APPS = [
     'corsheaders',
     'storages',
     'django_crontab',
-    'payments'
 ]
 
 
@@ -299,7 +289,7 @@ APPLE_KEY_ID=apple_key_id_param
 
 
 facebook_app_id_param = ssm.get_parameter(
-    Name="/myOasis/APPLE_KEY_ID",
+    Name="/myOasis/FACEBOOK_APP_ID",
     WithDecryption=True
 )['Parameter']['Value']
 FACEBOOK_APP_ID = facebook_app_id_param
@@ -317,27 +307,18 @@ FACEBOOK_APP_SECRET = facebook_app_secret_param
 # IMPORTANT: Remove or comment out STATICFILES_STORAGE and DEFAULT_FILE_STORAGE
 # to avoid a conflict.
 
-import firebase_admin
-from firebase_admin import credentials
 
-FIREBASE_CRED = credentials.Certificate(
-    BASE_DIR / "firebase/my-oasis-e7bca-firebase-adminsdk-fbsvc-c27b05b1f3.json"   # update path as peryour file
-)
+from firebase_admin import credentials, initialize_app
 
-default_app = firebase_admin.initialize_app(FIREBASE_CRED)
+param = ssm.get_parameter(Name="/myOasis/firebase/key", WithDecryption=True)
+key_json = param["Parameter"]["Value"]
 
+# Write to temporary file
+with open("/tmp/firebase_key.json", "w") as f:
+    f.write(key_json)
 
-# from firebase_admin import credentials, initialize_app
-
-# param = ssm.get_parameter(Name="/myOasis/firebase/key", WithDecryption=True)
-# key_json = param["Parameter"]["Value"]
-
-# # Write to temporary file
-# with open("/tmp/firebase_key.json", "w") as f:
-#     f.write(key_json)
-
-# cred = credentials.Certificate("/tmp/firebase_key.json")
-# initialize_app(cred)
+cred = credentials.Certificate("/tmp/firebase_key.json")
+initialize_app(cred)
 
 
 
