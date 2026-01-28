@@ -69,30 +69,26 @@ class AdminDashboardAPI(APIView):
         # users_growth_this_month = ((current - last) / last) * 100 if last > 0 else 100
 
         now = timezone.now()
+        start_30 = now - timedelta(days=30)
 
-        current_start = now - timedelta(days=30)
-        previous_start = now - timedelta(days=60)
+        total_now = users.count()
 
-        current_30 = users.filter(
-            date_joined__gte=current_start,
+        new_last_30 = users.filter(
+            date_joined__gte=start_30,
             date_joined__lte=now,
         ).count()
 
-        previous_30 = users.filter(
-            date_joined__gte=previous_start,
-            date_joined__lt=current_start,
-        ).count()
+        total_before_30 = total_now - new_last_30
 
         users_growth = (
-            ((current_30 - previous_30) / users.count()) * 100
-            if previous_30 > 0
+            (new_last_30 / total_before_30) * 100
+            if total_before_30 > 0
             else 100
         )
 
         total_users = {
-            "users": users.count(),
-            "previous": previous_30,
-            "current": current_30,
+            "users": total_now,
+            "previous": total_before_30,
             "users_growth_this_month": round(users_growth, 2),
         }
 
@@ -113,26 +109,26 @@ class AdminDashboardAPI(APIView):
 
         # venue_growth_this_month = ((current - last) / last) * 100 if last > 0 else 100
 
-        venue_current_30 = venues.filter(
-            date_joined__gte=current_start,
+
+        total_venues_now = venues.count()
+
+        new_venues_last_30 = venues.filter(
+            date_joined__gte=start_30,
             date_joined__lte=now,
         ).count()
 
-        venue_previous_30 = venues.filter(
-            date_joined__gte=previous_start,
-            date_joined__lt=current_start,
-        ).count()
+        total_venues_before_30 = total_venues_now - new_venues_last_30
 
         venue_growth_this_month = (
-            ((venue_current_30 - venue_previous_30) / venue_previous_30) * 100
-            if venue_previous_30 > 0
+            (new_venues_last_30 / total_venues_before_30) * 100
+            if total_venues_before_30 > 0
             else 100
         )
 
         total_venues = {
-            "venues": venues.count(),
-            "previous": venue_previous_30,
-            "current": venue_current_30,
+            "venues": total_venues_now,
+            "previous": total_venues_before_30,
+            "current": total_venues_now,
             "venue_growth_this_month": round(venue_growth_this_month, 2),
         }
 
