@@ -84,13 +84,15 @@ class AdminDashboardAPI(APIView):
         ).count()
 
         users_growth = (
-            ((current_30 - previous_30) / previous_30) * 100
+            ((current_30 - previous_30) / users.count()) * 100
             if previous_30 > 0
             else 100
         )
 
         total_users = {
             "users": users.count(),
+            "previous": previous_30,
+            "current": current_30,
             "users_growth_this_month": round(users_growth, 2),
         }
 
@@ -111,25 +113,26 @@ class AdminDashboardAPI(APIView):
 
         # venue_growth_this_month = ((current - last) / last) * 100 if last > 0 else 100
 
-        current_30 = venues.filter(
+        venue_current_30 = venues.filter(
             date_joined__gte=current_start,
             date_joined__lte=now,
         ).count()
 
-        previous_30 = venues.filter(
+        venue_previous_30 = venues.filter(
             date_joined__gte=previous_start,
             date_joined__lt=current_start,
         ).count()
 
         venue_growth_this_month = (
-            ((current_30 - previous_30) / previous_30) * 100
-            if previous_30 > 0
+            ((venue_current_30 - venue_previous_30) / venue_previous_30) * 100
+            if venue_previous_30 > 0
             else 100
         )
 
-
         total_venues = {
             "venues": venues.count(),
+            "previous": venue_previous_30,
+            "current": venue_current_30,
             "venue_growth_this_month": round(venue_growth_this_month, 2),
         }
 
