@@ -56,41 +56,77 @@ class AdminDashboardAPI(APIView):
         # --- USERS ---
         users = Customer.objects.filter(user_role='1')
 
-        current_month_users = users.filter(
-            date_joined__year=today.year,
-            date_joined__month=today.month,
-        )
-        last_month_users = users.filter(
-            date_joined__year=last_month_date.year,
-            date_joined__month=last_month_date.month,
-        )
+        # current_month_users = users.filter(
+        #     date_joined__year=today.year,
+        #     date_joined__month=today.month,
+        # )
+        # last_month_users = users.filter(
+        #     date_joined__year=today.year,
+        #     date_joined__month=today.month,
+        # )
+        # current = current_month_users.count()
+        # last = last_month_users.count()
+        # users_growth_this_month = ((current - last) / last) * 100 if last > 0 else 100
 
-        current = current_month_users.count()
-        last = last_month_users.count()
+        now = timezone.now()
 
-        users_growth_this_month = ((current - last) / last) * 100 if last > 0 else 100
+        current_start = now - timedelta(days=30)
+        previous_start = now - timedelta(days=60)
+
+        current_30 = users.filter(
+            date_joined__gte=current_start,
+            date_joined__lte=now,
+        ).count()
+
+        previous_30 = users.filter(
+            date_joined__gte=previous_start,
+            date_joined__lt=current_start,
+        ).count()
+
+        users_growth = (
+            ((current_30 - previous_30) / previous_30) * 100
+            if previous_30 > 0
+            else 100
+        )
 
         total_users = {
             "users": users.count(),
-            "users_growth_this_month": round(users_growth_this_month, 2),
+            "users_growth_this_month": round(users_growth, 2),
         }
 
         # --- VENUES ---
         venues = Customer.objects.filter(user_role='2')
 
-        current_month_venues = venues.filter(
-            date_joined__year=today.year,
-            date_joined__month=today.month,
-        )
-        last_month_venues = venues.filter(
-            date_joined__year=last_month_date.year,
-            date_joined__month=last_month_date.month,
+        # current_month_venues = venues.filter(
+        #     date_joined__year=today.year,
+        #     date_joined__month=today.month,
+        # )
+        # last_month_venues = venues.filter(
+        #     date_joined__year=last_month_date.year,
+        #     date_joined__month=last_month_date.month,
+        # )
+
+        # current = current_month_venues.count()
+        # last = last_month_venues.count()
+
+        # venue_growth_this_month = ((current - last) / last) * 100 if last > 0 else 100
+
+        current_30 = venues.filter(
+            date_joined__gte=current_start,
+            date_joined__lte=now,
+        ).count()
+
+        previous_30 = venues.filter(
+            date_joined__gte=previous_start,
+            date_joined__lt=current_start,
+        ).count()
+
+        venue_growth_this_month = (
+            ((current_30 - previous_30) / previous_30) * 100
+            if previous_30 > 0
+            else 100
         )
 
-        current = current_month_venues.count()
-        last = last_month_venues.count()
-
-        venue_growth_this_month = ((current - last) / last) * 100 if last > 0 else 100
 
         total_venues = {
             "venues": venues.count(),

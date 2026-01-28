@@ -138,9 +138,7 @@ class ChallengeAchieverSerializer(serializers.ModelSerializer):
                     f"{challenge.daily_cap} scans for this challenge."
                 )
             })
-
        
-            
         # Ensure daily_open_time and daily_close_time are provided and are valid
         if challenge.open_time and challenge.close_time:
             if not is_time_in_range(challenge.open_time, challenge.close_time, current_time):
