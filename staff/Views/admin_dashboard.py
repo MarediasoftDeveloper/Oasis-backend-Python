@@ -73,9 +73,20 @@ class AdminDashboardAPI(APIView):
 
         total_now = users.count()
 
+        local_now = timezone.localtime(now)
+
+        start_of_today = local_now.replace(
+            hour=0, minute=0, second=0, microsecond=0
+        )
+
         new_last_30 = users.filter(
             date_joined__gte=start_30,
             date_joined__lte=now,
+        ).count()
+
+        today_joined = users.filter(
+            date_joined__gte=start_of_today,
+            date_joined__lte=local_now,
         ).count()
 
         total_before_30 = total_now - new_last_30
@@ -88,6 +99,7 @@ class AdminDashboardAPI(APIView):
 
         total_users = {
             "users": total_now,
+            "current_day":today_joined,
             "previous": total_before_30,
             "users_growth_this_month": round(users_growth, 2),
         }
@@ -124,11 +136,15 @@ class AdminDashboardAPI(APIView):
             if total_venues_before_30 > 0
             else 100
         )
-
+        venues_today_joined = venues.filter(
+            date_joined__gte=start_of_today,
+            date_joined__lte=local_now,
+        ).count()
+        
         total_venues = {
             "venues": total_venues_now,
             "previous": total_venues_before_30,
-            "current": total_venues_now,
+            "current_day": venues_today_joined,
             "venue_growth_this_month": round(venue_growth_this_month, 2),
         }
 
