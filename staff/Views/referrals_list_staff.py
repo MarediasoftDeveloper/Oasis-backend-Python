@@ -7,7 +7,6 @@ from app.Serializers.referral_users_serializer import ReferralSerializer
 from staff.Permissions.admin_only_permission import Request_By_Admin_Only
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
-
 from django.utils import timezone
 from datetime import timedelta
 from django.db.models import Sum, Count

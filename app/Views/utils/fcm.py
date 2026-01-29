@@ -14,6 +14,7 @@ def send_push_notification(users, title, body, data=None):
     # Get all FCM tokens
     tokens = list(
         DeviceFCM.objects.filter(user__in=users)
+        .exclude(fcm_token="")
         .values_list("fcm_token", flat=True)
     )
 
@@ -33,7 +34,18 @@ def send_push_notification(users, title, body, data=None):
     for batch in chunks:
         message = messaging.MulticastMessage(
             tokens=batch,
-            notification=messaging.Notification(title=title, body=body),
+            notification=messaging.Notification(
+                title=title,
+                body=body,
+            ),
+            apns=messaging.APNSConfig(
+                payload=messaging.APNSPayload(
+                    aps=messaging.Aps(
+                        sound="default",
+                        badge=1,
+                    )
+                )
+            ),
             data=data or {},
         )
 
@@ -52,7 +64,11 @@ def send_push_posts_notification(users, title, body, data=None, image=None):
     elif not isinstance(users, (list, tuple, set)):
         users = [users]
 
-    tokens = list(DeviceFCM.objects.filter(user__in=users).values_list("fcm_token", flat=True))
+    tokens = list(
+        DeviceFCM.objects.filter(user__in=users)
+        .exclude(fcm_token="")
+        .values_list("fcm_token", flat=True)
+    )
     if not tokens:
         return
 
