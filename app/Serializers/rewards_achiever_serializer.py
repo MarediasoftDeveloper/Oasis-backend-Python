@@ -47,8 +47,7 @@ class RewardsAchieverSerializer(serializers.ModelSerializer):
         if reward.is_ended:
             raise serializers.ValidationError({
                 "error": "This reward has ended. You can no longer join."
-            })
-        
+            })    
 
         if rewards_achieved > reward.stock:
             raise serializers.ValidationError({

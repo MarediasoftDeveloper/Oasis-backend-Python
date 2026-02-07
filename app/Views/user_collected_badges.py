@@ -10,7 +10,7 @@ from venue.models.badges import Badges, BadgesLevel
 from venue.models.challenges import Challenges
 from app.Permissions.send_by_customer_only import Request_By_Customer_Only
 from django.utils import timezone
-from datetime import datetime
+
 
 
 class Collected_badges(APIView):

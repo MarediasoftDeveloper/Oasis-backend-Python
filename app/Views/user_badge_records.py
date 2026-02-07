@@ -9,7 +9,6 @@ from app.Serializers.badge_level_serializer import BadgesLevelSerializer
 from venue.models.badges import BadgesLevel, Badges
 from app.Permissions.send_by_customer_only import Request_By_Customer_Only
 from django.utils import timezone
-from datetime import datetime
 import math
 from django.db.models.functions import Lower
 
@@ -48,7 +47,7 @@ class User_Badges_Record(APIView):
                 data.append({
                     **BadgesLevelSerializer(category).data,
                     'status':False,
-                    'message': f"No Earned badges for this {category.category.category} level"
+                    'message': f"no earned badges for this {category.category.category} level"
                 })
                         
         data.append({'earned_badges':earned_count})

@@ -76,15 +76,20 @@ class ChallengeAchieverSerializer(serializers.ModelSerializer):
        
         current_time = timezone.localtime().time()  # Get current local time
         
-        if challenge.specify_weekday is not None:
+        if challenge.specify_weekdays is not None:
             current_day = timezone.localdate().weekday()
             print(current_day)
-            day_name = calendar.day_name[challenge.specify_weekday]
-
-            if not challenge.specify_weekday == current_day:
+           
+            allowed_days = challenge.specify_weekdays
+            if current_day not in allowed_days:
+                # Convert allowed day numbers to names
+                day_names = [calendar.day_name[day] for day in allowed_days]
+                day_names_str = ", ".join(day_names)
+                
                 raise serializers.ValidationError({
-                    "error": f"The challenge is only available on {day_name}"
+                    "error": f"The challenge is only available on {day_names_str}"
                 })
+            
         # --- Check Cooldown Period ---
         last_entry = (
             Challenge_Achiever.objects
