@@ -355,6 +355,7 @@ class StaffChallengesSerializer(serializers.ModelSerializer):
         venue = validated_data.pop('venue_id')
         
         print(venue)
+        print(venue_badge)
 
 
         for attr, value in validated_data.items():

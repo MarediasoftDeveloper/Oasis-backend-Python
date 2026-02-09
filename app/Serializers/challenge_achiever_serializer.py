@@ -76,9 +76,9 @@ class ChallengeAchieverSerializer(serializers.ModelSerializer):
        
         current_time = timezone.localtime().time()  # Get current local time
         
-        if challenge.specify_weekdays is not None:
+        if challenge.specify_weekdays:
             current_day = timezone.localdate().weekday()
-            print(current_day)
+            # print(current_day)
            
             allowed_days = challenge.specify_weekdays
             if current_day not in allowed_days:
