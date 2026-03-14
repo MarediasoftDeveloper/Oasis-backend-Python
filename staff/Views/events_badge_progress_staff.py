@@ -106,10 +106,15 @@ class EventBadgeProgressStaffView(APIView):
         ).first()
 
         if badge_basic_level and earned_badges_qs:
+            full_name = (
+                f"{earned_badges_qs.user.first_name} {earned_badges_qs.user.last_name}"
+                if earned_badges_qs.user.first_name
+                else earned_badges_qs.user.username
+            )
             data.append({
                 **BadgesLevelSerializer(badge_basic_level).data,
                 'status': True,
-                'message': f"{earned_badges_qs.user.first_name + " " + earned_badges_qs.user.last_name if earned_badges_qs.user.first_name else earned_badges_qs.user.username} have passed the basic level of this event"
+                'message': f"{full_name} have passed the basic level of this event"
             })
         else:
             data.append({                  
