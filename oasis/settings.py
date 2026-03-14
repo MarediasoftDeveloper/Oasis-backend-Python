@@ -259,15 +259,21 @@ FACEBOOK_APP_SECRET = config('FACEBOOK_APP_SECRET')
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
+import json
 import firebase_admin
 from firebase_admin import credentials
+from decouple import config
+from pathlib import Path
 
-FIREBASE_CRED = credentials.Certificate(
-    BASE_DIR / "firebase/my-oasis-e7bca-firebase-adminsdk-fbsvc-c27b05b1f3.json"   # update path as peryour file
-)
+try:
+    firebase_creds = json.loads(config("FIREBASE_CREDENTIALS"))
+    cred = credentials.Certificate(firebase_creds)
+except:
+    cred = credentials.Certificate(
+        BASE_DIR / "firebase/my-oasis-e7bca-firebase-adminsdk-fbsvc-c27b05b1f3.json"
+    )
 
-default_app = firebase_admin.initialize_app(FIREBASE_CRED)
-
+firebase_admin.initialize_app(cred)
 
 # Optional – Disable sandbox mode (real emails will be sent)
 SENDGRID_SANDBOX_MODE_IN_DEBUG = False
