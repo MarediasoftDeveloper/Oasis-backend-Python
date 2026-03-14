@@ -26,6 +26,8 @@ class EventParticipatingVenuesStaffView(APIView):
         isEventAttended = EventAttendees.objects.filter(event__id=event, user__id=user).first()
         participants = []
         if isEventAttended:
+            name = f"{user.first_name} {user.last_name}" if user.first_name else user.username
+
             for particiapating_venue in queryset:
                 challenges_achieved = Challenge_Achiever.objects.filter(
                     challenge__venue=particiapating_venue.venues,
@@ -34,7 +36,7 @@ class EventParticipatingVenuesStaffView(APIView):
                 ).count() or 0
                 participant =  EventAppVenuesParticipatingSerializer(particiapating_venue).data
                 participant['challenges_achieved'] = challenges_achieved
-                participant['message'] = f"{isEventAttended.user.first_name + " " + isEventAttended.user.last_name if isEventAttended.user.first_name else isEventAttended.user.username} have done {challenges_achieved} scans in this venue, {particiapating_venue.scans_to_achieve_next_tier - challenges_achieved if challenges_achieved < particiapating_venue.scans_to_achieve_next_tier else 0} remaining scans in this venue."
+                participant['message'] = f"{name} have done {challenges_achieved} scans in this venue, {particiapating_venue.scans_to_achieve_next_tier - challenges_achieved if challenges_achieved < particiapating_venue.scans_to_achieve_next_tier else 0} remaining scans in this venue."
                 participants.append(participant)
         
             return Response(participants)
