@@ -52,7 +52,7 @@ class PostSerializer(serializers.ModelSerializer):
             category_ids = data.get('category_ids')
             if not category_ids or len(category_ids) == 0:
                 raise serializers.ValidationError(
-                    {"categories": "At least one category must be selected."}
+                    {"error": "At least one category must be selected."}
                 )
         return data
     
@@ -99,8 +99,7 @@ class PostSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         category_ids = validated_data.pop('category_ids', None)
         request = self.context.get('request')
-        print(category_ids)
-
+       
         # Update other fields normally
         for attr, value in validated_data.items():
             setattr(instance, attr, value)

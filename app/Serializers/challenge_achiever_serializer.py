@@ -27,11 +27,12 @@ class ChallengeAchieverSerializer(serializers.ModelSerializer):
     code = serializers.CharField(write_only=True, required=True)
     customer_taken = CustomerProfileSerializer(source='customer_taken.customer_profile', read_only=True)
     challenge = ChallengesSerializer(read_only=True)
+
     class Meta:
         model = Challenge_Achiever
         fields = '__all__'
         read_only_fields = ['scanned_at', 'customer_taken']  # automatically handled
-
+    
     def validate(self, data):
         """Validate cooldown time and daily cap before allowing scan."""
         request = self.context.get('request')

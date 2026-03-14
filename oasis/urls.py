@@ -20,11 +20,13 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('oasis/api/', include('app.urls')),
     path('oasis/api/venue/', include('venue.urls')),
     path('oasis/api/staff/', include('staff.urls')),
+    path('oasis/api/organiser/', include('organisers.urls')),
 ]
 
 

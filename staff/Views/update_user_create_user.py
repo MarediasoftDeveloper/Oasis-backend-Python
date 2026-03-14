@@ -16,9 +16,8 @@ class AdminUserListCreateUpdateDelete(ModelViewSet):
     serializer_class = Customer_Serializer_Staff
     
     def get_queryset(self):
-        return Customer.objects.filter(user_role='3')
+        return Customer.objects.filter(user_role__in=['3','4'])
    
-
 
 
 class AdminDetails(APIView):
@@ -29,9 +28,6 @@ class AdminDetails(APIView):
         admin_data = Customer_Serializer_Staff(customer)
         return Response({"admin_data":admin_data.data})
     
-
-
-
 
 
 

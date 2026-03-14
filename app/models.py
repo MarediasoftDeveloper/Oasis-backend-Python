@@ -11,6 +11,7 @@ USER_ROLES =[
     ('1', 'customer'),
     ('2', 'venue'),
     ('3', 'staff'),
+    ('4', 'organiser'),
 ]
 
 GENDERS =[
@@ -19,10 +20,9 @@ GENDERS =[
     ('other', 'Other'),
 ]
 
+
 def customer_upload_path(instance, filename):
     return f'media/customer/{instance.customer.id}-{instance.customer.username}/{filename}'
-
-
 
 
 

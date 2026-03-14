@@ -16,7 +16,7 @@ class SocialMediaAccountsSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"error": "Social media link cannot be empty."})
 
         if not (value.startswith("http://") or value.startswith("https://")):
-            raise serializers.ValidationError({"error": "Link must start with 'http://' or 'https://'."})
+            raise serializers.ValidationError({"error": "Link must start with http:// or https://"})
         return value
 
     def validate(self, data):

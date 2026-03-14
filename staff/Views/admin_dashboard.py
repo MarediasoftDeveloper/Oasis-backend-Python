@@ -210,7 +210,7 @@ class AdminDashboardAPI(APIView):
 
             weekly_points_issue.append({
                 "day": current_day.strftime("%A"),
-                "points": sum(item.points_issued for item in challenge_by_day),
+                "points": sum(item.points_issued or 0 for item in challenge_by_day),
             })
 
         weekly_scans.reverse()

@@ -7,6 +7,7 @@ from qrcode.constants import ERROR_CORRECT_H
 from io import BytesIO
 from django.core.files import File
 
+
 def challenge_upload_path(instance, filename):
     return f'media/challenge/{instance.id}/{filename}'
 

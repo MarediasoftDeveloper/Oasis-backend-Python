@@ -51,7 +51,8 @@ from .Views.saveFcmToken import SaveFCMToken
 from .Views.notifications_list import NotificationsListView
 from .Views.referral_code_view import ReferrlCodeUseView 
 from .Views.facebook_signin import Facebook_Signup
-
+from .Views.events_badge_progress import EventBadgeProgressView
+from app.Views.eventParticipatingVenuesAppView import EventParticipatingVenuesAppView
 
 
 from rest_framework_simplejwt.views import (
@@ -134,7 +135,10 @@ urlpatterns = [
 
     path('save-device-fcm/', SaveFCMToken.as_view(), name="device-fcm"),    
     # jwt token 
-    path('notifications/', NotificationsListView.as_view(), name="notifications"),    
+    path('notifications/', NotificationsListView.as_view(), name="notifications"),   
+
+    path('event-badges-progress/', EventBadgeProgressView.as_view(), name="EventBadgeProgress"),    
+    path('event-participants/<int:id>/', EventParticipatingVenuesAppView.as_view(), name='event-participants'),
 
    
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),

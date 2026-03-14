@@ -242,7 +242,6 @@ class SendNotificationToUser(APIView):
             title,
             description
         )
-        print(result)
         return Response({"message":"Notificaiton have been sent successfully"})
 
 

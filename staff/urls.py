@@ -43,6 +43,11 @@ from staff.Views.custom_notification_to_user import SendNotificationToAllUsers
 from staff.Views.badges_crud_staff import Badges_Crud_Staff
 from staff.Views.badges_level_crud_staff import Badges_Levels_Crud_Staff 
 from staff.Views.update_user_create_user import AdminUserListCreateUpdateDelete, AdminDetails, AdminPasswordReset
+from staff.Views.eventsCrudStaffView import EventCrudStaffView
+from staff.Views.sendNotificationToAttendees import SendNotificationToAttendees
+from staff.Views.eventStats import EventStatsView
+from staff.Views.events_badge_progress_staff import EventBadgeProgressStaffView
+from staff.Views.eventParticipatingVenuesStaffView import EventParticipatingVenuesStaffView
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
@@ -55,7 +60,8 @@ router.register(r'posts-crud-staff', Post_Crud_Staff, basename='posts-staff')
 router.register(r'admin-users-crud', AdminUserListCreateUpdateDelete, basename='admin-users-crud')
 router.register(r'badges-crud', Badges_Crud_Staff, basename='badges-crud-staff')
 router.register(r'badges-level-crud', Badges_Levels_Crud_Staff, basename='badges-level-crud-staff')
-router.register(r'admin-posts-crud-staff', Admin_Post_Crud, basename='admin-crud-posts-satff')
+router.register(r'admin-posts-crud-staff', Admin_Post_Crud, basename='admin-crud-posts-staff')
+router.register(r'events-crud', EventCrudStaffView, basename='admin-crud-events')
 
 
 urlpatterns = [
@@ -99,4 +105,9 @@ urlpatterns = [
     path('sell-badges/', AvailableBadgesSellCalculation.as_view(), name='sell-badges'),
 
     path('adjust-points-user/', AdjustPointsOfUser.as_view(), name='adjust-points-user'),
+
+    path('notify-attendees/', SendNotificationToAttendees.as_view(), name='notify-attendees'),
+    path('event-stats/', EventStatsView.as_view(), name='event-stats'),
+    path('event-badges-progress/', EventBadgeProgressStaffView.as_view(), name='event-badge-progress-attendee'),
+    path('event-participants/', EventParticipatingVenuesStaffView.as_view(), name='event-participants'),
 ]   
