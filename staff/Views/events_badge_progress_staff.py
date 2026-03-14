@@ -104,7 +104,7 @@ class EventBadgeProgressStaffView(APIView):
         badge_basic_level = badge_levels.filter(
             category__category__icontains='basic'
         ).first()
-
+        
         if badge_basic_level and earned_badges_qs:
             full_name = (
                 f"{earned_badges_qs.user.first_name} {earned_badges_qs.user.last_name}"
@@ -164,28 +164,33 @@ class EventBadgeProgressStaffView(APIView):
 
             if challenges and earned_badges_qs and user_joined_event:
                 remaining_scans = participants_venues_scans_count['total_scans_to_achieve_highest_level'] - actual_scans_sum
-                
+                full_name = (
+                    f"{earned_badges_qs.user.first_name} {earned_badges_qs.user.last_name}"
+                    if earned_badges_qs.user.first_name
+                    else earned_badges_qs.user.username
+                )
                 
                 calculate_validation_time += value_validate_on_each_level
            
                 if actual_scans_sum >= calculate_validation_time:
+                    
                     data.append({
                         **BadgesLevelSerializer(level).data,
                         'status': True,
-                        'message': f"{earned_badges_qs.user.first_name + " " + earned_badges_qs.user.last_name if earned_badges_qs.user.first_name else earned_badges_qs.user.username} have passed the {level.category.category} level of this event"
+                        'message': f"{full_name} have passed the {level.category.category} level of this event"
                     })
                
                 else:
                     data.append({
                         **BadgesLevelSerializer(level).data,
                         'status': False,
-                        'message': f"To pass this level {earned_badges_qs.user.first_name + " " + earned_badges_qs.user.last_name if earned_badges_qs.user.first_name else earned_badges_qs.user.username} need to scan {remaining_scans} more challenges in this event"
+                        'message': f"To pass this level {full_name} need to scan {remaining_scans} more challenges in this event"
                     })
             else:
                 data.append({
                     **BadgesLevelSerializer(level).data,
                     'status': False,
-                    'message': f"To achieve next level {earned_badges_qs.user.first_name + " " + earned_badges_qs.user.last_name if earned_badges_qs.user.first_name else earned_badges_qs.user.username} need to join this event and complete the required tasks"
+                    'message': f"To achieve next level {full_name} need to join this event and complete the required tasks"
                 })
 
         return Response(data)
