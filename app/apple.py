@@ -4,17 +4,17 @@ from pathlib import Path
 from django.conf import settings
 
 
-def get_apple_private_key():
-    key = settings.APPLE_PRIVATE_KEY
-    
-    if Path(key).exists():
-        return Path(key).read_text()
-    print(key)
-    return key
+
 
 def generate_apple_client_secret():
-    private_key = get_apple_private_key()
-    
+    key_value = settings.APPLE_PRIVATE_KEY
+
+    # Detect if it's a file path or raw key
+    if key_value.strip().startswith("-----BEGIN"):
+        private_key = key_value  # Railway / ENV case
+    else:
+        private_key = Path(key_value).read_text() 
+   
     payload = {
         "iss": settings.APPLE_TEAM_ID,
         "iat": int(time.time()),
