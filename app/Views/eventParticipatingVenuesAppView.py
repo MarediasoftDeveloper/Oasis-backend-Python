@@ -28,7 +28,7 @@ class EventParticipatingVenuesAppView(APIView):
                 challenges_achieved = Challenge_Achiever.objects.filter(
                     challenge__venue=particiapating_venue.venues,
                     customer_taken=request.user,
-                    scanned_at__gte=isEventAttended.joined_at,
+                    scanned_at__lte=particiapating_venue.availabile_till,
                 ).count() or 0
                 participant =  EventAppVenuesParticipatingSerializer(particiapating_venue).data
                 participant['challenges_achieved'] = challenges_achieved

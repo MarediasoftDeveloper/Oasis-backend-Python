@@ -24,7 +24,7 @@ class Events(models.Model):
     badge = models.ForeignKey(Badges, on_delete=models.CASCADE)
     organiser_notice = models.CharField(max_length=2000)
     status = models.CharField(choices=STATUS_CHOICES, default='draft')
-    qr_code = models.ForeignKey(QR_Info, on_delete=models.CASCADE)          
+    # qr_code = models.ForeignKey(QR_Info, on_delete=models.CASCADE)          
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     conditions = models.CharField(max_length=1000, null=True, blank=True)

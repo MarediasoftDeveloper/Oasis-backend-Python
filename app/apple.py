@@ -7,7 +7,13 @@ from django.conf import settings
 
 
 def generate_apple_client_secret():
-    private_key = Path(settings.APPLE_PRIVATE_KEY).read_text() # for Local
+    key_value = settings.APPLE_PRIVATE_KEY
+
+    # Detect if it's a file path or raw key
+    if key_value.strip().startswith("-----BEGIN"):
+        private_key = key_value  # Railway / ENV case
+    else:
+        private_key = Path(key_value).read_text() 
    
     payload = {
         "iss": settings.APPLE_TEAM_ID,

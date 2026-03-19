@@ -30,6 +30,8 @@ class PostSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         """Customize user data based on role."""
         data = super().to_representation(instance)
+        if instance.user.user_role == '4':  # Organiser
+            return data
         if instance.user.user_role == '3':  # Staff
             return data
         if instance.user.user_role == '2':  # Venue
@@ -164,6 +166,8 @@ class PostSerializerStaff(serializers.ModelSerializer):
     def to_representation(self, instance):
         """Customize user data based on role."""
         data = super().to_representation(instance)
+        if instance.user.user_role == '4':  # Organiser
+            return data
         if instance.user.user_role == '3':  # Staff
             return data
         if instance.user.user_role == '2':  # Venue

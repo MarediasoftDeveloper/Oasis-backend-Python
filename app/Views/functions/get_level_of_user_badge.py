@@ -1,6 +1,6 @@
 
 from app.Models.earned_badges_by_user import Earned_Badges
-from app.Models.event_badges_earned import EventBadgesEarned
+# from app.Models.event_badges_earned import EventBadgesEarned
 from app.Models.event_attendees import EventAttendees
 from venue.models.badges import BadgesLevel
 from app.Models.earned_points import Earned_Points

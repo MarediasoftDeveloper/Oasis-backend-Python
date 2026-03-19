@@ -34,7 +34,7 @@ class AppleLogin(APIView):
     def post(self, request):
         data = request.data 
 
-        identity_token = data.get("identity_token")
+        identity_token = data.get("identity_token") 
         auth_code = data.get("authorization_code")
         full_name = data.get("full_name")  
         fcm_token = data.get("fcm_token")  
@@ -74,19 +74,28 @@ class AppleLogin(APIView):
         )
 
         apple_sub = decoded["sub"]
-        email = decoded.get("email") or f"{apple_sub}@appleid.apple"
+        email = decoded.get("email")
 
- 
+        
         user = User.objects.filter(apple_sub=apple_sub).first()
 
         created = False
         
         customer_data={}
-    
+
+        if not user and not email:
+            return Response({
+                "error": "Email not provided by Apple. Please use the same Apple account you used before."
+            }, status=400)
+
+        if not user and User.objects.filter(email__iexact=email).exists():
+            return Response({"error": "account with this email already exists."}, status=400)
+            
+
 
         if not user and email is not None:
             user = User.objects.create_user(
-                username=generate_apple_username(apple_sub),
+                username=full_name if full_name else generate_apple_username(apple_sub),
                 email=email,
                 apple_sub=apple_sub
             )
@@ -127,12 +136,13 @@ class AppleLogin(APIView):
                     defaults={"fcm_token": fcm_token}
                )
         
-        
         if not user.is_google_or_apple_account:
-                 return Response(
-                    {"error": "Account with this email already exists, please login by using email and password!"},
-                    status=status.HTTP_401_UNAUTHORIZED
-                )
+                return Response(
+                {"error": "Account with this email already exists, please login by using email and password!"},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+ 
 
         refresh = RefreshToken.for_user(user)
 

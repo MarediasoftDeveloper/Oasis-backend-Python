@@ -12,7 +12,7 @@ from venue.models.badges import BadgesLevel
 from app.Models.earned_points import Earned_Points
 from app.Models.earned_badges_by_user import Earned_Badges
 from app.models import Customer_profile
-from app.Models.event_badges_earned import EventBadgesEarned
+
 
 
 class Scan_qr_get_badge(generics.CreateAPIView):
