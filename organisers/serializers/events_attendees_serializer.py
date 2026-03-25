@@ -8,7 +8,6 @@ from app.Serializers.customer_profile_serializer import CustomerProfileSerialize
 
 
 class EventAppAttendeesSerializer(serializers.ModelSerializer):
-    # event = EventAppSerializer(read_only=True)
     user = CustomerProfileSerializer(source='user.customer_profile', read_only=True)
     event = serializers.PrimaryKeyRelatedField(
             queryset=Events.objects.all(),
