@@ -17,7 +17,6 @@ class SendNotificationToAttendees(APIView):
         title = request.data.get('title')
         description = request.data.get('description')
         
-        
         ids = EventAttendees.objects.filter(event__id=event).values_list('user_id', flat=True)
         customers  = list(Customer.objects.filter(id__in=ids))
 

@@ -74,7 +74,7 @@ class AppleLogin(APIView):
         )
 
         apple_sub = decoded["sub"]
-        email = decoded.get("email")
+        email = decoded.get("email") or f"{apple_sub}@appleid.apple"
 
         
         user = User.objects.filter(apple_sub=apple_sub).first()

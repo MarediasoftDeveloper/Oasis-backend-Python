@@ -25,10 +25,14 @@ class EventParticipatingVenuesAppView(APIView):
         participants = []
         if isEventAttended:
             for particiapating_venue in queryset:
+                end_date = min(
+                    particiapating_venue.event.event_close_date,
+                    particiapating_venue.available_till
+                ) if particiapating_venue.available_till else particiapating_venue.event.event_close_date
                 challenges_achieved = Challenge_Achiever.objects.filter(
                     challenge__venue=particiapating_venue.venues,
                     customer_taken=request.user,
-                    scanned_at__lte=particiapating_venue.availabile_till,
+                    scanned_at__lte=end_date,
                 ).count() or 0
                 participant =  EventAppVenuesParticipatingSerializer(particiapating_venue).data
                 participant['challenges_achieved'] = challenges_achieved

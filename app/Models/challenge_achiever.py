@@ -12,4 +12,4 @@ class Challenge_Achiever(models.Model):
     scanned_at = models.DateTimeField(auto_now_add=True)
  
     def __str__(self):
-        return f"earned {self.customer_taken.username}-{self.challenge.title}"
+        return f"earned {self.customer_taken.username}-{self.challenge.title}-{self.scanned_at}"

@@ -176,6 +176,8 @@ class EventBadgeProgressView(APIView):
     def post(self, request):
 
         event_id = request.data.get('event')
+     
+
         data = []
 
         event = Events.objects.filter(id=event_id).first()
@@ -227,27 +229,32 @@ class EventBadgeProgressView(APIView):
         venue_filters = Q()
 
         for venue in participants_venues:
+            end_date = min(
+                venue.event.event_close_date,
+                venue.available_till
+            ) if venue.available_till else venue.event.event_close_date
+
             venue_filters |= Q(
                 challenge__venue=venue.venues,
                 scanned_at__gte=venue.event.event_start_date,
-                scanned_at__lte=venue.availabile_till
+                scanned_at__lte=end_date
             )
 
-        user_scans = Challenge_Achiever.objects.filter(
+        challenges_achieved = Challenge_Achiever.objects.filter(
             venue_filters,
             customer_taken=request.user
-        ).values(
-            'challenge__venue'
-        ).annotate(
-            total_scans=Count('id')
         )
+        print(challenges_achieved)
+        if not challenges_achieved.exists():
+            return Response({"data":BadgesLevelSerializer(badge_levels, many=True).data , "message":"You haven't scanned any challenges in this event yet, please scan challenges in this event to level up the badge."})
         
-        challenges_achieved = challenges_achieved.count()
         user_scans = challenges_achieved.values(
             'challenge__venue'
         ).annotate(
             total_scans=Count('id')
         )
+
+        challenges_achieved = challenges_achieved.count() if challenges_achieved is not None else 0
         
         user_scans_dict = {
             scan['challenge__venue']: scan['total_scans']
@@ -288,7 +295,3 @@ class EventBadgeProgressView(APIView):
                 })
 
         return Response(data)
-
-
-
-

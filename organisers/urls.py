@@ -21,18 +21,17 @@ from organisers.Views.eventsListRetrieveView import EventsListView, EventsRetrie
 from organisers.Views.eventPostsCreate import EventPostCreateStaffView
 from organisers.Views.eventParticipatingVenues import EventParticipatingVenuesView
 from organisers.Views.userJoinEvent import UserJoinEventView
-# from organisers.Views.scan_qr_attend_event import Scan_qr_attend_event
+
 
 router = DefaultRouter()
-# router.register(r'events-participating', EventParticipatingVenuesView, basename='events-participating')
+router.register(r'events-participating', EventParticipatingVenuesView, basename='events-participating')
 
 
 urlpatterns = [
-    # path('events/', EventsListView.as_view(), name='events'),
-    # path('events/<int:pk>/', EventsRetrieveView.as_view(), name='events-details'),
-    # path('events-posts/', EventPostCreateStaffView.as_view(), name='events-posts'),
-    # path('attend-event/', UserJoinEventView.as_view(), name='attend-event'),
-    # path('scan-event-qr/', Scan_qr_attend_event.as_view(), name='scan-event-qr'),
-    # path('', include(router.urls)),
+    path('events/', EventsListView.as_view(), name='events'),
+    path('events/<int:pk>/', EventsRetrieveView.as_view(), name='events-details'),
+    path('events-posts/', EventPostCreateStaffView.as_view(), name='events-posts'),
+    path('attend-event/', UserJoinEventView.as_view(), name='attend-event'),
+    path('', include(router.urls)),
 
 ]   
