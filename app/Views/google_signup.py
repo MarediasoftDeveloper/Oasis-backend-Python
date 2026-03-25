@@ -7,6 +7,12 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from rest_framework.permissions import AllowAny
+from app.models import Customer_profile
+from app.Models.DeviceFcmToken import DeviceFCM
+from app.Models.terms_and_conditions_accept import TermsAndConditionsAccept
+from app.Serializers.customer_profile_serializer import CustomerProfileSerializer
+from app.Models.user_current_app_version import UserCurrentAppVersion
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -16,8 +22,13 @@ class Google_Signup(APIView):
 
    def post(self, request):
         id_token_value = request.data.get("id_token")
+        fcm_token = request.data.get("fcm_token")
+        app_current_version = request.data.get("app_current_version")  
+
+
         if not id_token_value:
-            return Response({"error": "ID token is required"}, status=status.HTTP_400_BAD_REQUEST)
+            # ID token is required 
+            return Response({"error": "something went wrong! please try again.", "details": "token is required"}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             #  Verify token with Google — only your Web Client ID is needed
@@ -25,6 +36,7 @@ class Google_Signup(APIView):
                 id_token_value,
                 requests.Request(),
                 settings.GOOGLE_WEB_CLIENT_ID,  # <— use Web Client ID only
+                clock_skew_in_seconds=10
             )
 
             # Ensure it's issued by Google
@@ -36,44 +48,81 @@ class Google_Signup(APIView):
             name = idinfo.get("name", "")
             picture = idinfo.get("picture", "")
 
+
+
+          
             if not email:
-                return Response({"error": "Email not found in token"}, status=status.HTTP_400_BAD_REQUEST)
+                # Email not found in token 
+                return Response({"error": "something went wrong! please try again.", "details": "Email not found"},  status=status.HTTP_400_BAD_REQUEST)
 
             #  Create or fetch user
-            user, created = User.objects.get_or_create(
+            customer, created = User.objects.get_or_create(
                 email=email,
                 defaults={"username": email.split("@")[0]},
             )
 
+
+            customer_data = {} 
+
+            if TermsAndConditionsAccept.objects.filter(user=customer).exists():
+                customer_data['termsAccepted']=True
+            else:
+                customer_data['termsAccepted']=False
+
             # Update name fields for new users
             if created:
                 parts = name.split()
-                user.first_name = parts[0] if parts else ""
-                user.last_name = " ".join(parts[1:]) if len(parts) > 1 else ""
-                user.save()
+                customer.first_name = parts[0] if parts else ""
+                customer.last_name = " ".join(parts[1:]) if len(parts) > 1 else ""
+                customer.is_verified = True
+                customer.is_google_or_apple_account=True
+                customer.save()
+                customer_profile= Customer_profile.objects.create(customer=customer, profile_picture=picture)
+
+
+            customer_data["new_user"] = created
+
+            customer_profile= Customer_profile.objects.filter(customer=customer).first()
+            serialized = CustomerProfileSerializer(customer_profile)
+            
+            if not customer.is_google_or_apple_account:
+                 return Response(
+                    {"error": "Account with this email already exists, please login by using email and password!"},
+                    status=status.HTTP_401_UNAUTHORIZED
+                )
+
+            if app_current_version:
+                UserCurrentAppVersion.objects.update_or_create(
+                    user=customer,
+                    defaults={"app_version": app_current_version}
+                )
+
+            if fcm_token:
+                if not DeviceFCM.objects.filter(fcm_token=fcm_token).exists():
+                    DeviceFCM.objects.update_or_create(
+                        user=customer,
+                        defaults={"fcm_token": fcm_token}
+                    )
+            
+        
 
             #  Generate JWT tokens
-            refresh = RefreshToken.for_user(user)
+            refresh = RefreshToken.for_user(customer)
 
             return Response(
                 {
-                    "refresh": str(refresh),
-                    "access": str(refresh.access_token),
-                    "user": {
-                        "id": user.id,
-                        "email": user.email,
-                        "first_name": user.first_name,
-                        "last_name": user.last_name,
-                        "picture": picture,
-                    },
-                    "new_user": created,
+                    **serialized.data,
+                    "access_token": str(refresh.access_token),
+                    "refresh_token": str(refresh),
+                    **customer_data
                 },
                 status=status.HTTP_200_OK,
             )
 
         except ValueError as e:
-            # Token invalid or expired
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            # Token invalid or expired str(e)
+            return Response({"error": "something went wrong! please try again.", "details": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             # Catch any other errors
-            return Response({"error": "Authentication failed", "details": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            # Authentication failed 
+            return Response({"error": "something went wrong! please try again.", "details": str(e)}, status=status.HTTP_400_BAD_REQUEST)

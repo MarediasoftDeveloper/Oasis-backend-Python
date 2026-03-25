@@ -1,8 +1,9 @@
 from rest_framework import serializers
 from app.Models.users_interests import User_Interest
-
+from app.Serializers.interests_serializer import InterestSerializer
 
 class UserInterestSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = User_Interest
         fields = '__all__'
@@ -11,14 +12,14 @@ class UserInterestSerializer(serializers.ModelSerializer):
     def validate_user(self, value):
         """Ensure a user can have only one User_Interest entry."""
         if self.instance is None and User_Interest.objects.filter(user=value).exists():
-            raise serializers.ValidationError("User already has an interest record.")
+            raise serializers.ValidationError({"error":"User already has an interest record."})
         return value
 
     def validate(self, data):
         """Minimal cross-field validation."""
         interests = data.get('interests')
         if not interests or len(interests) == 0:
-            raise serializers.ValidationError({"interests": "At least one interest must be selected."})
+            raise serializers.ValidationError({"error": "At least one interest must be selected."})
         return data
 
     def create(self, validated_data):
@@ -43,3 +44,11 @@ class UserInterestSerializer(serializers.ModelSerializer):
     def delete(self, instance):
         """Allow deletion with future custom logic."""
         instance.delete()
+
+
+class UserInterestSerializerStaff(serializers.ModelSerializer):
+    interests = InterestSerializer(many=True, read_only=True)
+    class Meta:
+        model = User_Interest
+        fields = '__all__'
+        read_only_fields = ('user','interests')

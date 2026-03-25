@@ -78,7 +78,6 @@ urlpatterns = [
 
     path('search-venue/', SearchVenueAPI.as_view(), name='search-venue'),  
 
-
     path('venue-hours-list/', Venue_Opening_Hours_View_List.as_view(), name='venue-hours-list'),    
     path('venue-users/', VenueSpecificUser.as_view(), name='venue-users'),    
     path('venue-users-activity/<int:id>/', VenueSpecificUserActivity.as_view(), name='venue-users-activity'),    

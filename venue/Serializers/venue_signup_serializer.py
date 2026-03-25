@@ -8,6 +8,9 @@ from rest_framework.validators import UniqueValidator
 from django.contrib.auth.hashers import make_password, check_password
 from app.Views.email.send_and_validate_email import Send_Otp_Mail
 from rest_framework.response import Response
+from django.contrib.auth.models import User
+
+
 
 class Venue_SignUp_Serializer(ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
@@ -63,3 +66,13 @@ class Venue_SignUp_Serializer(ModelSerializer):
             instance.set_password(password)  # Hash if updated
         instance.save()
         return instance
+    
+
+
+
+
+class Venue_SignUp_Serializer_Staff(ModelSerializer):
+                
+    class Meta:
+        model = Customer
+        fields = ['id','username', 'date_joined']

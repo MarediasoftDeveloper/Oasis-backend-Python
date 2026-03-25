@@ -12,17 +12,27 @@ from app.Serializers.customer_profile_serializer import CustomerProfileSerialize
 from venue.Serializers.challenge_serializer import ChallengesSerializer
 from app.Views.functions.get_level_of_user_badge import get_level_points_per_task_and_save_it
 from venue.models.badge_category import Badge_Category
+import calendar
+
+
+
+def is_time_in_range(start, end, now):
+    if start <= end:
+        return start <= now <= end
+    else:
+        return now >= start or now <= end
 
 class ChallengeAchieverSerializer(serializers.ModelSerializer):
 
     code = serializers.CharField(write_only=True, required=True)
     customer_taken = CustomerProfileSerializer(source='customer_taken.customer_profile', read_only=True)
     challenge = ChallengesSerializer(read_only=True)
+
     class Meta:
         model = Challenge_Achiever
         fields = '__all__'
         read_only_fields = ['scanned_at', 'customer_taken']  # automatically handled
-
+    
     def validate(self, data):
         """Validate cooldown time and daily cap before allowing scan."""
         request = self.context.get('request')
@@ -31,15 +41,11 @@ class ChallengeAchieverSerializer(serializers.ModelSerializer):
         venue_badge_obj = challenge.badge
         
         if not challenge:
-            raise serializers.ValidationError("Invalid QR Code")
+            raise serializers.ValidationError({"error":"Invalid QR Code"})
         
         user = request.user
         
      
-
-            
-
-        
 
         now = timezone.now()  # Use timezone aware current time
     
@@ -69,7 +75,22 @@ class ChallengeAchieverSerializer(serializers.ModelSerializer):
             })
         
        
+        current_time = timezone.localtime().time()  # Get current local time
         
+        if challenge.specify_weekdays:
+            current_day = timezone.localdate().weekday()
+            # print(current_day)
+           
+            allowed_days = challenge.specify_weekdays
+            if current_day not in allowed_days:
+                # Convert allowed day numbers to names
+                day_names = [calendar.day_name[day] for day in allowed_days]
+                day_names_str = ", ".join(day_names)
+                
+                raise serializers.ValidationError({
+                    "error": f"The challenge is only available on {day_names_str}"
+                })
+            
         # --- Check Cooldown Period ---
         last_entry = (
             Challenge_Achiever.objects
@@ -102,29 +123,34 @@ class ChallengeAchieverSerializer(serializers.ModelSerializer):
         #         })
 
         # --- Check Daily Cap ---
-        start_of_day = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
+      
+        start_of_day = timezone.localtime().replace(
+            hour=0, minute=0, second=0, microsecond=0
+        )
+
         end_of_day = start_of_day + timedelta(days=1)
+
 
         daily_count = Challenge_Achiever.objects.filter(
             customer_taken=user,
             challenge=challenge,
-            scanned_at__gte=start_of_day,
-            scanned_at__lt=end_of_day
+            scanned_at__date=timezone.localdate()
         ).count()
 
         if daily_count >= challenge.daily_cap:
             raise serializers.ValidationError({
-                "error": f"You have already reached the daily cap of {challenge.daily_cap} scans for this challenge."
+                "error": (
+                    f"You have already reached the daily cap of "
+                    f"{challenge.daily_cap} scans for this challenge."
+                )
             })
-
-        current_time = timezone.localtime(timezone.now()).time()  # Get current local time
-
+       
         # Ensure daily_open_time and daily_close_time are provided and are valid
-        # if challenge.daily_open_time and challenge.daily_close_time:
-        #     if not (challenge.daily_open_time <= current_time <= challenge.daily_close_time):
-        #         raise serializers.ValidationError({
-        #             "error": f"The challenge is only available between {challenge.daily_open_time} and {challenge.daily_close_time}."
-        #         })
+        if challenge.open_time and challenge.close_time:
+            if not is_time_in_range(challenge.open_time, challenge.close_time, current_time):
+                raise serializers.ValidationError({
+                    "error": f"This challenge is only available between {challenge.open_time} and {challenge.close_time}."
+                })
         
         return data
 

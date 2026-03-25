@@ -9,6 +9,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 import calendar
+from rest_framework.exceptions import ValidationError
+from django.utils import timezone
 
 class StampsCreateView(generics.CreateAPIView):
 
@@ -19,6 +21,7 @@ class StampsCreateView(generics.CreateAPIView):
         return Stamps.objects.filter(user=self.request.user)
     
     def perform_create(self, serializer):
+     
         # Safely update user's redeemed points
         profile, created = Customer_profile.objects.get_or_create(customer=self.request.user)
         profile.total_redeemed_points = (profile.total_redeemed_points or 0) + 30

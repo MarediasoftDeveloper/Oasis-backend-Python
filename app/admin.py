@@ -20,6 +20,12 @@ from .Models.users_blocking import UserBlocking
 from .Models.terms_and_conditions_accept import TermsAndConditionsAccept
 from .Models.DeviceFcmToken import DeviceFCM
 from .Models.post_venues_tags import PostVenueTag
+from .Models.user_current_app_version import UserCurrentAppVersion
+from .Models.referrals_Users import ReferralsUsers
+from .Models.events import Events
+from .Models.event_attendees import EventAttendees
+from .Models.event_posts import EventPosts
+from .Models.venues_participating_in_event import VenuesParticipatingEvents
 # Register your models here.
 
 admin.site.register(Customer)
@@ -44,3 +50,10 @@ admin.site.register(UserBlocking)
 admin.site.register(TermsAndConditionsAccept)
 admin.site.register(DeviceFCM)
 admin.site.register(PostVenueTag)
+admin.site.register(ReferralsUsers)
+admin.site.register(UserCurrentAppVersion)
+
+admin.site.register(Events)
+admin.site.register(EventAttendees)
+admin.site.register(EventPosts)
+admin.site.register(VenuesParticipatingEvents)

@@ -11,9 +11,7 @@ from venue.Permissions.venue_only_permission import Request_By_Current_Venue_Onl
 from app.models import Customer
 from venue.models.venue_info import Venue_Info
 from rest_framework.response import Response
-from datetime import timedelta
-from datetime import timezone
-import datetime
+from django.utils import timezone
 from venue.models.venue_opening_hours import Venue_Opening_Hours
 
 
@@ -40,10 +38,8 @@ class Venue_Badge_CRUD(APIView):
                 badge__id__in=venue_badges,
                 category__category__icontains='basic'
             )
-            print(badges)
-            today = datetime.datetime.now()
-
-            # Get the full weekday name
+            
+            today = timezone.localtime()
             day_of_week_attr = today.strftime("%A").lower()
              
             
@@ -89,9 +85,7 @@ class Venue_Badge_CRUD_Retrieve(APIView):
             .filter(venue=venue, is_active=True)
             .values_list('badge_id', flat=True)
         )
-        today = datetime.datetime.now()
-
-        # Get the full weekday name
+        today = timezone.localtime()
         day_of_week_attr = today.strftime("%A").lower()
             
         

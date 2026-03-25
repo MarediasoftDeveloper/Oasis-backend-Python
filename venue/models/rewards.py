@@ -17,7 +17,7 @@ class Rewards(models.Model):
     image = models.ImageField(upload_to=rewards_file_upload_path, null=True, blank=True)
     venue = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, limit_choices_to={'user_role':'2'}) 
     title = models.CharField(max_length=150) 
-    condition = models.CharField(max_length=250, null=True, blank=True) 
+    condition = models.CharField(max_length=1000, null=True, blank=True) 
     stock = models.PositiveIntegerField(default=50)
     required_points_for_reward=models.PositiveIntegerField(default=50)
     is_approved = models.CharField(max_length=50, choices=STATUS_CHOICES, default='approved')

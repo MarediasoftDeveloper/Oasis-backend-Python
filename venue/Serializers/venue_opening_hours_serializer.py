@@ -15,7 +15,7 @@ class VenueOpeningHoursSerializer(serializers.ModelSerializer):
         """
         # When creating, prevent duplicates
         if self.instance is None and Venue_Opening_Hours.objects.filter(venue=value).exists():
-            raise serializers.ValidationError("Opening hours for this venue already exist.")
+            raise serializers.ValidationError({"error":"Opening hours for this venue already exist."})
         return value
 
     def validate(self, data):

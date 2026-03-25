@@ -1,6 +1,7 @@
 from django.db import models
 from ..models import Customer
 from oasis.settings import AUTH_USER_MODEL
+from django.utils import timezone
 # Create your models here.
 
 class Earned_Points(models.Model):
@@ -10,4 +11,4 @@ class Earned_Points(models.Model):
     earned_on = models.DateTimeField(auto_now_add=True)
   
     def __str__(self):
-        return f"earned {self.customer.username}-{self.earned_on}"
+        return f"earned {self.customer.username}-{timezone.localtime(timezone.now())}"

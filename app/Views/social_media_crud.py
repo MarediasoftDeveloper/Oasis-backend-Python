@@ -12,15 +12,12 @@ class SocialMediaAccountViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated, WriteByCustomerOnlyUser]
 
     def get_queryset(self):
-        # Only return social media accounts belonging to the logged-in user
         return Social_Media_Accounts.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
-        # Automatically associate the user when creating a record
         serializer.save(user=self.request.user)
 
     def perform_update(self, serializer):
-        # Prevent changing ownership
-        serializer.save(user=self.request.user)
+       serializer.save(user=self.request.user)
 
  

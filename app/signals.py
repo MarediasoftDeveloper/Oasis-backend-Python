@@ -6,8 +6,11 @@ from app.models import Customer
 from venue.models.venue_info import Venue_Info
 from app.Views.utils.fcm import send_push_notification, send_push_posts_notification
 from django.db.models import Q
+
+
 @receiver(post_save, sender=Friendships)
 def notify_friend_request(sender, instance, created, **kwargs):
+    
     if created:
         receiver = instance.request_getter     # user receiving the request
         sender_user = instance.request_sender  # user sending the request

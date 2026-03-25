@@ -29,7 +29,7 @@ class Login(APIView):
         try:
             venue_or_admin = Customer.objects.get(email__iexact=email)
            
-            if not venue_or_admin.user_role in ['2', '3']:
+            if not venue_or_admin.user_role in ['2', '3', '4']:
                 return Response({'error': 'One or more information is incorrect!'}, status=status.HTTP_401_UNAUTHORIZED)
             
             elif venue_or_admin.user_role =='3': 
@@ -57,6 +57,31 @@ class Login(APIView):
                     'refresh_token': str(refresh),
                 }, status=status.HTTP_200_OK)
             
+            elif venue_or_admin.user_role =='4': 
+                if not check_password(password, venue_or_admin.password):
+                    return Response({'error': 'One or more information is incorrect!'}, status=status.HTTP_401_UNAUTHORIZED)
+                if not venue_or_admin.is_verified:
+                    return Response({'error': 'Your Event Organiser account is under review please wait until it approved!'}, status=status.HTTP_406_NOT_ACCEPTABLE)
+            
+                if refresh_token:
+                    try:
+                        old_refresh = RefreshToken(refresh_token)
+                        old_refresh.blacklist()
+                    except TokenError:
+                        pass  # Invalid or already blacklisted
+
+                refresh = RefreshToken.for_user(venue_or_admin)
+                organiser_data = {
+                        'id': venue_or_admin.id,
+                        'email': venue_or_admin.email,
+                        'user_role': venue_or_admin.user_role,
+                    }
+                return Response({
+                    'organiser': organiser_data,
+                    'access_token': str(refresh.access_token),
+                    'refresh_token': str(refresh),
+                }, status=status.HTTP_200_OK)
+            
 
                 
             
@@ -70,7 +95,6 @@ class Login(APIView):
             if venue_info.status == 'pending':
                 return Response({'error':"Your account is not approved, Please wait for approval."}, status=status.HTTP_406_NOT_ACCEPTABLE)
                 
-
             if not check_password(password, venue_or_admin.password):
                 return Response({'error': 'One or more information is incorrect!'}, status=status.HTTP_401_UNAUTHORIZED)
 
