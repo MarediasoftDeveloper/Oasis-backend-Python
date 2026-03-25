@@ -50,7 +50,7 @@ class Customer_Serializer(ModelSerializer):
 
             # If changing to another email — make sure it's unique
             if Customer.objects.filter(email__iexact=value).exists():
-                raise serializers.ValidationError("This email is already registered.")
+                raise serializers.ValidationError({"error":"This email is already registered."})
 
         return value  # ensure return in all paths
                 
@@ -82,6 +82,7 @@ class Customer_Serializer(ModelSerializer):
         profile_picture = validated_data.pop('profile_picture', None)
         is_private = validated_data.pop('is_private', None)
 
+        
             
         for attr, value in validated_data.items():
             setattr(instance, attr, value)

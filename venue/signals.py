@@ -29,7 +29,6 @@ def notify_challenge_created(sender, instance, created, **kwargs):
                 "type": "challenge_created",  
                 "route": "/allBadgesScreen", #venue_badges
                 "venue_id": str(instance.venue.id), #venueId
-                "venue_cover_image": str(venue.venue_cover_photo.url), #venueId
                 "venue_title": str(venue.venue_name), #venueId
             }
         )

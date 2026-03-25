@@ -26,7 +26,7 @@ class VenueDashboard(APIView):
         venue_serialized = VenueInfoSerializer(venue_profile)
 
         # Dates
-        today = timezone.now().date()
+        today = timezone.localdate()
         yesterday = today - timedelta(days=1)
         start_of_week = today - timedelta(days=today.weekday())  # Monday
         end_of_week = start_of_week + timedelta(days=6)  # Sunday
@@ -71,8 +71,6 @@ class VenueDashboard(APIView):
                 "day": current_day.strftime("%A"),  # Day name (Monday, Tuesday...)
                 "points": sum([item.points_issued for item in challenge_by_day])
             })
-
-       
 
         weekly_points_issued = sum([issued['points'] for issued in weekly_points_issue]) 
       

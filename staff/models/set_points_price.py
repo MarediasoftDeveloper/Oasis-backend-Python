@@ -1,17 +1,18 @@
 from django.db import models
-from oasis.settings import AUTH_USER_MODEL
-# Create your models here.
+from django.core.exceptions import ValidationError
 
-class Set_Point_Price(models.Model):
-    instructions = models.CharField(
-        max_length=200,
-        default="Define your desired price below for 1 point in NZ dollar",
-        editable=False  # not editable in admin
+
+class PointsPricing(models.Model):
+    price_per_point = models.PositiveIntegerField(
+        help_text="Price per point in NZD cents",
+        default=0.01
     )
-    point_value_nzd = models.DecimalField(
-        max_digits=6, decimal_places=4,
-        default=0.01  # 1 point = 0.01 NZD if 100 points = 1 NZD
-    )
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if not self.pk and PointsPricing.objects.exists():
+            raise ValidationError("Only one PointsPricing instance allowed.")
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"1 point = {self.point_value_nzd} NZD"
+        return f"{self.price_per_point} cents / point"

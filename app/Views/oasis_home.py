@@ -14,11 +14,11 @@ class Oasis_Home(APIView):
         user = request.user
         user_info, _ = Customer_profile.objects.get_or_create(customer=user)
         info_serializer = CustomerProfileSerializer(user_info, context={'request': request})
+        info_serializer.data['age'] = user_info.age
+        info_serializer.data['gender'] = user_info.gender
         password_created = user.is_verified and bool(user.password) and user.has_usable_password()
         termsAccepted=False
         if TermsAndConditionsAccept.objects.filter(user=user).exists():
             termsAccepted=True
         
-
-
-        return Response({**info_serializer.data, 'is_verified':password_created, 'termsAccepted':termsAccepted})
+        return Response({**info_serializer.data,'age':user_info.age,'gender':user_info.gender, 'is_verified':password_created, 'termsAccepted':termsAccepted})

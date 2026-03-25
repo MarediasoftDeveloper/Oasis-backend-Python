@@ -25,10 +25,15 @@ class Create_Customer(APIView):
         else:
             customer = Customer.objects.create(email=email)
             created = True
+            
         Customer_profile.objects.get_or_create(customer=customer)
 
         # Check password
         password_created = bool(customer.password and customer.has_usable_password())
+
+        if customer.is_google_or_apple_account:
+            return Response({"error": "Account with this email already exists!"})
+            
 
         # --------------------------
         #  CASE 1: CUSTOMER EXISTS

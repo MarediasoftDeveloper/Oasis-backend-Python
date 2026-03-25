@@ -16,7 +16,7 @@ class SocialMediaAccountsSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"error": "Social media link cannot be empty."})
 
         if not (value.startswith("http://") or value.startswith("https://")):
-            raise serializers.ValidationError({"error": "Link must start with 'http://' or 'https://'."})
+            raise serializers.ValidationError({"error": "Link must start with http:// or https://"})
         return value
 
     def validate(self, data):
@@ -26,7 +26,7 @@ class SocialMediaAccountsSerializer(serializers.ModelSerializer):
         social_media = data.get('social_media')
 
         if not user:
-            raise serializers.ValidationError("User context missing.")
+            raise serializers.ValidationError({"error":"User context missing."})
 
         # Exclude current instance when updating
         existing_accounts = Social_Media_Accounts.objects.filter(user=user)

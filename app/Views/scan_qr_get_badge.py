@@ -14,6 +14,7 @@ from app.Models.earned_badges_by_user import Earned_Badges
 from app.models import Customer_profile
 
 
+
 class Scan_qr_get_badge(generics.CreateAPIView):
 
     permission_classes = [IsAuthenticated, Request_By_Customer_Only]
@@ -34,6 +35,9 @@ class Scan_qr_get_badge(generics.CreateAPIView):
        
         badge_img = None
         points_per_task=0
+
+
+       
 
         for category in badge_category:
                 if category.category.num_of_task_to_achieve_badge < earned_badges:

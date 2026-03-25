@@ -14,7 +14,7 @@ class FoodMenuCategorySerializer(serializers.ModelSerializer):
     def validate_name(self, value):
         """Ensure category name is not empty or just whitespace."""
         if not value or not value.strip():
-            raise serializers.ValidationError("Category name cannot be empty.")
+            raise serializers.ValidationError({"error":"Category name cannot be empty."})
         return value
 
     def create(self, validated_data):

@@ -27,13 +27,11 @@ class Withdraw_of_Raffle(APIView):
         get_raffle_entries = Raffles_Entry.objects.filter(raffle__id=raffle_id)
         get_entries = get_raffle_entries.filter(is_winner=False)
 
-
         if not get_entries.exists():
             return Response({"error": "No entries found for the specified raffle!"}, status=400)
        
         if not get_entries.first().raffle.venue ==request.user:
             return Response({"error": "You are not allowed to withdraw this raffle!"},status=400)
-
 
         # Get the randomly selected entry
         get_winner_entry = get_entries.order_by('?').first()
@@ -41,8 +39,7 @@ class Withdraw_of_Raffle(APIView):
         if get_raffle_entries.filter(is_winner=True).count() >= get_winner_entry.raffle.num_of_winners:
             return Response({"error": "This Raffle has reached its number of winners!"}, status=400)
 
-        # Check if the raffle has already reached its winner limit
-
+       
         # Try to get the winner's customer profile
         try:
             get_winner = Customer_profile.objects.get(customer=get_winner_entry.user)
@@ -72,9 +69,10 @@ class Withdraw_of_Raffle(APIView):
         serialized = CustomerProfileSerializer(get_winner)
      
       
-        return Response({"winner": serialized.data,
-                        "reward": get_winner_entry.raffle.rewards
-                         })
+        return Response({
+            "winner": serialized.data,
+            "reward": get_winner_entry.raffle.rewards
+        })
 
 
 

@@ -12,7 +12,7 @@ class MyRewardsGetView(generics.ListAPIView):
     serializer_class = RewardsSerializer
 
     def list(self, request, *args, **kwargs):
-        queryset = Rewards.objects.filter(venue=request.user, is_approved='approved')
+        queryset = Rewards.objects.filter(venue=request.user, is_approved='approved').order_by('-created_at')
         data=[]
         rewards_count = len(queryset)
         serialized=self.get_serializer(queryset)

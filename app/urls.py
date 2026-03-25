@@ -45,9 +45,14 @@ from .Views.terms_and_conditions_acceptance import TermsAndConditionsAcceptView
 from .Views.block_user_view import BlockUserView
 from .Views.reporting_and_complain_view import ReportingAndComplainsView
 from .Views.get_users_list import Customer_List
+from .Views.apple_signin import AppleLogin
 from .Views.myRewardsList import Achieved_Rewards_List
 from .Views.saveFcmToken import SaveFCMToken
 from .Views.notifications_list import NotificationsListView
+from .Views.referral_code_view import ReferrlCodeUseView 
+from .Views.facebook_signin import Facebook_Signup
+from .Views.events_badge_progress import EventBadgeProgressView
+from app.Views.eventParticipatingVenuesAppView import EventParticipatingVenuesAppView
 
 
 from rest_framework_simplejwt.views import (
@@ -74,15 +79,15 @@ urlpatterns = [
     path('auth/logout/', logout.Logout.as_view(), name='logout'),
     
     path('auth/google/', google_signup.Google_Signup.as_view(), name='google-auth'),
+    path('auth/apple/', AppleLogin.as_view(), name='apple-auth'),
+    path('auth/facebook/', Facebook_Signup.as_view(), name='facebook-auth'),
    
     path('user/', oasis_home.Oasis_Home.as_view(), name='get_user'),
     path('user-profile/<int:id>/', Retrieve_User_Profile.as_view(), name='retrieve-user'),
     path('customer-info/<int:customer>/', update_customer_info.Update_Customer_Info.as_view(), name='customer-info'),
    
-
     path('send-invite/', send_invite.Send_Invite.as_view(), name='send_invite'), #Invite user and send a refferal code
-    
-
+   
     path('rewards/', rewards_get_retrieve.RewardsGetView.as_view(), name='get-rewards'), #get rewards
     path('rewards/<int:pk>/', rewards_get_retrieve.RewardsRetrieveView.as_view(), name='retrieve-rewards'), #get rewards
 
@@ -122,14 +127,20 @@ urlpatterns = [
     path('redeem-reward/', User_Redeem_Rewards.as_view(), name="redeem-reward"),    
     path('redeemed-rewards-list/', Achieved_Rewards_List.as_view(), name="redeemed-rewards-list"),    
 
+    path('use-referral/', ReferrlCodeUseView.as_view(), name="use-referral-code"),    
+
+
     path('report-user/', ReportingAndComplainsView.as_view(), name="report-user"),    
     path('accept-terms-and-conditions/', TermsAndConditionsAcceptView.as_view(), name="accept-terms-and-conditions"),    
 
     path('save-device-fcm/', SaveFCMToken.as_view(), name="device-fcm"),    
     # jwt token 
-    path('notifications/', NotificationsListView.as_view(), name="notifications"),    
+    path('notifications/', NotificationsListView.as_view(), name="notifications"),   
 
+    path('event-badges-progress/', EventBadgeProgressView.as_view(), name="EventBadgeProgress"),    
+    path('event-participants/<int:id>/', EventParticipatingVenuesAppView.as_view(), name='event-participants'),
 
+   
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('', include(router.urls)),  #  Include DRF ViewSet routes

@@ -2,6 +2,7 @@ from django.db import models
 from oasis import settings
 import uuid
 from .interests import Customer_Interest
+from app.Models.events import Events
 
 def customer_upload_path(instance, filename):
     return f'uploads/{instance.user.id}/{filename}'
