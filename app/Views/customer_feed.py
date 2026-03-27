@@ -76,7 +76,7 @@ class Customer_Feed(APIView):
 
 class Customer_Feed_Retrieve(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated, Request_By_Customer_Only]
-    queryset = Post.objects.filter(user__user_role__in=['1','2'])
+    queryset = Post.objects.all()
     serializer_class = PostSerializer
     lookup_field='slug'
 

@@ -13,7 +13,7 @@ class EventAppSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Events
-        # exclude = ['qr_code']
+        fields='__all__'
         read_only_fields = ['created_by', 'badge']
     
 
@@ -24,8 +24,7 @@ class EventAppSerializer(serializers.ModelSerializer):
 class EventStaffSerializer(serializers.ModelSerializer):
     created_by = Customer_Serializer(read_only=True)
     badge = BadgesSerializer(read_only=True)
-    # qr_code = VenueQRInfoSerializer(read_only=True)
-
+   
     # Allow writing by ID
     badge_id = serializers.PrimaryKeyRelatedField(
         queryset=Badges.objects.all(),
@@ -78,9 +77,6 @@ class EventStaffSerializer(serializers.ModelSerializer):
         start_date = validated_data.get('event_start_date')
         close_date = validated_data.get('event_close_date')
         status = validated_data.get('status')
-        
-        # qr_obj = QR_Info(expires_at=close_date)
-        # qr_obj.save()
 
         # Automatically assign creator
         if request and hasattr(request, "user"):
@@ -97,7 +93,7 @@ class EventStaffSerializer(serializers.ModelSerializer):
             elif close_date < now:
                 validated_data['status'] = 'completed'    
 
-        event = Events.objects.create(qr_code=qr_obj, **validated_data)
+        event = Events.objects.create(**validated_data)
         return event
 
     # -------------------------
