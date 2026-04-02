@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from staff.Views.admin_dashboard import AdminDashboardAPI
+from staff.Views.eventStatsExport import EventStatsReportExportView
 from staff.Views.venues_data import VenuesDataAPI, VenueRetrieveAPI
 from staff.Views.users_data import UsersDataAPI, UserRetrieveAPI
 from staff.Views.reports_list import ReportsList, ReportsRUD, ReportsCreate
@@ -110,4 +111,5 @@ urlpatterns = [
     path('event-stats/', EventStatsView.as_view(), name='event-stats'),
     path('event-badges-progress/', EventBadgeProgressStaffView.as_view(), name='event-badge-progress-attendee'),
     path('event-participants/', EventParticipatingVenuesStaffView.as_view(), name='event-participants'),
+    path('event-stats-export/', EventStatsReportExportView.as_view(), name='event-stats-report-export'),
 ]   

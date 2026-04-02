@@ -21,12 +21,18 @@ from rest_framework import filters
 class EventCrudStaffView(viewsets.ModelViewSet):
     permission_classes=[IsAuthenticated, Request_By_Admin_And_Organiser_Only]
     queryset = Events.objects.all().order_by('-id')
-    # filter_backends = [filters.SearchFilter]
-    # search_fields = ['title', 'description']
+    filter_backends = [filters.SearchFilter]
+    search_fields = [
+        'title',
+        'venuesparticipatingevents__venues__venue_profile__venue_name',
+        'created_by__username',
+        'created_by__first_name',
+        'created_by__last_name'
+    ]
     serializer_class = EventStaffSerializer
 
     def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()    
+        queryset = self.filter_queryset(self.get_queryset()).distinct()   
         serializer = self.get_serializer(queryset, many=True)
         total_active_events = queryset.exclude(status='draft').count()
         total_events = queryset.count()
