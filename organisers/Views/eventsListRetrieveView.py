@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from rest_framework import generics 
 from rest_framework.views import APIView 
 from rest_framework.response import Response
@@ -5,9 +7,9 @@ from rest_framework.permissions import IsAuthenticated
 from app.Models.events import Events
 from app.Models.event_posts import EventPosts
 from app.Models.event_attendees import EventAttendees
+from venue.models.venue_info import Venue_Info
 from app.Models.venues_participating_in_event import VenuesParticipatingEvents
 from app.Models.events import Events
-from app.Permissions.send_by_customer_only import Request_By_Customer_Only
 from venue.models.badges import BadgesLevel
 from app.Serializers.badge_level_serializer import BadgesLevelSerializer
 from organisers.serializers.events_attendees_serializer import EventAppAttendeesSerializer
@@ -15,37 +17,79 @@ from organisers.serializers.events_posts_serializer import EventAppPostsSerializ
 from organisers.serializers.events_venue_participating import EventAppVenuesParticipatingSerializer
 from organisers.serializers.events_serializer import EventAppSerializer
 from django.db.models.expressions import RawSQL
+from django.db.models import Q, F, Prefetch, FloatField, Min
+from django.db.models.functions import ACos, Cos, Sin, Radians
 
 class EventsListView(APIView):
-    permission_classes=[IsAuthenticated, Request_By_Customer_Only]
+    permission_classes=[IsAuthenticated]
 
     def post(self, request):
         
         longitude = request.data.get('longitude') or None
         latitude = request.data.get('latitude') or None
+        search = request.data.get('search') or None
+        sort_by_date = request.data.get('sort_by_date')
+        start_date = request.data.get('start_date')
+        end_date = request.data.get('end_date')
+        filter_options = request.data.get('filter_options')
 
         queryset = Events.objects.exclude(status='draft')
+        
 
-        if longitude is not None and latitude is not None:
+        if filter_options == 'nearest' and longitude and latitude:
             longitude = float(longitude)
             latitude = float(latitude)
+
             queryset = queryset.annotate(
-                distance=RawSQL(
-                    """
-                    6371 * acos(
-                        cos(radians(%s)) *
-                        cos(radians(latitude)) *
-                        cos(radians(longitude) - radians(%s)) +
-                        sin(radians(%s)) *
-                        sin(radians(latitude))
+                distance=Min(
+                    6371 * ACos(
+                        Cos(Radians(latitude)) *
+                        Cos(Radians(F('venuesparticipatingevents__venues__venue_profile__latitude'))) *
+                        Cos(Radians(F('venuesparticipatingevents__venues__venue_profile__longitude')) - Radians(longitude)) +
+                        Sin(Radians(latitude)) *
+                        Sin(Radians(F('venuesparticipatingevents__venues__venue_profile__latitude')))
                     )
-                    """,
-                    (latitude, longitude, latitude),
                 )
             ).order_by('distance')
 
-        serializer = EventAppSerializer(queryset, many=True)
+        elif filter_options == 'upcoming':
+            queryset = queryset.filter(status='upcoming')
+        
+        elif filter_options == 'live':
+            queryset = queryset.filter(status='live')
+        else:
+            if sort_by_date == 'desc':
+                queryset = queryset.order_by('-event_start_date')
+            else:
+                queryset = queryset.order_by('event_start_date')
 
+        if start_date:
+            start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
+        if end_date:
+            end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
+
+        # Search
+        if search:
+            queryset = queryset.filter(
+                Q(title__icontains=search) |
+                Q(venuesparticipatingevents__venues__venue_profile__venue_name__icontains=search) |
+                Q(created_by__username__icontains=search) |
+                Q(created_by__first_name__icontains=search) |
+                Q(created_by__last_name__icontains=search)
+            ).distinct()
+
+        # Date filtering
+        if start_date and not end_date:
+            queryset = queryset.filter(event_start_date__date__gte=start_date)
+        elif end_date and not start_date:
+            queryset = queryset.filter(event_close_date__date__lte=end_date)
+        elif start_date and end_date:
+            queryset = queryset.filter(
+                event_start_date__date__gte=start_date,
+                event_close_date__date__lte=end_date
+            )
+
+        serializer = EventAppSerializer(queryset.distinct(), many=True)
         return Response(serializer.data)
 
     
