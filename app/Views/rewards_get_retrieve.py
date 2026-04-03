@@ -27,9 +27,8 @@ class RewardsGetView(generics.ListAPIView):
             serialized_reward = RewardsSerializer(reward).data  # Serializing the reward object
             venue_profile = Venue_Info.objects.filter(venue=reward.venue).first()
             # Add the achiever count to the serialized reward data
-            if venue_profile is not None:
-                serialized_reward["venue_name"] = venue_profile.venue_name
-            
+        
+            serialized_reward["venue_name"] = venue_profile.venue_name if venue_profile else None
             serialized_reward["rewards_achieved_by"] = rewards_achieve_count
 
             data.append(serialized_reward)
