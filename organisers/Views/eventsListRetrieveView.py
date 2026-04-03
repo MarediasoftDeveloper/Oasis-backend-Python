@@ -54,10 +54,11 @@ class EventsListView(APIView):
 
         elif filter_options == 'upcoming':
             queryset = queryset.filter(status='upcoming')
-        
+
         elif filter_options == 'live':
             queryset = queryset.filter(status='live')
-        else:
+        
+        else: 
             if sort_by_date == 'desc':
                 queryset = queryset.order_by('-event_start_date')
             else:
