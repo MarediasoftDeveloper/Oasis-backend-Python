@@ -20,7 +20,7 @@ def notify_challenge_created(sender, instance, created, **kwargs):
         receivers = list(Customer.objects.all())
         
         venue = get_venue_info(instance)
-        
+      
         send_push_notification(
             receivers,
             f"🎯 New Challenge from {venue.venue_name}",
@@ -29,10 +29,10 @@ def notify_challenge_created(sender, instance, created, **kwargs):
                 "type": "challenge_created",  
                 "route": "/allBadgesScreen", #venue_badges
                 "venue_id": str(instance.venue.id), #venueId
+                "venue_cover_image": str(venue.venue_cover_photo), #venueId
                 "venue_title": str(venue.venue_name), #venueId
             }
         )
-
 
 
 
