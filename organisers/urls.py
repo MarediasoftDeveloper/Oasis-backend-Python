@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+from organisers.Views.eventCategoryCRUD import EventCategoryView
 from organisers.Views.eventsListRetrieveView import EventsListView, EventsRetrieveView
 from organisers.Views.eventPostsCreate import EventPostCreateStaffView
 from organisers.Views.eventParticipatingVenues import EventParticipatingVenuesView
@@ -25,6 +26,7 @@ from organisers.Views.userJoinEvent import UserJoinEventView
 
 router = DefaultRouter()
 router.register(r'events-participating', EventParticipatingVenuesView, basename='events-participating')
+router.register(r'events-categories', EventCategoryView, basename='events-categories')
 
 
 urlpatterns = [
@@ -33,5 +35,4 @@ urlpatterns = [
     path('events-posts/', EventPostCreateStaffView.as_view(), name='events-posts'),
     path('attend-event/', UserJoinEventView.as_view(), name='attend-event'),
     path('', include(router.urls)),
-
 ]   

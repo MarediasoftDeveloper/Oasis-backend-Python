@@ -19,6 +19,7 @@ class RewardsGetView(generics.ListAPIView):
         rewards_count = len(queryset)
         serialized=self.get_serializer(queryset)
         data = []
+        
         for reward in queryset:
             # Count how many times this reward has been achieved
             rewards_achieve_count = Rewards_Achiever.objects.filter(reward=reward).count()
@@ -37,7 +38,6 @@ class RewardsGetView(generics.ListAPIView):
         return Response({
             "rewards_count": rewards_count,
             "rewards": data  # Use 'data' instead of serialized.data here
-
         })
 
 

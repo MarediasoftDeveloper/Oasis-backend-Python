@@ -1,8 +1,9 @@
 from rest_framework import serializers
-from app.Models.events import Events
+from app.Models.events import Events, EventCategory
 from venue.models.badges import Badges
 from app.Serializers.customer_signup_serializer import Customer_Serializer
 from venue.Serializers.badges_serializer import BadgesSerializer
+from organisers.serializers.eventCategorySerializer import EventCategorySerializer
 from venue.Serializers.qr_info_serializer import VenueQRInfoSerializer
 from django.utils import timezone
 from venue.models.qr_info_model import QR_Info
@@ -10,11 +11,11 @@ from venue.models.qr_info_model import QR_Info
 class EventAppSerializer(serializers.ModelSerializer):
     created_by = Customer_Serializer(read_only=True)
     badge = BadgesSerializer(read_only=True)
-
+    category = EventCategorySerializer(read_only=True, many=True)
     class Meta:
         model = Events
         fields='__all__'
-        read_only_fields = ['created_by', 'badge']
+        read_only_fields = ['created_by', 'badge', 'category']
     
 
 
@@ -24,7 +25,13 @@ class EventAppSerializer(serializers.ModelSerializer):
 class EventStaffSerializer(serializers.ModelSerializer):
     created_by = Customer_Serializer(read_only=True)
     badge = BadgesSerializer(read_only=True)
-   
+    category=EventCategorySerializer(read_only=True, many=True)
+    category_ids = serializers.PrimaryKeyRelatedField(
+        queryset=EventCategory.objects.all(),
+        many=True,
+        write_only=True
+    )
+    
     # Allow writing by ID
     badge_id = serializers.PrimaryKeyRelatedField(
         queryset=Badges.objects.all(),
@@ -32,7 +39,6 @@ class EventStaffSerializer(serializers.ModelSerializer):
         write_only=True,
         required=True
     )
-
 
     class Meta:
         model = Events
@@ -77,7 +83,8 @@ class EventStaffSerializer(serializers.ModelSerializer):
         start_date = validated_data.get('event_start_date')
         close_date = validated_data.get('event_close_date')
         status = validated_data.get('status')
-
+        category_ids = validated_data.pop('category_ids', None)
+        
         # Automatically assign creator
         if request and hasattr(request, "user"):
             validated_data['created_by'] = request.user
@@ -94,6 +101,9 @@ class EventStaffSerializer(serializers.ModelSerializer):
                 validated_data['status'] = 'completed'    
 
         event = Events.objects.create(**validated_data)
+        if category_ids:
+            event.category.set(category_ids)
+
         return event
 
     # -------------------------
@@ -101,7 +111,7 @@ class EventStaffSerializer(serializers.ModelSerializer):
     # -------------------------
 
     def update(self, instance, validated_data):
-
+        category_ids = validated_data.pop('category_ids', None)
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
 
@@ -119,6 +129,9 @@ class EventStaffSerializer(serializers.ModelSerializer):
                 instance.status = 'live'
             elif close_date < now:
                 instance.status = 'completed'
+        
+        if category_ids:
+            instance.category.set(category_ids)
 
         if status:
             instance.status=status
