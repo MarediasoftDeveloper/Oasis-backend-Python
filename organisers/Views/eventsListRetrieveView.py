@@ -32,6 +32,7 @@ class EventsListView(APIView):
         start_date = request.data.get('start_date')
         end_date = request.data.get('end_date')
         filter_options = request.data.get('filter_options')
+        category_id = request.data.get('category_id')
 
         queryset = Events.objects.exclude(status='draft')
         
@@ -79,6 +80,10 @@ class EventsListView(APIView):
                 Q(created_by__last_name__icontains=search)
             ).distinct()
 
+        
+        if category_id:
+            queryset = queryset.filter(category__id=category_id)
+        
         # Date filtering
         if start_date and not end_date:
             queryset = queryset.filter(event_start_date__date__gte=start_date)
