@@ -12,16 +12,24 @@ STATUS_CHOICES = [
     ('completed', 'Completed'),
 ]
 
+class EventCategory(models.Model):
+    category = models.CharField(max_length=80)
+    
+
+
+
+
 class Events(models.Model):
     title = models.CharField(max_length=300)
     description = models.CharField(max_length=3000)
     image = models.ImageField(upload_to='uploads/events')
-    location = models.CharField(max_length=500)
+    location = models.CharField(max_length=500, null=True, blank=True)
     event_start_date = models.DateTimeField()
     event_close_date = models.DateTimeField()
     # longitude = models.FloatField(db_index=True, null=True, blank=True)
     # latitude = models.FloatField(db_index=True, null=True, blank=True)
     badge = models.ForeignKey(Badges, on_delete=models.CASCADE)
+    category = models.ManyToManyField(EventCategory, related_name='events_categories')
     organiser_notice = models.CharField(max_length=2000)
     status = models.CharField(choices=STATUS_CHOICES, default='draft')
     # qr_code = models.ForeignKey(QR_Info, on_delete=models.CASCADE)          
