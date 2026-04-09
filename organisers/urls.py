@@ -21,10 +21,11 @@ from organisers.Views.eventsListRetrieveView import EventsListView, EventsRetrie
 from organisers.Views.eventPostsCreate import EventPostCreateStaffView
 from organisers.Views.eventParticipatingVenues import EventParticipatingVenuesView
 from organisers.Views.userJoinEvent import UserJoinEventView
-
+from organisers.Views.eventCategoryCRUD import EventCategoryView
 
 router = DefaultRouter()
 router.register(r'events-participating', EventParticipatingVenuesView, basename='events-participating')
+router.register(r'events-categories', EventCategoryView, basename='events-categories')
 
 
 urlpatterns = [
