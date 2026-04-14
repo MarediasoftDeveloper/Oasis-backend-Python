@@ -30,7 +30,7 @@ class Events(models.Model):
     # latitude = models.FloatField(db_index=True, null=True, blank=True)
     badge = models.ForeignKey(Badges, on_delete=models.CASCADE)
     category = models.ManyToManyField(EventCategory, related_name='events_categories')
-    organiser_notice = models.CharField(max_length=2000)
+    organiser_notice = models.CharField(max_length=2000, null=True, blank=True)
     status = models.CharField(choices=STATUS_CHOICES, default='draft')
     # qr_code = models.ForeignKey(QR_Info, on_delete=models.CASCADE)          
     created_at = models.DateTimeField(auto_now_add=True)
