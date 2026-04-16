@@ -20,8 +20,6 @@ class EventAppSerializer(serializers.ModelSerializer):
 
 
 
-
-
 class EventStaffSerializer(serializers.ModelSerializer):
     created_by = Customer_Serializer(read_only=True)
     badge = BadgesSerializer(read_only=True)

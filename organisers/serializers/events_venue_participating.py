@@ -1,4 +1,6 @@
+from rest_framework.response import Response
 from rest_framework import serializers
+from rest_framework import status
 from app.Models.event_posts import EventPosts
 from app.models import Customer
 from app.Models.events import Events
@@ -59,3 +61,66 @@ class EventAppVenuesParticipatingSerializer(serializers.ModelSerializer):
             })
         
         return attrs
+
+
+
+class EventBulkVenuesParticipatingSerializer(serializers.ModelSerializer):
+    venues = VenueInfoSerializer(source='venues.venue_profile', read_only=True)
+
+    venue_ids = serializers.PrimaryKeyRelatedField(
+        queryset=Customer.objects.filter(user_role='2'),
+        many=True,
+        write_only=True,
+        required=True
+    )
+
+    event_id = serializers.PrimaryKeyRelatedField(
+        queryset=Events.objects.all(),
+        source='event',
+        write_only=True,
+        required=True
+    )
+
+    class Meta:
+        model = VenuesParticipatingEvents
+        fields = [
+            'id',
+            'venues',
+            'venue_ids',
+            'event_id',
+            'scans_to_achieve_next_tier',
+            'available_till'
+        ]
+
+    def validate(self, attrs):
+        venue_ids = attrs.get('venue_ids', [])
+        event = attrs.get('event')
+
+        duplicates = VenuesParticipatingEvents.objects.filter(
+            venues__in=venue_ids,
+            event=event
+        ).values_list('venues', flat=True)
+
+        if duplicates:
+            raise serializers.ValidationError({
+                "error": f"Some venues are already participating in this event"
+            })
+
+        return attrs
+
+
+    def create(self, validated_data):
+        venue_ids = validated_data.pop('venue_ids')
+        event = validated_data.pop('event')
+
+        created_objects = []
+
+        for venue in venue_ids:
+            obj = VenuesParticipatingEvents.objects.create(
+                venues=venue,
+                event=event,
+                **validated_data
+            )
+            created_objects.append(obj)
+
+        return created_objects
