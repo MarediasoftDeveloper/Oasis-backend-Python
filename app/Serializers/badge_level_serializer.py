@@ -25,12 +25,12 @@ class BadgesLevelSerializer(serializers.ModelSerializer):
             "badge",
             "category",
             "image",
-            "points_per_task",
             "level_name",
+            "points_per_task",
             "num_of_task_to_achieve_badge",
             "badge_id",
         ]
-        read_only_fields = ["badge", "category"]
+        read_only_fields = ["badge", "category"]    
 
     # ---------------------------
     # Field-level validation
@@ -56,12 +56,11 @@ class BadgesLevelSerializer(serializers.ModelSerializer):
 
         # Category does not exist yet; it is created in create()
         request = self.context.get('request')
-        print(level_name)
 
         if request and request.method == 'POST':
             if BadgesLevel.objects.filter(
                 badge=badge,
-                category__category__icontains=level_name
+                category__category__iexact=level_name.lower()
             ).exists():
                 raise serializers.ValidationError({"error":"This badge already has this category level."})
 
@@ -72,16 +71,14 @@ class BadgesLevelSerializer(serializers.ModelSerializer):
     # ---------------------------
 
     def create(self, validated_data):
-        level_name = validated_data.pop("level_name")
         num_tasks = validated_data.pop("num_of_task_to_achieve_badge")
+        level_name = validated_data.pop("level_name")
 
         badge = validated_data.pop("badge")
-        badge_level_name = f"{badge.name + ' ' + level_name}"
-
-     
+      
         # Create new category
         category_obj = Badge_Category.objects.create(
-            category=badge_level_name,
+            category=level_name,
             num_of_task_to_achieve_badge=num_tasks,
         )
 
@@ -101,13 +98,10 @@ class BadgesLevelSerializer(serializers.ModelSerializer):
         badge = validated_data.pop("badge", None)
         
         # Update category only if changed
-        if not level_name == instance.category.category:
-            instance.category.category
-            category_obj = Badge_Category.objects.create(
-                category=level_name,
-                num_of_task_to_achieve_badge=num_tasks,
-            )
-            instance.category = category_obj
+        if not level_name.lower() == instance.category.category.lower():
+            instance.category.category = level_name
+            instance.category.save()
+            
         
         if not num_tasks == instance.category.num_of_task_to_achieve_badge:
             instance.category.num_of_task_to_achieve_badge = num_tasks
