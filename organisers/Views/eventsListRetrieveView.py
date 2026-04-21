@@ -37,15 +37,7 @@ class EventsListView(APIView):
         category_id = request.data.get('category_id')
         now = timezone.now()
         update_events = Events.objects.filter(event_close_date__lt=now).exclude(status='completed').update(status='completed')
-        queryset = Events.objects.exclude(status='draft').annotate(
-                status_order=Case(
-                    When(status='live', then=1),
-                    When(status='upcoming', then=2),
-                    When(status='completed', then=3),
-                    default=4,
-                    output_field=IntegerField()
-                )
-            ).order_by('status_order')
+        queryset = Events.objects.exclude(status='draft')
         
 
         if filter_options == 'nearest' and longitude and latitude:
@@ -73,8 +65,16 @@ class EventsListView(APIView):
             if sort_by_date == 'desc':
                 queryset = queryset.order_by('-event_start_date')
             else:
-                queryset = queryset.order_by('event_start_date')
-
+                queryset = queryset.annotate(
+                    status_order=Case(
+                        When(status='live', then=1),
+                        When(status='upcoming', then=2),
+                        When(status='completed', then=3),
+                        default=4,
+                        output_field=IntegerField()
+                    )
+                ).order_by('status_order')
+                
         if start_date:
             start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
         if end_date:
