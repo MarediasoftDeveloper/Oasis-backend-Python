@@ -19,6 +19,8 @@ from organisers.serializers.events_serializer import EventAppSerializer
 from django.db.models.expressions import RawSQL
 from django.db.models import Q, F, Prefetch, FloatField, Min
 from django.db.models.functions import ACos, Cos, Sin, Radians
+from django.utils import timezone
+
 
 class EventsListView(APIView):
     permission_classes=[IsAuthenticated]
@@ -33,8 +35,9 @@ class EventsListView(APIView):
         end_date = request.data.get('end_date')
         filter_options = request.data.get('filter_options')
         category_id = request.data.get('category_id')
-
-        queryset = Events.objects.exclude(status='draft')
+        now = timezone.now()
+        queryset = Events.objects.exclude(status='draft').order_by('-venuesparticipatingevents__available_till').distinct()
+        update_events = queryset.filter(event_close_date__lt=now).exclude(status='completed').bulk_update([event for event in update_events], ['status'])
         
 
         if filter_options == 'nearest' and longitude and latitude:
@@ -58,7 +61,6 @@ class EventsListView(APIView):
 
         elif filter_options == 'live':
             queryset = queryset.filter(status='live')
-        
         else: 
             if sort_by_date == 'desc':
                 queryset = queryset.order_by('-event_start_date')
@@ -81,7 +83,7 @@ class EventsListView(APIView):
             ).distinct()
 
         
-        if category_id:
+        if category_id: 
             queryset = queryset.filter(category__id=category_id)
         
         # Date filtering
