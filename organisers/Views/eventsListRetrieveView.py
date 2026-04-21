@@ -17,7 +17,7 @@ from organisers.serializers.events_posts_serializer import EventAppPostsSerializ
 from organisers.serializers.events_venue_participating import EventAppVenuesParticipatingSerializer
 from organisers.serializers.events_serializer import EventAppSerializer
 from django.db.models.expressions import RawSQL
-from django.db.models import Q, F, Prefetch, FloatField, Min
+from django.db.models import Q, F, Prefetch, FloatField, Min, Case, When, IntegerField
 from django.db.models.functions import ACos, Cos, Sin, Radians
 from django.utils import timezone
 
@@ -36,8 +36,8 @@ class EventsListView(APIView):
         filter_options = request.data.get('filter_options')
         category_id = request.data.get('category_id')
         now = timezone.now()
-        queryset = Events.objects.exclude(status='draft').order_by('-venuesparticipatingevents__available_till').distinct()
-        update_events = queryset.filter(event_close_date__lt=now).update(status='completed') 
+        update_events = Events.objects.filter(event_close_date__lt=now).exclude(status='completed').update(status='completed')
+        queryset = Events.objects.exclude(status='draft')
         
 
         if filter_options == 'nearest' and longitude and latitude:
@@ -61,13 +61,20 @@ class EventsListView(APIView):
 
         elif filter_options == 'live':
             queryset = queryset.filter(status='live')
-        
         else: 
             if sort_by_date == 'desc':
                 queryset = queryset.order_by('-event_start_date')
             else:
-                queryset = queryset.order_by('event_start_date')
-
+                queryset = queryset.annotate(
+                    status_order=Case(
+                        When(status='live', then=1),
+                        When(status='upcoming', then=2),
+                        When(status='completed', then=3),
+                        default=4,
+                        output_field=IntegerField()
+                    )
+                ).order_by('status_order')
+                
         if start_date:
             start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
         if end_date:
