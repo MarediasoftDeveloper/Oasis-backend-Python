@@ -36,6 +36,7 @@ class EventsListView(APIView):
         filter_options = request.data.get('filter_options')
         category_id = request.data.get('category_id')
         now = timezone.now()
+        update_events = Events.objects.filter(event_close_date__lt=now).exclude(status='completed').update(status='completed')
         queryset = Events.objects.exclude(status='draft').annotate(
                 status_order=Case(
                     When(status='live', then=1),
@@ -45,7 +46,6 @@ class EventsListView(APIView):
                     output_field=IntegerField()
                 )
             ).order_by('status_order')
-        update_events = queryset.filter(event_close_date__lt=now).exclude(status='completed').update(status='completed')
         
 
         if filter_options == 'nearest' and longitude and latitude:
@@ -71,9 +71,9 @@ class EventsListView(APIView):
             queryset = queryset.filter(status='live')
         else: 
             if sort_by_date == 'desc':
-                queryset = queryset.exclude(status='completed').order_by('-event_start_date')
+                queryset = queryset.order_by('-event_start_date')
             else:
-                queryset = queryset.exclude(status='completed').order_by('event_start_date')
+                queryset = queryset.order_by('event_start_date')
 
         if start_date:
             start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
@@ -92,7 +92,7 @@ class EventsListView(APIView):
 
         
         if category_id: 
-            queryset = queryset.filter(category__id=category_id).exclude(status='completed')
+            queryset = queryset.filter(category__id=category_id)
         
         # Date filtering
         if start_date and not end_date:
