@@ -20,7 +20,6 @@ from rest_framework import filters
 
 class EventCrudStaffView(viewsets.ModelViewSet):
     permission_classes=[IsAuthenticated, Request_By_Admin_And_Organiser_Only]
-    queryset = Events.objects.all().order_by('-id')
     filter_backends = [filters.SearchFilter]
     search_fields = [
         'title',
@@ -31,7 +30,15 @@ class EventCrudStaffView(viewsets.ModelViewSet):
     ]
     serializer_class = EventStaffSerializer
 
+    def get_queryset(self):
+        if self.request.user.user_role == '3':
+            return Events.objects.all().order_by('-id')
+        
+        return Events.objects.filter(created_by=self.request.user).order_by('-id')
+
+
     def list(self, request, *args, **kwargs):
+
         queryset = self.filter_queryset(self.get_queryset()).distinct()   
         serializer = self.get_serializer(queryset, many=True)
         total_active_events = queryset.exclude(status='draft').count()
