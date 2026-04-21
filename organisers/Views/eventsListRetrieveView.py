@@ -17,7 +17,7 @@ from organisers.serializers.events_posts_serializer import EventAppPostsSerializ
 from organisers.serializers.events_venue_participating import EventAppVenuesParticipatingSerializer
 from organisers.serializers.events_serializer import EventAppSerializer
 from django.db.models.expressions import RawSQL
-from django.db.models import Q, F, Prefetch, FloatField, Min
+from django.db.models import Q, F, Prefetch, FloatField, Min, Case, When, IntegerField
 from django.db.models.functions import ACos, Cos, Sin, Radians
 from django.utils import timezone
 
@@ -36,8 +36,16 @@ class EventsListView(APIView):
         filter_options = request.data.get('filter_options')
         category_id = request.data.get('category_id')
         now = timezone.now()
-        queryset = Events.objects.exclude(status='draft').order_by('-venuesparticipatingevents__available_till').distinct()
-        update_events = queryset.filter(event_close_date__lt=now).exclude(status='completed').bulk_update([event for event in update_events], ['status'])
+        queryset = Events.objects.exclude(status='draft').annotate(
+                status_order=Case(
+                    When(status='live', then=1),
+                    When(status='upcoming', then=2),
+                    When(status='completed', then=3),
+                    default=4,
+                    output_field=IntegerField()
+                )
+            ).order_by('status_order')
+        update_events = queryset.filter(event_close_date__lt=now).exclude(status='completed').update(status='completed')
         
 
         if filter_options == 'nearest' and longitude and latitude:
@@ -63,9 +71,9 @@ class EventsListView(APIView):
             queryset = queryset.filter(status='live')
         else: 
             if sort_by_date == 'desc':
-                queryset = queryset.order_by('-event_start_date')
+                queryset = queryset.exclude(status='completed').order_by('-event_start_date')
             else:
-                queryset = queryset.order_by('event_start_date')
+                queryset = queryset.exclude(status='completed').order_by('event_start_date')
 
         if start_date:
             start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
@@ -84,7 +92,7 @@ class EventsListView(APIView):
 
         
         if category_id: 
-            queryset = queryset.filter(category__id=category_id)
+            queryset = queryset.filter(category__id=category_id).exclude(status='completed')
         
         # Date filtering
         if start_date and not end_date:
