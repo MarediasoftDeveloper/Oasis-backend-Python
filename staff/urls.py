@@ -84,7 +84,6 @@ urlpatterns = [
     path('send-user-notifications/', SendNotificationToUser.as_view(), name='send-notification-to-user'),
     path('send-notifications-all-users/', SendNotificationToAllUsers.as_view(), name='send-notification-to-all-users'),
 
-
     path('reports/', ReportsList.as_view(), name='reports'),
     path('reports-create/', ReportsCreate.as_view(), name='reports-create'),
     path('reports/<int:pk>/', ReportsRUD.as_view(), name='reports-update-destroy'),

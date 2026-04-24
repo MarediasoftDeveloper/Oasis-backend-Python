@@ -33,6 +33,7 @@ class EventStatsView(APIView):
 
         # Base Querysets
         Events_qs = Events.objects.all().order_by('-id')
+        
 
         venues = VenuesParticipatingEvents.objects.filter(
             event__in=Events_qs
