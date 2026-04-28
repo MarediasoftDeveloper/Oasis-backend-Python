@@ -25,18 +25,16 @@ class EventParticipatingVenuesAppView(APIView):
         participants = []
         if isEventAttended:
             for particiapating_venue in queryset:
-                end_date = min(
-                    particiapating_venue.event.event_close_date,
-                    particiapating_venue.available_till
-                ) if particiapating_venue.available_till else particiapating_venue.event.event_close_date
+                start_date = max(particiapating_venue.available_from, isEventAttended.joined_at)
                 challenges_achieved = Challenge_Achiever.objects.filter(
                     challenge__venue=particiapating_venue.venues,
                     customer_taken=request.user,
-                    scanned_at__lte=end_date,
+                    scanned_at__gte=start_date,
+                    scanned_at__lte=particiapating_venue.available_till,
                 ).count() or 0
                 participant =  EventAppVenuesParticipatingSerializer(particiapating_venue).data
                 participant['challenges_achieved'] = challenges_achieved
-                participant['message'] = f"You have done {challenges_achieved} scans in this venue, {particiapating_venue.scans_to_achieve_next_tier - challenges_achieved if challenges_achieved < particiapating_venue.scans_to_achieve_next_tier else 0} remaining scans in this venue."
+                participant['message'] = f"You have done {challenges_achieved} scans in this venue"
                 participants.append(participant)
         
             return Response(participants)

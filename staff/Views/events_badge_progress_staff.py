@@ -48,25 +48,18 @@ class EventBadgeProgressStaffView(APIView):
         if not participants_venues or participants_venues is None:
             return Response({"data":BadgesLevelSerializer(badge_levels, many=True).data , "message":"This event do not have participating venues right now to scan and level up the badge."})
 
-
         participants_venues_required_scans = {
             v['venues']: v['scans_to_achieve_next_tier']
             for v in participants_venues.values('venues','scans_to_achieve_next_tier')
         }
         
-        participants_venues_scans_count = participants_venues.aggregate( 
-            total_scans_to_achieve_highest_level=Sum('scans_to_achieve_next_tier')
-        )
-
-        total_scans = participants_venues_scans_count.get(
-            'total_scans_to_achieve_highest_level'
-        ) or 0
-
+        
+        total_required_scans = event.total_scans_required or 0
 
         badge_levels_count = badge_levels.count() if badge_levels.count() > 0 else 0
 
         value_validate_on_each_level = (
-            floor(total_scans / badge_levels_count)
+            floor(total_required_scans / badge_levels_count)
             if badge_levels_count > 0 else 0
         )
 
@@ -75,27 +68,25 @@ class EventBadgeProgressStaffView(APIView):
         # Count once instead of inside loop
         challenges_achieved = None
         user_scans = None
-        
     
         venue_filters = Q()
 
         for venue in participants_venues:
-            end_date = min(
-                venue.event.event_close_date,
-                venue.available_till
-            ) if venue.available_till else venue.event.event_close_date
+            start_date = max(venue.available_from, user_joined_event.joined_at)
 
             venue_filters |= Q(
                 challenge__venue=venue.venues,
-                scanned_at__gte=venue.event.event_start_date,
-                scanned_at__lte=end_date
+                scanned_at__gte=start_date,
+                scanned_at__lte=venue.available_till
             )
 
         challenges_achieved = Challenge_Achiever.objects.filter(
             venue_filters,
             customer_taken__id=user_id
         )
-        print(challenges_achieved)
+
+        username = challenges_achieved.first().customer_taken.username if challenges_achieved.exists() else "User"
+
         if not challenges_achieved.exists():
             return Response({"data":BadgesLevelSerializer(badge_levels, many=True).data , "message":"You haven't scanned any challenges in this event yet, please scan challenges in this event to level up the badge."})
         
@@ -117,26 +108,25 @@ class EventBadgeProgressStaffView(APIView):
             min(user_scans_dict.get(k, 0), participants_venues_required_scans[k])
             for k in participants_venues_required_scans
         )       
-        
 
         for level in badge_levels:
             
             if user_joined_event:
-                remaining_scans = participants_venues_scans_count['total_scans_to_achieve_highest_level'] - actual_scans_sum
+                remaining_scans = total_required_scans - actual_scans_sum
                 calculate_validation_time += value_validate_on_each_level
            
                 if actual_scans_sum >= calculate_validation_time:
                     data.append({
                         **BadgesLevelSerializer(level).data,
                         'status': True,
-                        'message': f"You have passed the {level.category.category} level of this event"
+                        'message': f"{username} have passed the {level.category.category} level of this event"
                     })
                
                 else:
                     data.append({
                         **BadgesLevelSerializer(level).data,
                         'status': False,
-                        'message': f"You’re {remaining_scans} scans away from completing this event"
+                        'message': f"{username} is {remaining_scans - actual_scans_sum} scans away from completing this event"
                     })
             else:
                 data.append({

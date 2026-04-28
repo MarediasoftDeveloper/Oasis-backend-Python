@@ -22,7 +22,7 @@ from .Models.DeviceFcmToken import DeviceFCM
 from .Models.post_venues_tags import PostVenueTag
 from .Models.user_current_app_version import UserCurrentAppVersion
 from .Models.referrals_Users import ReferralsUsers
-from .Models.events import Events
+from .Models.events import Events, EventCategory
 from .Models.event_attendees import EventAttendees
 from .Models.event_posts import EventPosts
 from .Models.venues_participating_in_event import VenuesParticipatingEvents
@@ -54,6 +54,7 @@ admin.site.register(ReferralsUsers)
 admin.site.register(UserCurrentAppVersion)
 
 admin.site.register(Events)
+admin.site.register(EventCategory)
 admin.site.register(EventAttendees)
 admin.site.register(EventPosts)
 admin.site.register(VenuesParticipatingEvents)

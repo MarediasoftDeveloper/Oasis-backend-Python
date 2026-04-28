@@ -21,7 +21,7 @@ def notify_challenge_created(sender, instance, created, **kwargs):
         
         venue = get_venue_info(instance)
       
-        send= send_push_notification(
+        send_push_notification(
             receivers,
             f"🎯 New Challenge from {venue.venue_name}",
             "👉Hurry up! Don't be late to get your new badge 🎉.",
@@ -33,8 +33,6 @@ def notify_challenge_created(sender, instance, created, **kwargs):
                 "venue_title": str(venue.venue_name), #venueId
             }
         )
-
-
 
 
 
