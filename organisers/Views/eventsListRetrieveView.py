@@ -114,13 +114,16 @@ class EventsListView(APIView):
                 event_start_date__date__gte=start_date,
                 event_close_date__date__lte=end_date
             )
-         # ✅ PAGINATION START
+         # PAGINATION START
         paginator = self.pagination_class()
         page = paginator.paginate_queryset(queryset, request)
 
-        serializer = EventAppSerializer(page, many=True)
+        if page is not None:
+            serializer = EventAppSerializer(page, many=True)
+            return paginator.get_paginated_response(serializer.data)
 
-        return paginator.get_paginated_response(serializer.data)
+        serializer = EventAppSerializer(queryset, many=True)
+        return Response(serializer.data)
         
     
 
