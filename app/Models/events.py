@@ -32,6 +32,7 @@ class Events(models.Model):
     category = models.ManyToManyField(EventCategory, related_name='events_categories')
     organiser_notice = models.CharField(max_length=2000, null=True, blank=True)
     status = models.CharField(choices=STATUS_CHOICES, default='draft')
+    total_scans_required = models.PositiveIntegerField()
     # qr_code = models.ForeignKey(QR_Info, on_delete=models.CASCADE)          
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

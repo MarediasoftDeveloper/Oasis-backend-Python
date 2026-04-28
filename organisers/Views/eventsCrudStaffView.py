@@ -14,14 +14,22 @@ from organisers.serializers.events_attendees_serializer import EventAppAttendees
 from organisers.serializers.events_posts_serializer import EventAppPostsSerializer
 from organisers.serializers.events_venue_participating import EventAppVenuesParticipatingSerializer
 from organisers.serializers.events_serializer import EventAppSerializer
+from rest_framework.pagination import PageNumberPagination
 
 
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 10         
+    page_size_query_param = 'page_size'
+    max_page_size = 50
 
 
 class EventCrudStaffView(generics.ListAPIView):
     permission_classes=[IsAuthenticated, Request_By_Customer_Only]
     queryset = Events.objects.all().exclude(status='draft').order_by('-id')
     serializer_class = EventAppSerializer
+    pagination_class = StandardResultsSetPagination
+
 
 
     

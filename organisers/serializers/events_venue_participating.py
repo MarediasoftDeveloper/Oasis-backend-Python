@@ -39,6 +39,7 @@ class EventAppVenuesParticipatingSerializer(serializers.ModelSerializer):
             'venue_ids',
             'event_id',
             'scans_to_achieve_next_tier',
+            'available_from',
             'available_till'
             # add other model fields here if they exist
         ]
@@ -89,6 +90,7 @@ class EventBulkVenuesParticipatingSerializer(serializers.ModelSerializer):
             'venue_ids',
             'event_id',
             'scans_to_achieve_next_tier',
+            'available_from',
             'available_till'
         ]
 

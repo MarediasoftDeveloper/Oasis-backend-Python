@@ -35,7 +35,11 @@ class EventStatsReportExportView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
-        Events_qs = Events.objects.all().order_by('-id')
+           # Base Querysets
+        if self.request.user.user_role == '3':
+            Events_qs = Events.objects.all().order_by('-id')
+        else:
+            Events_qs = Events.objects.filter(created_by=self.request.user).order_by('-id')
         now = timezone.now()
 
         data = []

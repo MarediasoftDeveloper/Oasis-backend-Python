@@ -32,8 +32,10 @@ class EventStatsView(APIView):
     def get(self, request):
 
         # Base Querysets
-        Events_qs = Events.objects.all().order_by('-id')
-        
+        if self.request.user.user_role == '3':
+            Events_qs = Events.objects.all().order_by('-id')
+        else:
+            Events_qs = Events.objects.filter(created_by=self.request.user).order_by('-id')
 
         venues = VenuesParticipatingEvents.objects.filter(
             event__in=Events_qs
@@ -52,17 +54,32 @@ class EventStatsView(APIView):
         year = now.year if now.month > 1 else now.year - 1
 
         # Attendees Stats
-        total_attendees_current_month = EventAttendees.objects.filter(
-            joined_at__year=now.year,
-            joined_at__month=now.month
-        ).count()
+        if self.request.user.user_role == '3':
+            total_attendees_current_month = EventAttendees.objects.filter(
+                joined_at__year=now.year,
+                joined_at__month=now.month
+            ).count()
 
-        total_attendees_last_month = EventAttendees.objects.filter(
-            joined_at__year=year,
-            joined_at__month=last_month
-        ).count()
+            total_attendees_last_month = EventAttendees.objects.filter(
+                joined_at__year=year,
+                joined_at__month=last_month
+            ).count()
+        
+            difference = total_attendees_current_month - total_attendees_last_month
+        else:
+            total_attendees_current_month = EventAttendees.objects.filter(
+                event__created_by=self.request.user,
+                joined_at__year=now.year,
+                joined_at__month=now.month
+            ).count()
 
-        difference = total_attendees_current_month - total_attendees_last_month
+            total_attendees_last_month = EventAttendees.objects.filter(
+                event__created_by=self.request.user,
+                joined_at__year=year,
+                joined_at__month=last_month
+            ).count()
+        
+            difference = total_attendees_current_month - total_attendees_last_month
 
         if total_attendees_last_month > 0:
             attendees_percentage_change = (difference / total_attendees_last_month) * 100
@@ -75,14 +92,24 @@ class EventStatsView(APIView):
         # Last 5 Months Stats
         five_months_ago = now - timedelta(days=150)
 
-        attendees_last_5_months = (
-            EventAttendees.objects
-            .filter(joined_at__gte=five_months_ago)
-            .annotate(month=TruncMonth("joined_at"))
-            .values("month")
-            .annotate(total=Count("id"))
-            .order_by("month")
-        )
+        if self.request.user.user_role == '3':
+            attendees_last_5_months = (
+                EventAttendees.objects
+                .filter(joined_at__gte=five_months_ago)
+                .annotate(month=TruncMonth("joined_at"))
+                .values("month")
+                .annotate(total=Count("id"))
+                .order_by("month")
+            )
+        else:
+            attendees_last_5_months = (
+                EventAttendees.objects
+                .filter(joined_at__gte=five_months_ago, event__created_by=self.request.user)
+                .annotate(month=TruncMonth("joined_at"))
+                .values("month")
+                .annotate(total=Count("id"))
+                .order_by("month")
+            )
 
         attendees_monthly_stats = [
             {

@@ -15,8 +15,12 @@ from organisers.serializers.events_venue_participating import EventAppVenuesPart
 from organisers.serializers.events_serializer import EventStaffSerializer
 from staff.Permissions.adminOrganiserOnlyPermission import Request_By_Admin_And_Organiser_Only 
 from rest_framework import filters
+from rest_framework.pagination import PageNumberPagination
 
-
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 10      
+    page_size_query_param = 'page_size'
+    max_page_size = 50
 
 class EventCrudStaffView(viewsets.ModelViewSet):
     permission_classes=[IsAuthenticated, Request_By_Admin_And_Organiser_Only]
@@ -29,6 +33,7 @@ class EventCrudStaffView(viewsets.ModelViewSet):
         'created_by__last_name'
     ]
     serializer_class = EventStaffSerializer
+    pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
         if self.request.user.user_role == '3':
@@ -54,14 +59,16 @@ class EventCrudStaffView(viewsets.ModelViewSet):
 
             total_scans += Challenge_Achiever.objects.filter(challenge__venue=participating_venue.venues, scanned_at__gte=participating_venue.event.event_start_date, scanned_at__lte=end_date).count()
 
-        return Response({
-            "total_events": total_events,
-            "total_active_events": total_active_events,
-            "total_scans": total_scans,
-            "total_participating_venues": participating_venues.count(),
-            "events": serializer.data
-        })
-
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response({
+                "total_events": total_events,
+                "total_active_events": total_active_events,
+                "total_scans": total_scans,
+                "total_participating_venues": participating_venues.count(),
+                "events": serializer.data
+            })
 
     def retrieve(self, request, *args, **kwargs):
         event = self.get_object()

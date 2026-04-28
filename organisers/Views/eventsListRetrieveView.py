@@ -20,10 +20,20 @@ from django.db.models.expressions import RawSQL
 from django.db.models import Q, F, Prefetch, FloatField, Min, Case, When, IntegerField
 from django.db.models.functions import ACos, Cos, Sin, Radians
 from django.utils import timezone
+from rest_framework.pagination import PageNumberPagination
+
+
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 10        
+    page_size_query_param = 'page_size'
+    max_page_size = 50
 
 
 class EventsListView(APIView):
     permission_classes=[IsAuthenticated]
+    pagination_class = StandardResultsSetPagination
+    
 
     def post(self, request):
         
@@ -104,10 +114,14 @@ class EventsListView(APIView):
                 event_start_date__date__gte=start_date,
                 event_close_date__date__lte=end_date
             )
+         # ✅ PAGINATION START
+        paginator = self.pagination_class()
+        page = paginator.paginate_queryset(queryset, request)
 
-        serializer = EventAppSerializer(queryset.distinct(), many=True)
-        return Response(serializer.data)
+        serializer = EventAppSerializer(page, many=True)
 
+        return paginator.get_paginated_response(serializer.data)
+        
     
 
 
