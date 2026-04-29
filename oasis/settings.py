@@ -65,7 +65,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'storages',
     'django_crontab',
-    'payments'
+    # 'payments'
 ]
 
 
@@ -247,7 +247,6 @@ APPLE_CLIENT_ID=config('APPLE_CLIENT_ID')
 APPLE_TEAM_ID=config('APPLE_TEAM_ID') 
 APPLE_KEY_ID=config('APPLE_KEY_ID')
 
-print(APPLE_PRIVATE_KEY)
 
 
 
@@ -261,12 +260,11 @@ FACEBOOK_APP_SECRET = config('FACEBOOK_APP_SECRET')
 
 import firebase_admin
 from firebase_admin import credentials
+import json
 
-FIREBASE_CRED = credentials.Certificate(
-    BASE_DIR / "firebase/my-oasis-e7bca-firebase-adminsdk-fbsvc-c27b05b1f3.json"   # update path as peryour file
-)
-
-default_app = firebase_admin.initialize_app(FIREBASE_CRED)
+FIREBASE_CRED = json.loads(config('FIREBASE_CREDENTIALS'))
+cred = credentials.Certificate(FIREBASE_CRED)
+default_app = firebase_admin.initialize_app(cred)
 
 
 # Optional – Disable sandbox mode (real emails will be sent)
