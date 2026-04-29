@@ -25,7 +25,7 @@ from rest_framework.pagination import PageNumberPagination
 
 
 class StandardResultsSetPagination(PageNumberPagination):
-    page_size = 10        
+    page_size = 3      
     page_size_query_param = 'page_size'
     max_page_size = 50
 
@@ -47,7 +47,7 @@ class EventsListView(APIView):
         category_id = request.data.get('category_id')
         now = timezone.now()
         update_events = Events.objects.filter(event_close_date__lt=now).exclude(status='completed').update(status='completed')
-        queryset = Events.objects.exclude(status='draft')
+        queryset = Events.objects.exclude(status__in=['draft','completed'])
         
 
         if filter_options == 'nearest' and longitude and latitude:
