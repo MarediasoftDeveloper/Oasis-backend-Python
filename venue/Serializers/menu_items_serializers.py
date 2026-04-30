@@ -7,7 +7,7 @@ class MenuItemsSerializer(serializers.ModelSerializer):
     menu_category = FoodMenuCategorySerializer(read_only=True)
     menu_category_id = serializers.PrimaryKeyRelatedField(
         queryset=Food_Menu_Category.objects.all(),
-        required=True,
+        required=False,
         write_only=True
     )
     class Meta:
@@ -18,13 +18,13 @@ class MenuItemsSerializer(serializers.ModelSerializer):
 
     def validate_item_name(self, value):
         """Ensure item name is not empty."""
-        if not value or not value.strip():
+        if value and not value.strip():
             raise serializers.ValidationError({"error":"Item name cannot be empty."})
         return value
 
     def validate_item_price(self, value):
         """Ensure price is non-negative."""
-        if value < 0:
+        if value and value < 0:
             raise serializers.ValidationError({"error":"Item price cannot be negative."})
         return value
 
@@ -35,26 +35,23 @@ class MenuItemsSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"error":"Item points cannot be negative."})
         return value
     
-    def validate(self, data):
-        menu_category = data.get('menu_category_id')
-        if not menu_category or menu_category == 0:
-            raise serializers.ValidationError({"error":"Menu Category must be selected"})
-        
-        return data
+
 
     def create(self, validated_data):
         """Create new menu item."""
-        category = validated_data.pop('menu_category_id')
-        return Menu_Items.objects.create(menu_category=category,
-                                         **validated_data)
+        category = validated_data.pop('menu_category_id', None)
+        if category is not None:
+            return Menu_Items.objects.create(menu_category=category,**validated_data)
+        return Menu_Items.objects.create(**validated_data)
+
 
     def update(self, instance, validated_data):
         """Update existing menu item."""
-        category = validated_data.pop('menu_category_id')
+        category = validated_data.pop('menu_category_id', None)
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
-        if category:
+        if category is not None:
             instance.menu_category = category
         
         instance.save()
