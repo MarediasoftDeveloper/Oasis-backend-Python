@@ -7,6 +7,7 @@ from .menu_categories import Food_Menu_Category
 def venue_file_upload_path(instance, filename):
     return f'uploads/{instance.menu_category}/menu/{filename}'
 
+
 def validate_file_size(file):
     max_size = 5 * 1024 * 1024  # 5MB
     if file.size > max_size:
@@ -14,10 +15,11 @@ def validate_file_size(file):
 
 
 def validate_menu_file(file):
-    valid_extensions = ['.pdf', '.png', '.jpg', '.jpeg', '.tiff', '.webp', '.heic', '.heif']
+    valid_extensions = ['.pdf', '.png', '.jpg', '.jpeg', '.tiff', '.webp', '.heic', '.heif', '.avif', '.bmp']
     ext = os.path.splitext(file.name)[1].lower()
     if ext not in valid_extensions:
         raise ValidationError('Only PDF and image files are allowed.')
+
 
 class Menu_Items(models.Model):
     item_image = models.ImageField(upload_to=venue_file_upload_path, null=True, blank=True)
