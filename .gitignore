@@ -5,7 +5,6 @@ db.sqlite3
 media/uploads
 firebase
 oasis/__pycache__/
-app/migrations
 *.pyc
 accounts
 payments
