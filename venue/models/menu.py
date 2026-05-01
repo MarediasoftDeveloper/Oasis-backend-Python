@@ -14,7 +14,7 @@ def validate_file_size(file):
 
 
 def validate_menu_file(file):
-    valid_extensions = ['.pdf', '.png', '.jpg', '.jpeg', '.tiff', '.webp', '.heic', '.heif']
+    valid_extensions = ['.pdf', '.png', '.jpg', '.jpeg', '.tiff', '.webp', '.heic', '.heif', '.avif', '.bmp']
     ext = os.path.splitext(file.name)[1].lower()
     if ext not in valid_extensions:
         raise ValidationError('Only PDF and image files are allowed.')
