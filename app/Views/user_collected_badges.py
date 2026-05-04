@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -14,7 +16,7 @@ from app.Models.challenge_achiever import Challenge_Achiever
 from app.Models.event_attendees import EventAttendees
 from app.Permissions.send_by_customer_only import Request_By_Customer_Only
 from django.utils import timezone
-from django.db.models import Prefetch
+from django.db.models import IntegerField, Prefetch, Case, When, Value, Q
 
 
 class Collected_badges(APIView):
@@ -30,7 +32,7 @@ class Collected_badges(APIView):
         )
 
         # ---- Events with participants (optimized) ----
-        events = Events.objects.select_related('badge').prefetch_related(
+        events = Events.objects.exclude(status=['completed','draft']).select_related('badge').prefetch_related(
             Prefetch(
                 'venuesparticipatingevents_set',
                 queryset=VenuesParticipatingEvents.objects.select_related('venues')
@@ -55,23 +57,24 @@ class Collected_badges(APIView):
             # IMPORTANT: check per participant, decide per event
             for participant in participants:
                 if event_joined:
-                  start_date = max(participant.available_from, event_joined.joined_at)
+                  available_from = participant.available_from or event_joined.joined_at
+                  start_date = max(available_from, event_joined.joined_at)
+                  available_till = participant.available_till or (start_date + timedelta(days=3))
                   if user_scans.filter(
                       challenge__venue=participant.venues,
                       scanned_at__gte=start_date,
-                      scanned_at__lte=participant.available_till
+                      scanned_at__lte=available_till
                   ).exists():
                       has_achieved = True
                       break
 
             badge_qs = BadgesLevel.objects.filter(
                 badge__id=event.badge.id,
-                category__category__icontains='basic'
-            )
-
+            ).first()
+                
             event_data = {
                 "event_id": event.id,
-                "badge": BadgesLevelSerializer(badge_qs, many=True).data,
+                "badge": BadgesLevelSerializer(badge_qs).data,
             }
 
             if has_achieved:
@@ -84,11 +87,11 @@ class Collected_badges(APIView):
         for badge_id in earned_badges_ids:
 
             badge_count = earned_badges.filter(badge__id=badge_id).count()
+            base_qs = BadgesLevel.objects.filter(badge__id=badge_id)
 
-            badge_qs = BadgesLevel.objects.filter(
-                badge__id=badge_id,
+            badge_qs = base_qs.filter(
                 category__category__icontains='basic'
-            )
+            ).first() or base_qs.first()
 
             collected_badges.append({
                 "badge": BadgesLevelSerializer(badge_qs, many=True).data,
@@ -96,12 +99,20 @@ class Collected_badges(APIView):
             })
 
         # ---- Uncollected badges ----
-        uncollected_badges_qs = BadgesLevel.objects.filter(
-            category__category__icontains='basic'
-        ).exclude(
-            badge__id__in=earned_badges_ids
+        uncollected_badges_qs = (
+            BadgesLevel.objects
+            .exclude(badge__id__in=earned_badges_ids)
+            .annotate(
+                priority=Case(
+                    When(category__category__icontains='basic', then=Value(1)),
+                    default=Value(2),
+                    output_field=IntegerField(),
+                )
+            )
+            .order_by('badge__id', 'priority', 'id')
+            .distinct('badge__id')
         )
-
+    
         # ---- Final Response ----
         return Response({
             "event_badges": {

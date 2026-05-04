@@ -1,3 +1,4 @@
+from datetime import timedelta
 from math import floor
 
 from rest_framework import generics
@@ -74,12 +75,14 @@ class EventBadgeProgressView(APIView):
         venue_filters = Q()
 
         for venue in participants_venues:
-            start_date = max(venue.available_from, user_joined_event.joined_at)
+            available_from = venue.available_from or user_joined_event.joined_at
+            start_date = max(available_from, user_joined_event.joined_at)
+            available_till = venue.available_till or (start_date + timedelta(days=3))
 
             venue_filters |= Q(
                 challenge__venue=venue.venues,
                 scanned_at__gte=start_date,
-                scanned_at__lte=venue.available_till
+                scanned_at__lte=available_till
             )
 
         challenges_achieved = Challenge_Achiever.objects.filter(
