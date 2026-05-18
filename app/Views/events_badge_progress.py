@@ -29,7 +29,7 @@ class EventBadgeProgressView(APIView):
     def post(self, request):
 
         event_id = request.data.get('event')
-    
+        
         data = []
 
         event = Events.objects.filter(id=event_id).first()
