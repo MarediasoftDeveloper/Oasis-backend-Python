@@ -151,7 +151,7 @@ class Collected_badges(APIView):
 
             event_data = {
                 "event_id": event.id,
-                "badge": BadgesLevelSerializer(badge_level).data if badge_level else None,
+                "badge": [BadgesLevelSerializer(badge_level).data] if badge_level else [],
             }
 
             if has_achieved:
@@ -168,7 +168,7 @@ class Collected_badges(APIView):
             badge_level = first_badge_level_by_badge_id.get(badge_id)
 
             collected_badges.append({
-                "badge": BadgesLevelSerializer(badge_level).data if badge_level else None,
+                "badge": [BadgesLevelSerializer(badge_level).data] if badge_level else [],
                 "count": badge_count
             })
 
