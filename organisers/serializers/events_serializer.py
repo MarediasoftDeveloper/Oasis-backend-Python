@@ -35,7 +35,7 @@ class EventStaffSerializer(serializers.ModelSerializer):
         queryset=Badges.objects.all(),
         source='badge',
         write_only=True,
-        required=True
+        required=False
     )
 
     class Meta:
@@ -67,7 +67,8 @@ class EventStaffSerializer(serializers.ModelSerializer):
                "error":"Both latitude and longitude must be provided together."
             })
         
-        if Events.objects.filter(badge__id=badge).exists():
+        if badge and Events.objects.filter(badge__id=badge).exists():
+            print(badge)
             raise serializers.ValidationError({"error":"Event associated with this badge is already exits."})   
 
         return attrs

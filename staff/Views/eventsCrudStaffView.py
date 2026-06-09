@@ -13,7 +13,7 @@ from organisers.serializers.events_attendees_serializer import EventAppAttendees
 from organisers.serializers.events_posts_serializer import EventAppPostsSerializer
 from organisers.serializers.events_venue_participating import EventAppVenuesParticipatingSerializer
 from organisers.serializers.events_serializer import EventStaffSerializer
-from staff.Permissions.adminOrganiserOnlyPermission import Request_By_Admin_And_Organiser_Only 
+from staff.Permissions.adminOrganiserVenueOnlyPermission import Request_By_Admin_Venue_And_Organiser_Only
 from rest_framework import filters
 from rest_framework.pagination import PageNumberPagination
 
@@ -23,7 +23,7 @@ class StandardResultsSetPagination(PageNumberPagination):
     max_page_size = 50
 
 class EventCrudStaffView(viewsets.ModelViewSet):
-    permission_classes=[IsAuthenticated, Request_By_Admin_And_Organiser_Only]
+    permission_classes=[IsAuthenticated, Request_By_Admin_Venue_And_Organiser_Only]
     filter_backends = [filters.SearchFilter]
     search_fields = [
         'title',

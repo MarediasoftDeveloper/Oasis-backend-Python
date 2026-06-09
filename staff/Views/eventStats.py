@@ -17,7 +17,7 @@ from organisers.serializers.events_attendees_serializer import EventAppAttendees
 from organisers.serializers.events_posts_serializer import EventAppPostsSerializer
 from organisers.serializers.events_venue_participating import EventAppVenuesParticipatingSerializer
 from organisers.serializers.events_serializer import EventStaffSerializer
-from staff.Permissions.adminOrganiserOnlyPermission import Request_By_Admin_And_Organiser_Only 
+from staff.Permissions.adminOrganiserVenueOnlyPermission import Request_By_Admin_Venue_And_Organiser_Only
 from rest_framework import filters
 from django.utils import timezone
 from datetime import timedelta
@@ -27,7 +27,7 @@ from app.Serializers.challenge_achiever_serializer import ChallengeAchieverSeria
 
 class EventStatsView(APIView):
 
-    permission_classes = [IsAuthenticated, Request_By_Admin_And_Organiser_Only]
+    permission_classes = [IsAuthenticated, Request_By_Admin_Venue_And_Organiser_Only]
 
     def get(self, request):
 
