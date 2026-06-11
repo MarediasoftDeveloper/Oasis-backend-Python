@@ -8,6 +8,13 @@ from venue.Serializers.qr_info_serializer import VenueQRInfoSerializer
 from django.utils import timezone
 from venue.models.qr_info_model import QR_Info
 
+
+class NullablePrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
+    def to_internal_value(self, data):
+        if data in ["", "null", "none", None]:
+            return None
+        return super().to_internal_value(data)
+
 class EventAppSerializer(serializers.ModelSerializer):
     created_by = Customer_Serializer(read_only=True)
     badge = BadgesSerializer(read_only=True)
@@ -31,11 +38,12 @@ class EventStaffSerializer(serializers.ModelSerializer):
     )
     
     # Allow writing by ID
-    badge_id = serializers.PrimaryKeyRelatedField(
+    badge_id = NullablePrimaryKeyRelatedField(
         queryset=Badges.objects.all(),
         source='badge',
         write_only=True,
-        required=False
+        required=False,
+        allow_null=True
     )
 
     class Meta:
@@ -51,6 +59,7 @@ class EventStaffSerializer(serializers.ModelSerializer):
         start_date = attrs.get('event_start_date')
         close_date = attrs.get('event_close_date')
         badge = attrs.get('badge_id')
+
 
         if start_date and close_date:
             if close_date <= start_date:
@@ -68,7 +77,6 @@ class EventStaffSerializer(serializers.ModelSerializer):
             })
         
         if badge and Events.objects.filter(badge__id=badge).exists():
-            print(badge)
             raise serializers.ValidationError({"error":"Event associated with this badge is already exits."})   
 
         return attrs
@@ -111,8 +119,19 @@ class EventStaffSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         category_ids = validated_data.pop('category_ids', None)
+        badge_not_provided = object() 
+        badge = validated_data.pop('badge', badge_not_provided)
+
+
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
+        
+        if badge is not badge_not_provided and badge is not None:
+            instance.badge = badge
+
+        # Case 2: badge_id was sent as empty/null
+        elif badge is badge_not_provided:
+            instance.badge_id = None
 
 
         # Recalculate status if dates changed
@@ -120,6 +139,8 @@ class EventStaffSerializer(serializers.ModelSerializer):
         close_date = instance.event_close_date
         status = validated_data.pop('status')
         now = timezone.now()
+
+       
 
         if start_date and close_date:
             if start_date > now:
