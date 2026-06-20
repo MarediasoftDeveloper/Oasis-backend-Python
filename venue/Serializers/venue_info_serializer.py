@@ -8,6 +8,7 @@ from venue.Serializers.venue_signup_serializer import Venue_SignUp_Serializer
 class VenueInfoSerializer(serializers.ModelSerializer):
     username = serializers.CharField(max_length=25, allow_blank=True, write_only=True)
     password = serializers.CharField(max_length=50, allow_blank=True, write_only=True)
+    email = serializers.EmailField(allow_blank=True, write_only=True)
     venue= Venue_SignUp_Serializer(read_only=True)
 
     class Meta:
@@ -49,7 +50,16 @@ class VenueInfoSerializer(serializers.ModelSerializer):
     
         password = validated_data.pop("password", None)
         username = validated_data.pop("username", None)
-    
+        email = validated_data.pop("email", None)
+
+        if email and email.lower() != instance.venue.email.lower():
+            if Customer.objects.filter(email__iexact=email).exists():
+                raise serializers.ValidationError({
+                    "error": "This Email already exists, try something more unique!"
+                })
+            instance.venue.email = email
+
+   
         # Validate username
         if username and username.lower() != instance.venue.username.lower():
             if Customer.objects.filter(username__iexact=username).exists():
