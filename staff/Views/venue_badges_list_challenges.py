@@ -8,11 +8,11 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from app.models import Customer
-from staff.Permissions.admin_only_permission import Request_By_Admin_Only
+from staff.Permissions.adminOrganiserVenueOnlyPermission import Request_By_Admin_Venue_And_Organiser_Only
 
 class Venue_Badges_retrieve_for_admin(APIView):
-    permission_classes = [IsAuthenticated, Request_By_Admin_Only]
-    
+    permission_classes = [IsAuthenticated, Request_By_Admin_Venue_And_Organiser_Only]
+
     def get(self, request, pk):
         try:
             venue_badges = Venue_Badges.objects.filter(venue__id=pk)
@@ -28,7 +28,7 @@ class Venue_Badges_retrieve_for_admin(APIView):
 
 
 class Venue_Badges_list_for_admin(APIView):
-    permission_classes = [IsAuthenticated, Request_By_Admin_Only]
+    permission_classes = [IsAuthenticated, Request_By_Admin_Venue_And_Organiser_Only]
     
     def get(self, request):
         try:

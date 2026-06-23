@@ -2,6 +2,7 @@ from django.db import models
 from oasis import settings
 from venue.models.badges import Badges
 from app.models import Customer
+from venue.models.raffles import Raffles
 from venue.models.qr_info_model import QR_Info
 
 
@@ -28,14 +29,16 @@ class Events(models.Model):
     event_close_date = models.DateTimeField()
     longitude = models.FloatField(db_index=True, null=True, blank=True)
     latitude = models.FloatField(db_index=True, null=True, blank=True)
-    badge = models.ForeignKey(Badges, on_delete=models.CASCADE)
+    badge = models.ForeignKey(Badges, on_delete=models.CASCADE, null=True, blank=True)
     category = models.ManyToManyField(EventCategory, related_name='events_categories')
     organiser_notice = models.CharField(max_length=2000, null=True, blank=True)
     status = models.CharField(choices=STATUS_CHOICES, default='draft')
     total_scans_required = models.PositiveIntegerField(default=3)
+    buy_now_link = models.CharField(max_length=1000, null=True, blank=True)
     # qr_code = models.ForeignKey(QR_Info, on_delete=models.CASCADE)          
+    raffle = models.ForeignKey(Raffles, on_delete=models.CASCADE, null=True, blank=True)          
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     conditions = models.CharField(max_length=1000, null=True, blank=True)
     physical_reward = models.CharField(max_length=1000, null=True, blank=True)
-    created_by = models.ForeignKey(Customer, on_delete=models.SET_NULL, limit_choices_to={'user_role__in':['3', '4']}, null=True, blank=True)
+    created_by = models.ForeignKey(Customer, on_delete=models.SET_NULL, limit_choices_to={'user_role__in':['2','3', '4']}, null=True, blank=True)

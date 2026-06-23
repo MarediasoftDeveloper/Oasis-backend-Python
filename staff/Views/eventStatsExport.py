@@ -16,12 +16,12 @@ from venue.Serializers.venue_info_serializer import VenueInfoSerializer
 from venue.models.badges import BadgesLevel
 from app.Models.event_posts import EventPosts
 from venue.models.venue_info import Venue_Info
-from app.Serializers.badge_level_serializer import BadgesLevelSerializer
+from app.Serializers.badge_level_serializer import BadgesLevelSerializer 
 from organisers.serializers.events_attendees_serializer import EventAppAttendeesSerializer
 from organisers.serializers.events_posts_serializer import EventAppPostsSerializer
 from organisers.serializers.events_venue_participating import EventAppVenuesParticipatingSerializer
 from organisers.serializers.events_serializer import EventStaffSerializer
-from staff.Permissions.adminOrganiserOnlyPermission import Request_By_Admin_And_Organiser_Only 
+from staff.Permissions.adminOrganiserVenueOnlyPermission import Request_By_Admin_Venue_And_Organiser_Only
 from rest_framework import filters
 from django.utils import timezone
 from datetime import timedelta
@@ -32,10 +32,10 @@ import pandas as pd
 
 
 class EventStatsReportExportView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated, Request_By_Admin_Venue_And_Organiser_Only]
 
     def get(self, request):
-           # Base Querysets
+           # Base Querysets  
         if self.request.user.user_role == '3':
             Events_qs = Events.objects.all().order_by('-id')
         else:
@@ -57,7 +57,7 @@ class EventStatsReportExportView(APIView):
 
             event_rows = []
 
-            # ✅ If no participants
+            # If no participants
             if not participants.exists():
                 event_rows.append({
                     "Event Title": event.title,
@@ -78,7 +78,7 @@ class EventStatsReportExportView(APIView):
                         scanned_at__lte=event.event_close_date
                     )
                     total_badges_earned += scans_per_venue.count()
-                    badge_required_to_earn += venue.scans_to_achieve_next_tier
+                    badge_required_to_earn += venue.scans_to_achieve_next_tier or 0
 
                 # 🔹 Step 2: calculate badge completion rate
                 if badge_required_to_earn > 0:

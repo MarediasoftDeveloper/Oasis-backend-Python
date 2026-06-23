@@ -47,7 +47,7 @@ class EventsListView(APIView):
         category_id = request.data.get('category_id')
         now = timezone.now()
         update_events = Events.objects.filter(event_close_date__lt=now).exclude(status='completed').update(status='completed')
-        queryset = Events.objects.exclude(status__in=['draft', 'completed'])
+        queryset = Events.objects.exclude(status__in=['draft', 'completed']).order_by('event_start_date')
         
 
         if filter_options == 'nearest' and longitude and latitude:

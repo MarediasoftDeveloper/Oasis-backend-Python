@@ -20,6 +20,7 @@ from rest_framework.routers import DefaultRouter
 from organisers.Views.eventsListRetrieveView import EventsListView, EventsRetrieveView
 from organisers.Views.eventPostsCreate import EventPostCreateStaffView
 from organisers.Views.eventParticipatingVenues import EventBulkParticipatingVenuesView, EventParticipatingVenuesView
+from organisers.Views.raffle_list import RaffleListView
 from organisers.Views.userJoinEvent import UserJoinEventView
 from organisers.Views.eventCategoryCRUD import EventCategoryView
 
@@ -33,6 +34,7 @@ urlpatterns = [
     path('events-posts/', EventPostCreateStaffView.as_view(), name='events-posts'),
     path('attend-event/', UserJoinEventView.as_view(), name='attend-event'),
     path('bulk-participating-venues/', EventBulkParticipatingVenuesView.as_view(), name='bulk-participating-venues'),
+    path('raffles/', RaffleListView.as_view(), name='raffles'),
     path('', include(router.urls)),
 ]   
 

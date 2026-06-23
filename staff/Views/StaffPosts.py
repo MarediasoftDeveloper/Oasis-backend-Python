@@ -7,13 +7,14 @@ from app.Serializers.post_serializer import PostSerializer, PostSerializerStaff
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import filters
+from staff.Permissions.adminOrganiserVenueOnlyPermission import Request_By_Admin_Venue_And_Organiser_Only
 
 
 
 
 
 class Post_Crud_Staff(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated, Request_By_Admin_Only]
+    permission_classes = [IsAuthenticated, Request_By_Admin_Venue_And_Organiser_Only]
     serializer_class = PostSerializer
     lookup_field ='slug'
     
