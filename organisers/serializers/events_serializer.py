@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from app.Models.events import Events, EventCategory
+from organisers.serializers.raffle_list_serializer import RaffleListSerializer
 from venue.models.badges import Badges
 from app.Serializers.customer_signup_serializer import Customer_Serializer
 from venue.Serializers.badges_serializer import BadgesSerializer
@@ -7,6 +8,7 @@ from organisers.serializers.eventCategorySerializer import EventCategorySerializ
 from venue.Serializers.qr_info_serializer import VenueQRInfoSerializer
 from django.utils import timezone
 from venue.models.qr_info_model import QR_Info
+from venue.models.raffles import Raffles
 
 
 class NullablePrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
@@ -19,6 +21,8 @@ class EventAppSerializer(serializers.ModelSerializer):
     created_by = Customer_Serializer(read_only=True)
     badge = BadgesSerializer(read_only=True)
     category = EventCategorySerializer(read_only=True, many=True)
+    raffle = RaffleListSerializer(read_only=True)
+
     class Meta:
         model = Events
         fields='__all__'
@@ -36,7 +40,14 @@ class EventStaffSerializer(serializers.ModelSerializer):
         many=True,
         write_only=True
     )
-    
+    raffle = RaffleListSerializer(read_only=True)
+    raffle_id = NullablePrimaryKeyRelatedField(
+        queryset=Raffles.objects.all(),
+        source='raffle',
+        required=False,
+        allow_null=True,
+        write_only=True
+    )
     # Allow writing by ID
     badge_id = NullablePrimaryKeyRelatedField(
         queryset=Badges.objects.all(),
@@ -120,19 +131,23 @@ class EventStaffSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         category_ids = validated_data.pop('category_ids', None)
         badge_not_provided = object() 
+        raffle_not_provided = object() 
         badge = validated_data.pop('badge', badge_not_provided)
-
-
+        raffle = validated_data.pop('raffle', raffle_not_provided)
+    
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         
         if badge is not badge_not_provided and badge is not None:
             instance.badge = badge
-
         # Case 2: badge_id was sent as empty/null
         elif badge is badge_not_provided:
             instance.badge_id = None
 
+        if raffle is not raffle_not_provided and raffle is not None:
+            instance.raffle = raffle
+        elif raffle is raffle_not_provided:
+            instance.raffle_id = None
 
         # Recalculate status if dates changed
         start_date = instance.event_start_date
