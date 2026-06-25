@@ -16,6 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+
+from venue.Views.venue_rewards import Venue_Rewards
 from .Views import login
 from .Views import oasis_venue_home 
 from .Views.badges_crud import Badges_Crud 
@@ -77,6 +79,7 @@ urlpatterns = [
     path('', include(router.urls)),
 
     path('search-venue/', SearchVenueAPI.as_view(), name='search-venue'),  
+    path('venue-rewards/<int:id>/', Venue_Rewards.as_view(), name='venue-rewards'),  
 
     path('venue-hours-list/', Venue_Opening_Hours_View_List.as_view(), name='venue-hours-list'),    
     path('venue-users/', VenueSpecificUser.as_view(), name='venue-users'),    

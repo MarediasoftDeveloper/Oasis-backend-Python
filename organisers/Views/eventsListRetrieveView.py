@@ -137,6 +137,7 @@ class EventsRetrieveView(generics.RetrieveAPIView):
     serializer_class = EventAppSerializer
 
     def retrieve(self, request, *args, **kwargs):
+        
         event = self.get_object()
 
         # Serialize main event
