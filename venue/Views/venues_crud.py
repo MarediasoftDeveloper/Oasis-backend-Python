@@ -2,6 +2,8 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from venue.Permissions.write_by_venue_only import WriteByVenueOnly
 from venue.models.venue_info import Venue_Info
 from app.Models.events import Events
+from venue.models.raffles import Raffles
+from venue.models.rewards import Rewards
 from app.Models.venues_participating_in_event import VenuesParticipatingEvents
 from venue.Serializers.venue_info_serializer import VenueInfoSerializer
 from organisers.serializers.events_serializer import EventAppSerializer
@@ -12,6 +14,24 @@ class Venues_Crud(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, WriteByVenueOnly]
     queryset = Venue_Info.objects.filter(status="approved")
     serializer_class=VenueInfoSerializer
+    
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+
+        data = serializer.data
+
+        for venue in data:
+            venue_id = venue.get("id")
+
+            has_active = (
+                Raffles.objects.filter(venue_id=venue_id, is_approved="approved").exists()
+                or Rewards.objects.filter(venue_id=venue_id, is_approved="approved").exists()
+            )
+
+            venue["has_active_raffle_or_reward"] = has_active
+
+        return Response(data)
 
 
     def retrieve(self, request, *args, **kwargs):
@@ -22,7 +42,7 @@ class Venues_Crud(viewsets.ModelViewSet):
 
         participating_event_ids = VenuesParticipatingEvents.objects.filter(
             venues=venue.venue
-        ).values_list("event_id", flat=True).distinct()
+        ).exclude(status="completed").values_list("event_id", flat=True).distinct()
 
         events = Events.objects.filter(id__in=participating_event_ids)
 
