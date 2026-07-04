@@ -6,6 +6,9 @@ media/uploads
 firebase
 oasis/__pycache__/
 app/migrations
+venue/migrations
+staff/migrations
+organisers/migrations
 *.pyc
 accounts
 payments

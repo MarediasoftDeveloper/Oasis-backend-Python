@@ -22,12 +22,12 @@ class Venues_Crud(viewsets.ModelViewSet):
         data = serializer.data
 
         for venue in data:
-            venue_id = venue.get("id")
-
+            venue_id = venue.get("venue").get("id")
             has_active = (
-                Raffles.objects.filter(venue_id=venue_id, is_approved="approved").exists()
-                or Rewards.objects.filter(venue_id=venue_id, is_approved="approved").exists()
+                Raffles.objects.filter(venue__id=venue_id, is_ended=False).exists()
+                or Rewards.objects.filter(venue__id=venue_id, is_ended=False).exists()
             )
+    
 
             venue["has_active_raffle_or_reward"] = has_active
 
@@ -42,7 +42,7 @@ class Venues_Crud(viewsets.ModelViewSet):
 
         participating_event_ids = VenuesParticipatingEvents.objects.filter(
             venues=venue.venue
-        ).exclude(status="completed").values_list("event_id", flat=True).distinct()
+        ).exclude(event__status="completed").values_list("event_id", flat=True).distinct()
 
         events = Events.objects.filter(id__in=participating_event_ids)
 
