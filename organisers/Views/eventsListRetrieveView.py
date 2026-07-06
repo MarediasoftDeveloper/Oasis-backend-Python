@@ -42,7 +42,7 @@ class EventsListView(APIView):
         search = request.data.get('search') or None
         sort_by_date = request.data.get('sort_by_date')
         start_date = request.data.get('start_date')
-        end_date = request.data.get('end_date')
+        end_date = request.data.get('end_date') 
         filter_options = request.data.get('filter_options')
         category_id = request.data.get('category_id')
         now = timezone.now()

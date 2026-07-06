@@ -41,4 +41,5 @@ class Events(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     conditions = models.CharField(max_length=1000, null=True, blank=True)
     physical_reward = models.CharField(max_length=1000, null=True, blank=True)
-    created_by = models.ForeignKey(Customer, on_delete=models.SET_NULL, limit_choices_to={'user_role__in':['2','3', '4']}, null=True, blank=True)
+    is_recurring = models.BooleanField(default=False)
+    created_by = models.ForeignKey(Customer, on_delete=models.SET_NULL, limit_choices_to={'user_role__in':['2','3','4']}, null=True, blank=True)
