@@ -13,6 +13,16 @@ STATUS_CHOICES = [
     ('completed', 'Completed'),
 ]
 
+WEEKDAYS = [
+    (0, 'Monday'),
+    (1, 'Tuesday'),
+    (2, 'Wednesday'),
+    (3, 'Thursday'),
+    (4, 'Friday'),
+    (5, 'Saturday'),
+    (6, 'Sunday'),
+]
+
 class EventCategory(models.Model):
     category = models.CharField(max_length=80)
     
@@ -25,8 +35,8 @@ class Events(models.Model):
     description = models.CharField(max_length=3000)
     image = models.ImageField(upload_to='uploads/events')
     location = models.CharField(max_length=500, null=True, blank=True)
-    event_start_date = models.DateTimeField()
-    event_close_date = models.DateTimeField()
+    event_start_date = models.DateTimeField(null=True, blank=True)
+    event_close_date = models.DateTimeField(null=True, blank=True)
     longitude = models.FloatField(db_index=True, null=True, blank=True)
     latitude = models.FloatField(db_index=True, null=True, blank=True)
     badge = models.ForeignKey(Badges, on_delete=models.CASCADE, null=True, blank=True)
@@ -35,6 +45,15 @@ class Events(models.Model):
     status = models.CharField(choices=STATUS_CHOICES, default='draft')
     total_scans_required = models.PositiveIntegerField(default=3)
     buy_now_link = models.CharField(max_length=1000, null=True, blank=True)
+    recurring_weekday = models.CharField(
+        max_length=100,
+        choices=WEEKDAYS,
+        blank=True,
+        null=True,
+        help_text="List of weekdays (0=Monday, 6=Sunday)"
+    )
+    recurring_start_time = models.TimeField(null=True, blank=True)
+    recurring_end_time = models.TimeField(null=True, blank=True)
     # qr_code = models.ForeignKey(QR_Info, on_delete=models.CASCADE)          
     raffle = models.ForeignKey(Raffles, on_delete=models.CASCADE, null=True, blank=True)          
     created_at = models.DateTimeField(auto_now_add=True)

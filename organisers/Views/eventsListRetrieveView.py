@@ -74,16 +74,16 @@ class EventsListView(APIView):
         else: 
             if sort_by_date == 'desc':
                 queryset = queryset.order_by('-event_start_date')
-            else:
-                queryset = queryset.annotate(
-                    status_order=Case(
-                        When(status='live', then=1),
-                        When(status='upcoming', then=2),
-                        When(status='completed', then=3),
-                        default=4,
-                        output_field=IntegerField()
-                    )
-                ).order_by('status_order')
+            # else:
+            #     queryset = queryset.annotate(
+            #         status_order=Case(
+            #             When(status='live', then=1),
+            #             When(status='upcoming', then=2),
+            #             When(status='completed', then=3),
+            #             default=4,
+            #             output_field=IntegerField()
+            #         )
+            #     ).order_by('status_order')
                 
         if start_date:
             start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
