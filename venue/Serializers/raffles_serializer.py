@@ -63,7 +63,8 @@ class RafflesStaffSerializer(serializers.ModelSerializer):
     venue_id = serializers.PrimaryKeyRelatedField(
         queryset=Customer.objects.filter(user_role='2'),
         write_only=True,
-        required=False
+        required=False,
+        allow_null=True
     )
     class Meta:
         model = Raffles
@@ -103,9 +104,12 @@ class RafflesStaffSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         """Create new raffle entry."""
-        venue = validated_data.pop('venue_id')
+        venue = validated_data.pop('venue_id', None)
+        if venue is not None:
+            return Raffles.objects.create(venue=venue, **validated_data)
          
-        return Raffles.objects.create(venue=venue, **validated_data)
+        return Raffles.objects.create(**validated_data)
+
 
     def update(self, instance, validated_data):
         """Update raffle entry."""
