@@ -74,7 +74,7 @@ class VenueInfoSerializer(serializers.ModelSerializer):
 
         # Update other fields in instance (excluding special fields)
         for attr, value in validated_data.items():
-            print(attr, value)
+    
             setattr(instance, attr, value)
 
         # Save both profile + instance
