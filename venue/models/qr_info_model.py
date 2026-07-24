@@ -18,7 +18,7 @@ class QR_Info(models.Model):
     qr_image = models.ImageField(upload_to=challenge_upload_path, blank=True, null=True)
     is_expired = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
-    expires_at = models.DateTimeField()
+    expires_at = models.DateTimeField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
         # Save once to generate UUID and primary key

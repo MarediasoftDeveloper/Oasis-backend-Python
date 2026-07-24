@@ -32,7 +32,6 @@ class Badges(models.Model):
     description = models.CharField(max_length=500, null=True, blank=True) 
     
 
-
     def __str__(self):
         return self.name + f"-{self.id}"
     
@@ -42,9 +41,9 @@ class Badges(models.Model):
 
 
 class BadgesLevel(models.Model):
-    badge = models.ForeignKey(Badges, on_delete=models.CASCADE)
+    badge = models.ForeignKey(Badges, on_delete=models.CASCADE, related_name='levels')
     image = SVGAndImageField(upload_to='media/badges/')
-    category = models.ForeignKey(Badge_Category, on_delete=models.CASCADE)  
+    category = models.ForeignKey(Badge_Category, on_delete=models.CASCADE, related_name='badge_category')  
     points_per_task = models.PositiveIntegerField(default=20)
 
 

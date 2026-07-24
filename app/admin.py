@@ -26,6 +26,11 @@ from .Models.events import Events, EventCategory
 from .Models.event_attendees import EventAttendees
 from .Models.event_posts import EventPosts
 from .Models.venues_participating_in_event import VenuesParticipatingEvents
+from .Models.trails.trailModel import Trail
+from .Models.trails.trailSteps import TrailStep
+from .Models.trails.trailRecord import TrailRecord
+from .Models.trails.trailStepsRecord import TrailStepRecord
+
 # Register your models here.
 
 admin.site.register(Customer)
@@ -58,3 +63,7 @@ admin.site.register(EventCategory)
 admin.site.register(EventAttendees)
 admin.site.register(EventPosts)
 admin.site.register(VenuesParticipatingEvents)
+admin.site.register(Trail)
+admin.site.register(TrailStep)
+admin.site.register(TrailRecord)
+admin.site.register(TrailStepRecord)
