@@ -23,6 +23,7 @@ from organisers.Views.eventParticipatingVenues import EventBulkParticipatingVenu
 from organisers.Views.raffle_list import RaffleListView
 from organisers.Views.userJoinEvent import UserJoinEventView
 from organisers.Views.eventCategoryCRUD import EventCategoryView
+from organisers.Views.recurringEvents import RecurringEventsView
 
 router = DefaultRouter()
 router.register(r'events-participating', EventParticipatingVenuesView, basename='events-participating')
@@ -35,6 +36,7 @@ urlpatterns = [
     path('attend-event/', UserJoinEventView.as_view(), name='attend-event'),
     path('bulk-participating-venues/', EventBulkParticipatingVenuesView.as_view(), name='bulk-participating-venues'),
     path('raffles/', RaffleListView.as_view(), name='raffles'),
+    path('recurring-events/', RecurringEventsView.as_view(), name='recurring-events'),
     path('', include(router.urls)),
 ]   
 

@@ -92,13 +92,13 @@ class Customer_Serializer(ModelSerializer):
 
         instance.save()
         profile = Customer_profile.objects.get(customer=instance)
-        if age:
+        if age is not None:
             profile.age=age 
         if gender:
             profile.gender=gender
-        if bio:
+        if bio is not None:
             profile.bio=bio
-        if profile_picture:
+        if profile_picture is not None:
             profile.profile_picture=profile_picture
         if is_private is not None:
             profile.is_private=is_private

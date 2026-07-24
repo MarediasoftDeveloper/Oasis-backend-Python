@@ -16,6 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+
+from app.Views.trials.trailListView import TrailViewSet
 from .Views import create_customer, oasis_home, update_customer, use_referral_code
 from .Views.email.send_and_validate_email import Validate_mail
 from .Views import google_signup , login, logout, send_invite, rewards_get_retrieve, update_customer_info, raffles_get_retrieve, venue_menu_list
@@ -67,6 +69,8 @@ router.register(r'posts', Post_Crud, basename='post_crud')
 router.register(r'friendships', Friendship_Crud, basename='friendship_crud')
 router.register(r'social-media-accounts', SocialMediaAccountViewSet, basename='social-media-accounts')    
 router.register(r'block-user', BlockUserView, basename="block-user")
+#trails paths
+router.register('trails', TrailViewSet, basename="trails"),    
 
 urlpatterns = [
     path('register/', create_customer.Create_Customer.as_view(), name="Signup"),
@@ -139,6 +143,8 @@ urlpatterns = [
 
     path('event-badges-progress/', EventBadgeProgressView.as_view(), name="EventBadgeProgress"),    
     path('event-participants/<int:id>/', EventParticipatingVenuesAppView.as_view(), name='event-participants'),
+
+
 
    
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),

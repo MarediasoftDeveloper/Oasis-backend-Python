@@ -50,55 +50,55 @@ def notify_friend_request_accepted(sender, instance, created, **kwargs):
 
 
 
-@receiver(post_save, sender=Post)
-def notify_post_upload(sender, instance, created, **kwargs):
-    # Only notify on creation
-    if created and instance.user.user_role == "1":
+# @receiver(post_save, sender=Post)
+# def notify_post_upload(sender, instance, created, **kwargs):
+#     # Only notify on creation
+#     if created and instance.user.user_role == "1":
 
-        # Get all accepted friendships
-        friendships = Friendships.objects.filter(
-            Q(request_sender=instance.user, status='accepted') |
-            Q(request_getter=instance.user, status='accepted')
-        )
+#         # Get all accepted friendships
+#         friendships = Friendships.objects.filter(
+#             Q(request_sender=instance.user, status='accepted') |
+#             Q(request_getter=instance.user, status='accepted')
+#         )
 
-        # Extract friend users
-        friends = set()
-        for f in friendships:
-            if f.request_sender == instance.user:
-                friends.add(f.request_getter)
-            else:
-                friends.add(f.request_sender)
+#         # Extract friend users
+#         friends = set()
+#         for f in friendships:
+#             if f.request_sender == instance.user:
+#                 friends.add(f.request_getter)
+#             else:
+#                 friends.add(f.request_sender)
 
-        receivers = list(friends)
+#         receivers = list(friends)
 
-        send_push_posts_notification(
-            receivers,
-            "A New Post Created!",
-            f"{instance.user.username} has created a new post.",
-            data={  
-                "image": instance.image.url,
-                "route": "/postDetailScreen",
-                "slug": str(instance.slug),
-            },
-            image=instance.image.url
-        )
+#         send_push_posts_notification(
+#             receivers,
+#             "A New Post Created!",
+#             f"{instance.user.username} has created a new post.",
+#             data={  
+#                 "image": instance.image.url,
+#                 "route": "/postDetailScreen",
+#                 "slug": str(instance.slug),
+#             },
+#             image=instance.image.url
+#         )
 
-    elif created and instance.user.user_role == "2":
+#     elif created and instance.user.user_role == "2":
 
-        receivers = list(Customer.objects.all())  # Fix variable name
-        venue = Venue_Info.objects.filter(venue=instance.user).first()  # Fix queryset issue
+#         receivers = list(Customer.objects.all())  # Fix variable name
+#         venue = Venue_Info.objects.filter(venue=instance.user).first()  # Fix queryset issue
 
-        venue_name = venue.venue_name if venue else instance.user.username  # Fallback
-        send_push_posts_notification(
-            receivers,
-            "A New Post Created!",
-            f"{venue_name} has created a new post.",
-            data={  
-                "image": instance.image.url,
-                "route": "/postDetailScreen",
-                "slug": str(instance.slug),
-            },
-            image=instance.image.url
-        )
+#         venue_name = venue.venue_name if venue else instance.user.username  # Fallback
+#         send_push_posts_notification(
+#             receivers,
+#             "A New Post Created!",
+#             f"{venue_name} has created a new post.",
+#             data={  
+#                 "image": instance.image.url,
+#                 "route": "/postDetailScreen",
+#                 "slug": str(instance.slug),
+#             },
+#             image=instance.image.url
+#         )
 
 

@@ -130,8 +130,6 @@ class StaffRewardsSerializer(serializers.ModelSerializer):
         if badge_ids:
             reward.rewards_for_badge_holder.set(badge_ids)
 
-
-
         return reward
 
     def update(self, instance, validated_data):

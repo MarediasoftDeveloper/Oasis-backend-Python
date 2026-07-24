@@ -42,7 +42,7 @@ class EventsListView(APIView):
         search = request.data.get('search') or None
         sort_by_date = request.data.get('sort_by_date')
         start_date = request.data.get('start_date')
-        end_date = request.data.get('end_date')
+        end_date = request.data.get('end_date') 
         filter_options = request.data.get('filter_options')
         category_id = request.data.get('category_id')
         now = timezone.now()
@@ -74,16 +74,16 @@ class EventsListView(APIView):
         else: 
             if sort_by_date == 'desc':
                 queryset = queryset.order_by('-event_start_date')
-            else:
-                queryset = queryset.annotate(
-                    status_order=Case(
-                        When(status='live', then=1),
-                        When(status='upcoming', then=2),
-                        When(status='completed', then=3),
-                        default=4,
-                        output_field=IntegerField()
-                    )
-                ).order_by('status_order')
+            # else:
+            #     queryset = queryset.annotate(
+            #         status_order=Case(
+            #             When(status='live', then=1),
+            #             When(status='upcoming', then=2),
+            #             When(status='completed', then=3),
+            #             default=4,
+            #             output_field=IntegerField()
+            #         )
+            #     ).order_by('status_order')
                 
         if start_date:
             start_date = datetime.strptime(start_date, "%Y-%m-%d").date()

@@ -66,10 +66,10 @@ def notify_raffle_created(sender, instance, created, **kwargs):
         # All users → convert queryset to list
         receivers = list(Customer.objects.all())
         venue = get_venue_info(instance)
-        
+        venue_name = venue.venue_name if venue is not None else 'Admin'
         send_push_notification(
             receivers,
-            f"🎟️ New Raffle from {venue.venue_name}",
+            f"🎟️ New Raffle from {venue_name}",
             "👉Hurry up! and participate in raffle to get exciting rewards 🎉.",
             data={
                 "type": "raffle_created",  

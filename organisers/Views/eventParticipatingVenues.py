@@ -7,11 +7,12 @@ from venue.models.venue_info import Venue_Info
 from app.Models.venues_participating_in_event import VenuesParticipatingEvents
 from organisers.serializers.events_venue_participating import EventAppVenuesParticipatingSerializer, EventBulkVenuesParticipatingSerializer
 from staff.Permissions.adminOrganiserOnlyPermission import Request_By_Admin_And_Organiser_Only
+from staff.Permissions.adminOrganiserVenueOnlyPermission import Request_By_Admin_Venue_And_Organiser_Only
 
 
 
 class EventParticipatingVenuesView(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated, Request_By_Admin_And_Organiser_Only]
+    permission_classes = [IsAuthenticated, Request_By_Admin_Venue_And_Organiser_Only]
     queryset = VenuesParticipatingEvents.objects.all()
     serializer_class = EventAppVenuesParticipatingSerializer    
 
@@ -19,7 +20,7 @@ class EventParticipatingVenuesView(viewsets.ModelViewSet):
 
 
 class EventBulkParticipatingVenuesView(generics.CreateAPIView):
-    permission_classes = [IsAuthenticated, Request_By_Admin_And_Organiser_Only]
+    permission_classes = [IsAuthenticated, Request_By_Admin_Venue_And_Organiser_Only]
     queryset = VenuesParticipatingEvents.objects.all()
     serializer_class = EventBulkVenuesParticipatingSerializer   
 
