@@ -23,8 +23,8 @@ class Venue_Badge_CRUD(APIView):
         data = []
 
         for venue in venues:
-            venue_info = Venue_Info.objects.filter(venue=venue).first()
-
+            venue_info = Venue_Info.objects.filter(venue=venue, status='approved').first()
+    
             # Active venue badges
             venue_badges = (
                 Venue_Badges.objects
