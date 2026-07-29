@@ -96,10 +96,10 @@ class TrailRecord(models.Model):
             return 0
 
         completed = self.completed_steps_count
-
+        badge_level_length = self.trail.badge.levels.count()
         return min(
             5,
-            completed * 5 // total
+            completed * int(badge_level_length) // total
         )
 
     @property

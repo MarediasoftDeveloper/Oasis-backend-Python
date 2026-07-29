@@ -17,6 +17,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from app.Views.trials.GetUsertrailRecord import GetUserTrailRecord
+from app.Views.trials.UsertrialRecordSave import UserTrailRecordSave
 from app.Views.trials.trailListView import TrailViewSet
 from .Views import create_customer, oasis_home, update_customer, use_referral_code
 from .Views.email.send_and_validate_email import Validate_mail
@@ -70,7 +72,12 @@ router.register(r'friendships', Friendship_Crud, basename='friendship_crud')
 router.register(r'social-media-accounts', SocialMediaAccountViewSet, basename='social-media-accounts')    
 router.register(r'block-user', BlockUserView, basename="block-user")
 #trails paths
-router.register('trails', TrailViewSet, basename="trails"),    
+router.register('trails', TrailViewSet, basename="trails"),  
+router.register(
+    "trail-scans",
+    UserTrailRecordSave,
+    basename="trail-scan"
+)  
 
 urlpatterns = [
     path('register/', create_customer.Create_Customer.as_view(), name="Signup"),
@@ -144,7 +151,9 @@ urlpatterns = [
     path('event-badges-progress/', EventBadgeProgressView.as_view(), name="EventBadgeProgress"),    
     path('event-participants/<int:id>/', EventParticipatingVenuesAppView.as_view(), name='event-participants'),
 
-
+    #trails paths
+    path('trails-record/<int:trail_id>/', GetUserTrailRecord.as_view(), name="get-user-trail-record"),    
+    
 
    
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
