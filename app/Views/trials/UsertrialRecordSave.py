@@ -1,8 +1,12 @@
+from decimal import ROUND_HALF_UP, Decimal
+
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from app.Models.trails.trailRecord import TrailRecord
 from app.Models.trails.trailSteps import TrailStep
+from app.Models.rewards_achiever import Rewards_Achiever
+from app.Models.earned_points import Earned_Points
 from app.Models.trails.trailStepsRecord import TrailStepRecord
 from django.utils import timezone
 from django.db import transaction
@@ -12,10 +16,36 @@ from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from math import radians, sin, cos, asin, sqrt
+from math import ceil
+from app.Serializers.badge_level_serializer import BadgesLevelSerializer
 
+@transaction.atomic
+def AssignRewardtoUser(trail, user):
+    if trail.reward is not None:
+        # Assign the reward to the user
+        reward_assigned = Rewards_Achiever.objects.create(
+            customer_taken=user,
+            reward=trail.reward
+        )
+        return True
 
+    return False
 
+@transaction.atomic
+def AssignPointstoUser(trail, user):
+    if trail.reward_points is not None and trail.reward_points > 0:
+        # Assign points to the user
+        user_profile = user.customer_profile
+        user_profile.total_redeemed_points += trail.reward_points
+        user_profile.save()
+        points_earned = Earned_Points.objects.create(
+            customer=user,
+            points_earned=trail.reward_points
+        )
+        return True
 
+    return False
+    
 
 
 
@@ -79,8 +109,19 @@ class UserTrailRecordSave(viewsets.GenericViewSet):
             )
 
         try:
-            user_longitude = float(user_longitude)
-            user_latitude = float(user_latitude)
+            user_longitude = Decimal(
+                str(user_longitude)
+            ).quantize(
+                Decimal("0.000001"),
+                rounding=ROUND_HALF_UP
+            )
+
+            user_latitude = Decimal(
+                str(user_latitude)
+            ).quantize(
+                Decimal("0.000001"),
+                rounding=ROUND_HALF_UP
+            )
 
         except (TypeError, ValueError):
             return Response(
@@ -276,6 +317,8 @@ class UserTrailRecordSave(viewsets.GenericViewSet):
                 trail_record=trail_record,
                 step=trail_step,
                 completed=True,
+                scanned_longitude=user_longitude,
+                scanned_latitude=user_latitude,
                 flagged=should_flag,
                 qr_verified=True,
             )
@@ -306,24 +349,84 @@ class UserTrailRecordSave(viewsets.GenericViewSet):
             and completed_steps >= total_steps
         )
 
+        response_message = "Trail step saved successfully."
+        pending_verification = False
+
         if trail_completed:
             trail_record.status = TrailRecord.Status.COMPLETED
             trail_record.completed_at = timezone.now()
+            trail_record.flagged = flagged_steps > 0
 
-            if trail.reward_id is not None:
-                trail_record.reward_awarded = True
+            # At least one step is flagged:
+            # complete the trail but hold the reward/points.
+            if flagged_steps > 0:
+                pending_verification = True
+                trail_record.reward_awarded = False
                 trail_record.points_awarded = 0
 
-            else:
+                response_message = (
+                    "Your trail is completed! We will verify the steps "
+                    "soon so you can get your reward."
+                )
+
+            # No flagged steps and the trail has a physical reward.
+            elif trail.reward_id is not None:
+                reward_assigned = AssignRewardtoUser(
+                    trail,
+                    user
+                )
+
+                trail_record.reward_awarded = reward_assigned
+                trail_record.points_awarded = 0
+
+                if reward_assigned:
+                    response_message = (
+                        "Your trail is completed! "
+                        "You have received your reward."
+                    )
+                else:
+                    response_message = (
+                        "Your trail is completed, but the reward "
+                        "could not be assigned."
+                    )
+
+            # No attached reward, so award points.
+            elif trail.reward_points > 0:
+                points_assigned = AssignPointstoUser(
+                    trail,
+                    user
+                )
+
                 trail_record.reward_awarded = False
+
                 trail_record.points_awarded = (
                     trail.reward_points
+                    if points_assigned
+                    else 0
                 )
+
+                if points_assigned:
+                    response_message = (
+                        f"Your trail is completed! You have earned "
+                        f"{trail.reward_points} points."
+                    )
+                else:
+                    response_message = (
+                        "Your trail is completed, but the points "
+                        "could not be assigned."
+                    )
+
+            # Trail has neither a reward nor reward points.
+            else:
+                trail_record.reward_awarded = False
+                trail_record.points_awarded = 0
+                response_message = "Your trail is completed successfully."
 
             trail_record.save(
                 update_fields=[
                     "status",
                     "completed_at",
+                    "flagged",
                     "reward_awarded",
                     "points_awarded",
                 ]
@@ -340,10 +443,77 @@ class UserTrailRecordSave(viewsets.GenericViewSet):
 
         next_step = trail_record.suggested_next_step
 
+        #getting badge records and level of user
+        badge_record = []
+        current_badge_level = (
+            trail_record.badge_level
+        )
+        badge_levels = list(
+            trail_record.trail.badge.levels.all()
+        )
+        for index, badge_level in enumerate(
+            badge_levels,
+            start=1
+        ):
+            category_name = (
+                badge_level.category.category
+            )
+
+            level_passed = (
+                index <= current_badge_level
+            )
+
+            # The TrailRecord model divides progress
+            # into exactly five badge levels.
+            required_steps = (
+                ceil(index * total_steps / 5)
+                if total_steps > 0
+                else 0
+            )
+
+            remaining_steps = max(
+                required_steps - completed_steps,
+                0
+            )
+
+            serialized_badge = (
+                BadgesLevelSerializer(
+                    badge_level,
+                    context={
+                        "request": request
+                    }
+                ).data
+            )
+
+            badge_item = {
+                "level": index,
+                "badge": serialized_badge,
+                "status": level_passed,
+                "required_steps": required_steps,
+            }
+
+            if level_passed:
+                badge_item["message"] = (
+                    f"You have passed the "
+                    f"{category_name} level."
+                )
+            else:
+                badge_item[
+                    "remaining_steps_to_pass_this_level"
+                ] = remaining_steps
+
+                badge_item["message"] = (
+                    f"Complete {remaining_steps} more "
+                    f"step(s) to pass the "
+                    f"{category_name} level."
+                )
+
+            badge_record.append(badge_item)
+
         return Response(
             {
                 "message": (
-                    "Trail completed successfully."
+                    response_message
                     if trail_completed
                     else "Trail step saved successfully."
                 ),
@@ -356,6 +526,8 @@ class UserTrailRecordSave(viewsets.GenericViewSet):
                         trail_record.attempt_number
                     ),
                     "status": trail_record.status,
+                    "reward_awarded": trail_record.reward_awarded if trail_completed else None,
+                    "points_awarded": trail_record.points_awarded if trail_completed else None,
                 },
                 "scanned_step": {
                     "id": trail_step.id,
@@ -383,6 +555,7 @@ class UserTrailRecordSave(viewsets.GenericViewSet):
                     if next_step is not None
                     else None
                 ),
+                "badge_record": badge_record
             },
             status=(
                 status.HTTP_201_CREATED

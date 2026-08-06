@@ -33,6 +33,19 @@ class TrailStepRecord(models.Model):
         null=True,
         blank=True
     )
+    scanned_longitude = models.DecimalField(
+           max_digits=9,
+           decimal_places=6,
+            null=True,
+            blank=True
+       )
+    scanned_latitude = models.DecimalField(
+           max_digits=9,
+           decimal_places=6,
+            null=True,
+            blank=True
+       )
+   
 
     class Meta:
         constraints = [

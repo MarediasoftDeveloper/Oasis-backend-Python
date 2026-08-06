@@ -67,46 +67,74 @@ class EventCrudStaffView(viewsets.ModelViewSet):
             total_scans += Challenge_Achiever.objects.filter(challenge__venue=participating_venue.venues, scanned_at__gte=participating_venue.event.event_start_date, scanned_at__lte=end_date).count()
 
         page = self.paginate_queryset(queryset)
+
         if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response({
+            serializer = self.get_serializer(
+                page,
+                many=True
+            )
+
+            response = self.get_paginated_response(
+                serializer.data
+            )
+
+            response.data["events"] = response.data.pop(
+                "results"
+            )
+
+            response.data.update({
                 "total_events": total_events,
                 "total_active_events": total_active_events,
                 "total_scans": total_scans,
-                "total_participating_venues": participating_venues.count(),
-                "events": serializer.data
+                "total_participating_venues": participating_venues.distinct().count() or 0
             })
 
-    def retrieve(self, request, *args, **kwargs):
-        event = self.get_object()
+            return response
 
-        # Serialize main event
-        event_serializer = self.get_serializer(event)
-
-        # Fetch related data
-        event_posts = EventPosts.objects.filter(event=event).order_by('-id')
-        participating_venues = VenuesParticipatingEvents.objects.filter(event=event).order_by('-id')
-        event_attendees = EventAttendees.objects.filter(event=event).order_by('-id')
-
-        badge = None
-        if event.badge:
-            badge = BadgesLevel.objects.filter(badge=event.badge).first()
-
-        # Serialize related data
-        event_posts_serializer = EventAppPostsSerializer(event_posts, many=True)
-        event_participated_serializer = EventAppVenuesParticipatingSerializer(participating_venues, many=True)
-        event_attendees_serializer = EventAppAttendeesSerializer(event_attendees, many=True)
-        badge_serializer = BadgesLevelSerializer(badge) if badge else None
+        serializer = self.get_serializer(
+            queryset,
+            many=True
+        )
 
         return Response({
-            **event_serializer.data,
-            "event_posts": event_posts_serializer.data,
-            "venue_participating": event_participated_serializer.data,
-            "total_participating_venues": participating_venues.count(),
-            "total_event_attendees": event_attendees.count(),
-            "event_attendees": event_attendees_serializer.data,
-            "badge_level": badge_serializer.data if badge_serializer else None,
+            "total_events": total_events,
+            "total_active_events": total_active_events,
+            "total_scans": total_scans,
+            "total_participating_venues": participating_venues.distinct().count() or 0,
+            "events": serializer.data,
         })
+
+
+        def retrieve(self, request, *args, **kwargs):
+            event = self.get_object()
+
+            # Serialize main event
+            event_serializer = self.get_serializer(event)
+
+            # Fetch related data
+            event_posts = EventPosts.objects.filter(event=event).order_by('-id')
+            participating_venues = VenuesParticipatingEvents.objects.filter(event=event).order_by('-id')
+            event_attendees = EventAttendees.objects.filter(event=event).order_by('-id')
+
+            badge = None
+            if event.badge:
+                badge = BadgesLevel.objects.filter(badge=event.badge).first()
+
+            # Serialize related data
+            event_posts_serializer = EventAppPostsSerializer(event_posts, many=True)
+            event_participated_serializer = EventAppVenuesParticipatingSerializer(participating_venues, many=True)
+            event_attendees_serializer = EventAppAttendeesSerializer(event_attendees, many=True)
+            badge_serializer = BadgesLevelSerializer(badge) if badge else None
+
+            return Response({
+                **event_serializer.data,
+                "event_posts": event_posts_serializer.data,
+                "venue_participating": event_participated_serializer.data,
+                "total_participating_venues": participating_venues.count(),
+                "total_event_attendees": event_attendees.count(),
+                "event_attendees": event_attendees_serializer.data,
+                "badge_level": badge_serializer.data if badge_serializer else None,
+            })
 
 
     

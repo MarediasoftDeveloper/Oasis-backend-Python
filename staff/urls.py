@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from staff.Views.admin_dashboard import AdminDashboardAPI
 from staff.Views.eventStatsExport import EventStatsReportExportView
+from staff.Views.rewards_list import RewardsList
 from staff.Views.venues_data import VenuesDataAPI, VenueRetrieveAPI
 from staff.Views.users_data import UsersDataAPI, UserRetrieveAPI
 from staff.Views.reports_list import ReportsList, ReportsRUD, ReportsCreate
@@ -42,11 +43,14 @@ from staff.Views.users_data import UserInterestsStaff
 from staff.Views.UserStamps import UserStamps
 from staff.Views.custom_notification_to_user import SendNotificationToAllUsers
 from staff.Views.badges_crud_staff import Badges_Crud_Staff
+from staff.Views.trails.trailStepsCrud import TrailStepsCrud
 from staff.Views.badges_level_crud_staff import Badges_Levels_Crud_Staff 
 from staff.Views.update_user_create_user import AdminUserListCreateUpdateDelete, AdminDetails, AdminPasswordReset
 from staff.Views.eventsCrudStaffView import EventCrudStaffView
 from staff.Views.sendNotificationToAttendees import SendNotificationToAttendees
 from staff.Views.eventStats import EventStatsView
+from staff.Views.trails.trailCrud import TrailCrud
+from staff.Views.trails.trailUsersRecordStaff import TrailRecordStepsStaff
 from staff.Views.events_badge_progress_staff import EventBadgeProgressStaffView
 from staff.Views.eventParticipatingVenuesStaffView import EventParticipatingVenuesStaffView
 from rest_framework.routers import DefaultRouter
@@ -63,6 +67,8 @@ router.register(r'badges-crud', Badges_Crud_Staff, basename='badges-crud-staff')
 router.register(r'badges-level-crud', Badges_Levels_Crud_Staff, basename='badges-level-crud-staff')
 router.register(r'admin-posts-crud-staff', Admin_Post_Crud, basename='admin-crud-posts-staff')
 router.register(r'events-crud', EventCrudStaffView, basename='admin-crud-events')
+router.register(r'trails-crud', TrailCrud, basename='admin-crud-trails')
+router.register(r'trail-steps-crud', TrailStepsCrud, basename='admin-crud-trail-steps')
 
 
 urlpatterns = [
@@ -105,6 +111,11 @@ urlpatterns = [
     path('sell-badges/', AvailableBadgesSellCalculation.as_view(), name='sell-badges'),
 
     path('adjust-points-user/', AdjustPointsOfUser.as_view(), name='adjust-points-user'),
+
+    path('rewards-list/', RewardsList.as_view(), name='rewards-list'),
+
+    #trails paths
+    path('trail-record-steps/', TrailRecordStepsStaff.as_view(), name='trail-record-steps-staff'),
 
     path('notify-attendees/', SendNotificationToAttendees.as_view(), name='notify-attendees'),
     path('event-stats/', EventStatsView.as_view(), name='event-stats'),

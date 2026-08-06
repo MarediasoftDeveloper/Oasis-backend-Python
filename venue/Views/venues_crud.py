@@ -29,7 +29,7 @@ class Venues_Crud(viewsets.ModelViewSet):
             )
             venue["has_active_raffle_or_reward"] = has_active
     
-
+            venue["has_active_raffle_or_reward"] = has_active
 
         return Response(data)
 
@@ -39,13 +39,13 @@ class Venues_Crud(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(venue)
         data = serializer.data
-
+      
         participating_event_ids = VenuesParticipatingEvents.objects.filter(
             venues=venue.venue
         ).exclude(event__status="completed").values_list("event_id", flat=True).distinct()
-
+        has_reward = Rewards.objects.filter(venue__id=venue.venue.id, is_ended=False).exists()
         events = Events.objects.filter(id__in=participating_event_ids)
 
         data["participating_events"] = EventAppSerializer(events, many=True).data
-
+        data["has_reward"] = has_reward
         return Response(data)
