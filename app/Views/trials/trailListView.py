@@ -33,25 +33,6 @@ class StandardResultsSetPagination(PageNumberPagination):
     max_page_size = 50
 
 
-# class TrailListView(generics.ListAPIView):
-#     permission_classes=[IsAuthenticated]
-#     pagination_class = StandardResultsSetPagination
-#     serializer_class = TrailGetSerializer
-#     queryset = (
-#         Trail.objects
-#         .select_related(
-#             "created_by",
-#             "created_by__customer_profile",
-#             "reward",
-#             "badge",
-#         )
-#         .annotate(
-#             steps_count=Count("steps", distinct=True)
-#         )
-#         .order_by("-created_at")
-#     )
-
-
 
 class TrailViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]

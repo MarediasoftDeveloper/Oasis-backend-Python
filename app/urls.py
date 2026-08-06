@@ -20,6 +20,7 @@ from django.urls import path, include
 from app.Views.trials.GetUsertrailRecord import GetUserTrailRecord
 from app.Views.trials.UsertrialRecordSave import UserTrailRecordSave
 from app.Views.trials.trailListView import TrailViewSet
+from app.Views.trials.trailStepsforMap import TrailStepsMap
 from .Views import create_customer, oasis_home, update_customer, use_referral_code
 from .Views.email.send_and_validate_email import Validate_mail
 from .Views import google_signup , login, logout, send_invite, rewards_get_retrieve, update_customer_info, raffles_get_retrieve, venue_menu_list
@@ -153,6 +154,7 @@ urlpatterns = [
 
     #trails paths
     path('trails-record/<int:trail_id>/', GetUserTrailRecord.as_view(), name="get-user-trail-record"),    
+    path('trails-steps-map/', TrailStepsMap.as_view(), name="trails-steps-map"),    
     
 
    
