@@ -54,7 +54,8 @@ debug_value = ssm.get_parameter(
     WithDecryption=False
 )['Parameter']['Value']
 
-DEBUG = debug_value.lower() == 'true'
+# DEBUG = debug_value.lower() == 'true'
+DEBUG = False
 
 
 hosts = ssm.get_parameter(
