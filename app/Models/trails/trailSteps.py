@@ -47,6 +47,9 @@ class TrailStep(models.Model):
         related_name="trail_step"
     )
 
+    step_reward_points = models.PositiveIntegerField(default=0) 
+
+
     order = models.PositiveIntegerField()
 
     created_at = models.DateTimeField(auto_now_add=True)

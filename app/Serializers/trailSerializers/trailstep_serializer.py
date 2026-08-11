@@ -33,6 +33,7 @@ class TrailStepSerializer(serializers.ModelSerializer):
             "latitude",
             "qr_code",
             "order",
+            "step_reward_points",
             "created_at",
             "updated_at",
         ]
@@ -97,7 +98,7 @@ class TrailStepSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         print("Creating TrailStep with validated data:", validated_data)  # Debugging line
 
-        qr_info = QR_Info()
+        qr_info = QR_Info(qr_type=QR_Info.QRType.TRAIL)
         qr_info.save()
 
 
@@ -135,6 +136,7 @@ class TrailStepSerializerStaff(serializers.ModelSerializer):
             "latitude",
             "qr_code",
             "order",
+            "step_reward_points",
             "created_at",
             "updated_at",
         ]
@@ -197,7 +199,7 @@ class TrailStepSerializerStaff(serializers.ModelSerializer):
 
     @transaction.atomic
     def create(self, validated_data):
-        qr_info = QR_Info()
+        qr_info = QR_Info(qr_type=QR_Info.QRType.TRAIL)
         qr_info.save()
 
 
@@ -229,5 +231,6 @@ class TrailStepSerializerForMap(serializers.ModelSerializer):
             "longitude",
             "latitude",
             "qr_code",
+            "step_reward_points",
             "order"
         ]

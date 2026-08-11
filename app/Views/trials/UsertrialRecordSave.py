@@ -322,7 +322,17 @@ class UserTrailRecordSave(viewsets.GenericViewSet):
                 flagged=should_flag,
                 qr_verified=True,
             )
-
+            if trail_step.step_reward_points > 0:
+                user_profile = user.customer_profile
+                user_profile.total_redeemed_points += trail_step.step_reward_points
+                user_profile.save()
+                points_earned = Earned_Points.objects.create(
+                    customer=user,
+                    points_earned=trail_step.step_reward_points
+                )
+                trail_step.points_awarded = True
+                trail_step.save()
+                
         else:
             step_record = existing_step_record
             step_record.completed = True
@@ -536,6 +546,8 @@ class UserTrailRecordSave(viewsets.GenericViewSet):
                     "completed": step_record.completed,
                     "flagged": step_record.flagged,
                     "qr_verified": step_record.qr_verified,
+                    "is_step_points_awarded": True if trail_record.points_awarded > 0 else False,
+                    "step_points_awarded": trail_record.points_awarded if trail_record.points_awarded > 0 else None,
                     "distance_km": round(distance, 4),
                 },
                 "progress": {
