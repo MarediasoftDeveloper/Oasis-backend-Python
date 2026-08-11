@@ -88,7 +88,7 @@ class ChallengesSerializer(serializers.ModelSerializer):
         ending_at = validated_data.get('ending_at')
         venue_badge = validated_data.get('venue_badge')
         venue = self.context.get('request').user
-        qr_obj = QR_Info(expires_at=ending_at)
+        qr_obj = QR_Info(qr_type=QR_Info.QRType.CHALLENGE, expires_at=ending_at)
         
         qr_obj.save()
 
@@ -206,7 +206,7 @@ class VenueChallengesSerializer(serializers.ModelSerializer):
         """Create a new Challenge."""
         ending_at = validated_data.get('ending_at')
         venue_badge = validated_data.pop('venue_badge')
-        qr_obj = QR_Info(expires_at=ending_at)
+        qr_obj = QR_Info(qr_type=QR_Info.QRType.CHALLENGE, expires_at=ending_at)
         qr_obj.save()
         validated_data['badge'] = venue_badge
         challenge = Challenges.objects.create(
@@ -328,7 +328,7 @@ class StaffChallengesSerializer(serializers.ModelSerializer):
         ending_at = validated_data.get('ending_at')
         venue_badge = validated_data.pop('venue_badge')
         venue = validated_data.pop('venue_id')
-        qr_obj = QR_Info(expires_at=ending_at)
+        qr_obj = QR_Info(qr_type=QR_Info.QRType.CHALLENGE, expires_at=ending_at)
         
         qr_obj.save()
     

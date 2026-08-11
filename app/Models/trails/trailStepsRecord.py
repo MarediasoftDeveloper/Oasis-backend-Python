@@ -45,7 +45,7 @@ class TrailStepRecord(models.Model):
             null=True,
             blank=True
        )
-   
+    
 
     class Meta:
         constraints = [
