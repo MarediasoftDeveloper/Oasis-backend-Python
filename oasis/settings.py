@@ -39,7 +39,7 @@ ssm = boto3.client('ssm', region_name=AWS_S3_REGION_NAME)
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 
-secret_key = ssm.get_parameter( 
+secret_key = ssm.get_parameter(
     Name='/myOasis/DJANGO_SECRET_KEY',
     WithDecryption=True
 )['Parameter']['Value']
@@ -199,6 +199,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'oasis.wsgi.application'
 
+QR_BASE_URL = "https://api.myoasis.co.nz"  # Replace with your actual base URL for QR codes
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
