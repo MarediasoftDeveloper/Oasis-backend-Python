@@ -21,6 +21,7 @@ from venue.Views.venue_rewards import Venue_Rewards
 from .Views import login
 from .Views import oasis_venue_home 
 from .Views.badges_crud import Badges_Crud 
+from .Views.change_all_old_qrs import Change_All_Old_QRs, Change_All_Trails_Old_QRs
 from .Views.badges_category_crud import Badges_Category_Crud 
 from .Views.venues_crud import Venues_Crud
 from .Views.rewards_crud_for_venue import Rewards_Crud_for_Venue
@@ -85,6 +86,10 @@ urlpatterns = [
     path('venue-users/', VenueSpecificUser.as_view(), name='venue-users'),    
     path('venue-users-activity/<int:id>/', VenueSpecificUserActivity.as_view(), name='venue-users-activity'),    
     path('venue-badges-list/', Venue_Badges_list_for_challenge.as_view(), name='venue-badges-list'),    
+
+    path('renew-qrs/', Change_All_Old_QRs.as_view(), name='renew-qrs'),
+    path('renew-trails-qrs/', Change_All_Trails_Old_QRs.as_view(), name='renew-trails-qrs'),
+
 
     path('protected-route-api/', ProtectedRouteAPI.as_view(), name='protectedrouteapi'),
 ]   
