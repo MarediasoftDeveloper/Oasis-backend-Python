@@ -16,7 +16,8 @@ from venue.models.badges import Badges
 class TrailSerializer(serializers.ModelSerializer):
     created_by = CustomerProfileSerializer(
         source="created_by.customer_profile",
-        read_only=True)
+        read_only=True
+    )
 
     reward = RewardsSerializer(read_only=True)
     badge = BadgesSerializer(
@@ -107,7 +108,6 @@ class TrailSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         request = self.context.get("request")
-
         if (
             request is None
             or not request.user.is_authenticated
@@ -120,7 +120,23 @@ class TrailSerializer(serializers.ModelSerializer):
             created_by=request.user,
             **validated_data
         )
-    
+
+    def update(self, instance, validated_data):
+        badge = validated_data.pop("badge", None)
+
+        print("Updating Trail with validated data:", validated_data)  # Debugging line
+        print("Updating Trail with badge:", badge)  # Debugging line
+        for field, value in validated_data.items():
+            setattr(instance, field, value)
+
+        if badge is not None:
+            instance.badge = badge
+        else:
+            instance.badge = None
+
+        instance.save()
+
+        return instance
 
 
 

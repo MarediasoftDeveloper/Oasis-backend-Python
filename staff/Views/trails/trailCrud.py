@@ -77,6 +77,3 @@ class TrailCrud(viewsets.ModelViewSet):
         ).data
         return Response(serialized_data)
 
-    def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
-
