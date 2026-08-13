@@ -77,3 +77,4 @@ class TrailCrud(viewsets.ModelViewSet):
         ).data
         return Response(serialized_data)
 
+  

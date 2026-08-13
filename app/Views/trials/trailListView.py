@@ -50,6 +50,7 @@ class TrailViewSet(viewsets.ModelViewSet):
         return TrailSerializer
 
     def get_queryset(self):
+        user = self.request.user
         queryset = Trail.objects.all()
 
         if self.action == "list":

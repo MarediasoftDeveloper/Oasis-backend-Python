@@ -152,7 +152,7 @@ urlpatterns = [
     path('event-badges-progress/', EventBadgeProgressView.as_view(), name="EventBadgeProgress"),    
     path('event-participants/<int:id>/', EventParticipatingVenuesAppView.as_view(), name='event-participants'),
 
-    #trails paths
+    #trails path 
     path('trails-record/<int:trail_id>/', GetUserTrailRecord.as_view(), name="get-user-trail-record"),    
     path('trails-steps-map/', TrailStepsMap.as_view(), name="trails-steps-map"),    
     
