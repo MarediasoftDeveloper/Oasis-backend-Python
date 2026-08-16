@@ -8,6 +8,8 @@ from app.Models.events import Events
 from app.Models.event_posts import EventPosts
 from app.Models.event_attendees import EventAttendees
 from app.Models.trails.trailModel import Trail
+from app.Models.trails.trailRecord import TrailRecord
+from app.Models.trails.trailStepsRecord import TrailStepRecord
 from app.Serializers.trailSerializers.trail_serializers import TrailSerializer, TrailGetSerializer
 from app.Serializers.trailSerializers.trailstep_serializer import TrailStepSerializer
 from venue.models.venue_info import Venue_Info
@@ -38,7 +40,6 @@ class TrailViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     pagination_class = StandardResultsSetPagination
 
-
     def get_serializer_class(self):
         if self.action == "list":
             return TrailGetSerializer
@@ -46,7 +47,6 @@ class TrailViewSet(viewsets.ModelViewSet):
         if self.action == "retrieve":
             return TrailSerializer
 
-        # Used for create, update and partial_update
         return TrailSerializer
 
     def get_queryset(self):
@@ -54,6 +54,22 @@ class TrailViewSet(viewsets.ModelViewSet):
         queryset = Trail.objects.all()
 
         if self.action == "list":
+
+            user_trail_records = (
+                TrailRecord.objects
+                .filter(user=user)
+                .prefetch_related(
+                    Prefetch(
+                        "step_records",
+                        queryset=TrailStepRecord.objects.filter(
+                            completed=True
+                        ),
+                        to_attr="completed_step_records"
+                    )
+                )
+                .order_by("-attempt_number")
+            )
+
             return (
                 queryset
                 .select_related(
@@ -62,8 +78,18 @@ class TrailViewSet(viewsets.ModelViewSet):
                     "created_by",
                     "created_by__customer_profile",
                 )
+                .prefetch_related(
+                    Prefetch(
+                        "records",
+                        queryset=user_trail_records,
+                        to_attr="request_user_records"
+                    )
+                )
                 .annotate(
-                    steps_count=Count("steps", distinct=True)
+                    steps_count=Count(
+                        "steps",
+                        distinct=True
+                    )
                 )
                 .order_by("-created_at")
             )
@@ -71,15 +97,84 @@ class TrailViewSet(viewsets.ModelViewSet):
         if self.action == "retrieve":
             return queryset
 
+        return queryset
+
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
-        serializer = self.get_serializer(instance)
+
+        serializer = self.get_serializer(
+            instance
+        )
+
         serialized_data = serializer.data
-        serialized_data["steps"] = TrailStepSerializer(
-            instance.steps.all(),
-            many=True,
-        ).data
-        return Response(serialized_data)
+
+        serialized_data["steps"] = (
+            TrailStepSerializer(
+                instance.steps.all(),
+                many=True,
+                context={
+                    "request": request
+                }
+            ).data
+        )
+
+        return Response(
+            serialized_data
+        )
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        serializer.save(
+            created_by=self.request.user
+        )
+
+
+
+# class TrailViewSet(viewsets.ModelViewSet):
+#     permission_classes = [IsAuthenticated]
+#     pagination_class = StandardResultsSetPagination
+
+
+#     def get_serializer_class(self):
+#         if self.action == "list":
+#             return TrailGetSerializer
+
+#         if self.action == "retrieve":
+#             return TrailSerializer
+
+#         # Used for create, update and partial_update
+#         return TrailSerializer
+
+#     def get_queryset(self):
+#         user = self.request.user
+#         queryset = Trail.objects.all()
+
+#         if self.action == "list":
+#             return (
+#                 queryset
+#                 .select_related(
+#                     "reward",
+#                     "badge",
+#                     "created_by",
+#                     "created_by__customer_profile",
+#                 )
+#                 .annotate(
+#                     steps_count=Count("steps", distinct=True)
+#                 )
+#                 .order_by("-created_at")
+#             )
+
+#         if self.action == "retrieve":
+#             return queryset
+
+#     def retrieve(self, request, *args, **kwargs):
+#         instance = self.get_object()
+#         serializer = self.get_serializer(instance)
+#         serialized_data = serializer.data
+#         serialized_data["steps"] = TrailStepSerializer(
+#             instance.steps.all(),
+#             many=True,
+#         ).data
+#         return Response(serialized_data)
+
+#     def perform_create(self, serializer):
+#         serializer.save(created_by=self.request.user)
