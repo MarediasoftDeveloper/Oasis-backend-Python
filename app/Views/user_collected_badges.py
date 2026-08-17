@@ -104,6 +104,7 @@ class Collected_badges(APIView):
         events = (
             Events.objects
             .exclude(status__in=["completed", "draft"])
+            .filter(badge__isnull=False)
             .select_related("badge")
             .prefetch_related(
                 Prefetch(
