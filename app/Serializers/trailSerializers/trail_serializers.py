@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from app.Models.trails.trailModel import Trail
 from app.Serializers.badge_level_serializer import BadgesLevelSerializer
+from staff.Serializers.rewards_serializer_staff import GetRewardSerializerStaff
 from venue.models.badges import Badges
 
 from rest_framework import serializers
@@ -149,6 +150,7 @@ class TrailGetSerializer(serializers.ModelSerializer):
     badge = BadgesSerializer(
         read_only=True
     )
+    reward = GetRewardSerializerStaff(read_only=True)
 
     started = serializers.SerializerMethodField()
     completed = serializers.SerializerMethodField()
@@ -163,6 +165,7 @@ class TrailGetSerializer(serializers.ModelSerializer):
             "description",
             "featured_image",
             "location",
+            "reward",
             "badge",
             "reward_points",
             "created_at",

@@ -45,7 +45,7 @@ class TrailStepRecord(models.Model):
             null=True,
             blank=True
        )
-    
+    points_awarded = models.PositiveIntegerField(default=0)
 
     class Meta:
         constraints = [

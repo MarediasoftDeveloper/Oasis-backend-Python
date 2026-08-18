@@ -382,7 +382,7 @@ class UserTrailRecordSave(viewsets.GenericViewSet):
                     )
                 )
 
-                trail_step.points_awarded = True
+                trail_step.points_awarded += trail_step.step_reward_points
                 trail_step.save()
 
         else:
@@ -738,13 +738,13 @@ class UserTrailRecordSave(viewsets.GenericViewSet):
 
                     "is_step_points_awarded": (
                         True
-                        if trail_record.points_awarded > 0
+                        if trail_step.points_awarded > 0
                         else False
                     ),
 
                     "step_points_awarded": (
-                        trail_record.points_awarded
-                        if trail_record.points_awarded > 0
+                        trail_step.points_awarded
+                        if trail_step.points_awarded > 0
                         else None
                     ),
 
