@@ -86,5 +86,6 @@ urlpatterns = [
     path('venue-users-activity/<int:id>/', VenueSpecificUserActivity.as_view(), name='venue-users-activity'),    
     path('venue-badges-list/', Venue_Badges_list_for_challenge.as_view(), name='venue-badges-list'),    
 
+
     path('protected-route-api/', ProtectedRouteAPI.as_view(), name='protectedrouteapi'),
 ]   
