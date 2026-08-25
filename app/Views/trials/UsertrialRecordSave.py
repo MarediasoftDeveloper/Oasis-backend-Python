@@ -315,8 +315,9 @@ class UserTrailRecordSave(viewsets.GenericViewSet):
         # calculate_distance returns kilometres.
         #
         # 0.05 km = 50 metres.
+        # 0.2 km = 200 metres.
         outside_allowed_distance = (
-            distance > 0.05
+            distance > 0.2
         )
 
         # --------------------------------------------------

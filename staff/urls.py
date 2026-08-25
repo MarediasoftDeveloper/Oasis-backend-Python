@@ -19,6 +19,8 @@ from django.urls import path, include
 from staff.Views.admin_dashboard import AdminDashboardAPI
 from staff.Views.eventStatsExport import EventStatsReportExportView
 from staff.Views.rewards_list import RewardsList
+from staff.Views.trails.step_unflagged import UnflaggedRecordStep
+from staff.Views.trails.trail_steps_record import TrailStepsRecordStaffRetrieve
 from staff.Views.venues_data import VenuesDataAPI, VenueRetrieveAPI
 from staff.Views.users_data import UsersDataAPI, UserRetrieveAPI
 from staff.Views.reports_list import ReportsList, ReportsRUD, ReportsCreate
@@ -116,6 +118,8 @@ urlpatterns = [
 
     #trails paths
     path('trail-record-steps/', TrailRecordStepsStaff.as_view(), name='trail-record-steps-staff'),
+    path('trail-record-steps/<int:trail_record_id>/', TrailStepsRecordStaffRetrieve.as_view(), name='trail-record-steps-staff-retrieve'),
+    path('trail-record-steps/unflagged/', UnflaggedRecordStep.as_view(), name='unflagged-trail-steps-staff'),
 
     path('notify-attendees/', SendNotificationToAttendees.as_view(), name='notify-attendees'),
     path('event-stats/', EventStatsView.as_view(), name='event-stats'),
