@@ -34,6 +34,7 @@ class TrailStep(models.Model):
         max_digits=9,
         decimal_places=6
     )
+    
     latitude = models.DecimalField(
         max_digits=9,
         decimal_places=6

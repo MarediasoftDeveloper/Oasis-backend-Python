@@ -20,7 +20,7 @@ def send_push_notification(users, title, body, data=None):
 
     # Save notifications in DB in batch
     Notifications.objects.bulk_create(
-        [Notifications(user=u, title=title, body=body) for u in users]
+        [Notifications(user=u, title=title, body=body, data=data) for u in users]
     )
 
     if not tokens:
@@ -73,7 +73,7 @@ def send_push_posts_notification(users, title, body, data=None, image=None):
         return
 
     # Save notifications in DB
-    Notifications.objects.bulk_create([Notifications(user=u, title=title, body=body) for u in users])
+    Notifications.objects.bulk_create([Notifications(user=u, title=title, body=body, data=data, image=image) for u in users])
 
     # Create APNS payload for iOS
     apns = messaging.APNSConfig(
