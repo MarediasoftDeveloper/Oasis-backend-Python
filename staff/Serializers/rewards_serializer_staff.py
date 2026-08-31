@@ -9,4 +9,4 @@ class GetRewardSerializerStaff(serializers.ModelSerializer):
     
     class Meta:
         model = Rewards
-        fields=["title"]
+        fields=["id", "title"]
