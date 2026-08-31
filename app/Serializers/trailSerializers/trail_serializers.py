@@ -63,6 +63,7 @@ class TrailSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
             "is_active",
+            "is_garden"
         ]
 
         read_only_fields = [
@@ -170,6 +171,7 @@ class TrailGetSerializer(serializers.ModelSerializer):
             "reward_points",
             "created_at",
             "is_active",
+            "is_garden",
             "steps_count",
             # User-specific trail progress
             "started",

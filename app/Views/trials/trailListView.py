@@ -51,7 +51,32 @@ class TrailViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        queryset = Trail.objects.all()
+        user_trail_ids = (
+            TrailRecord.objects
+            .filter(
+                user=user,
+                trail__is_garden=True
+            )
+            .values_list(
+                "trail_id",
+                flat=True
+            )
+            .distinct()
+        )
+
+        queryset = Trail.objects.filter(
+        Q(
+            is_active=True,
+            is_garden=False
+        )
+        |
+        Q(
+            is_active=True,
+            is_garden=True,
+            id__in=user_trail_ids
+        )
+    )
+        
 
         if self.action == "list":
 

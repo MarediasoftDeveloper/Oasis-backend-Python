@@ -156,7 +156,6 @@ urlpatterns = [
     path('trails-record/<int:trail_id>/', GetUserTrailRecord.as_view(), name="get-user-trail-record"),    
     path('trails-steps-map/', TrailStepsMap.as_view(), name="trails-steps-map"),    
     
-
    
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),

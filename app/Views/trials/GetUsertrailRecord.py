@@ -17,6 +17,7 @@ from math import ceil, radians, sin, cos, asin, sqrt
 from django.db.models import Prefetch
 from app.Serializers.badge_level_serializer import BadgesLevelSerializer
 from app.Serializers.trailSerializers.trailstep_serializer import TrailStepSerializer
+from venue.Serializers.rewards_serializer import RewardsSerializer
 from venue.models.badges import BadgesLevel
 
 
@@ -57,7 +58,7 @@ class GetUserTrailRecord(APIView):
                     "trail__badge__levels",
                     queryset=BadgesLevel.objects
                     .select_related("category")
-                    .order_by("category_id", "id")
+                    .order_by("id")
                 ),
             )
             .order_by("-attempt_number")
@@ -160,77 +161,172 @@ class GetUserTrailRecord(APIView):
             badge_levels = list(
                 trail.badge.levels.all()
             )
-
-            completed_steps = (
-                trail_record.completed_steps_count
-            )
-
-            total_steps = trail_record.total_steps
-
-            # The TrailRecord.badge_level property returns
-            # a level between 0 and 5.
-            current_badge_level = (
-                trail_record.badge_level
-            )
-
-            for index, badge_level in enumerate(
-                badge_levels,
-                start=1
-            ):
-                category_name = (
-                    badge_level.category.category
+            if not trail_record.trail.is_garden:
+                completed_steps = (
+                    trail_record.completed_steps_count
                 )
 
-                level_passed = (
-                    index <= current_badge_level
+                total_steps = trail_record.total_steps
+
+                # The TrailRecord.badge_level property returns
+                # a level between 0 and 5.
+                current_badge_level = (
+                    trail_record.badge_level
                 )
 
-                # The TrailRecord model divides progress
-                # into exactly five badge levels.
-                required_steps = (
-                    ceil(index * total_steps / 5)
-                    if total_steps > 0
-                    else 0
-                )
+                for index, badge_level in enumerate(
+                    badge_levels,
+                    start=1
+                ):
+                    category_name = (
+                        badge_level.category.category
+                    )
 
-                remaining_steps = max(
-                    required_steps - completed_steps,
-                    0
-                )
+                    level_passed = (
+                        index <= current_badge_level
+                    )
 
-                serialized_badge = (
-                    BadgesLevelSerializer(
-                        badge_level,
-                        context={
-                            "request": request
+                    # The TrailRecord model divides progress
+                    # into exactly five badge levels.
+                    required_steps = (
+                        ceil(index * total_steps / 5)
+                        if total_steps > 0
+                        else 0
+                    )
+
+                    remaining_steps = max(
+                        required_steps - completed_steps,
+                        0
+                    )
+
+                    serialized_badge = (
+                        BadgesLevelSerializer(
+                            badge_level,
+                            context={
+                                "request": request
+                            }
+                        ).data
+                    )
+
+                    badge_item = {
+                        "level": index,
+                        "badge": serialized_badge,
+                        "status": level_passed,
+                        "required_steps": required_steps,
+                    }
+
+                    if level_passed:
+                        badge_item["message"] = (
+                            f"You have passed the "
+                            f"{category_name} level."
+                        )
+                    else:
+                        badge_item[
+                            "remaining_steps_to_pass_this_level"
+                        ] = remaining_steps
+
+                        badge_item["message"] = (
+                            f"Complete {remaining_steps} more "
+                            f"step(s) to pass the "
+                            f"{category_name} level."
+                        )
+                    badge_data.append(badge_item)
+
+            else:
+
+                    completed_garden_count = (
+                        TrailRecord.objects
+                        .filter(
+                            trail__is_garden=True,
+                            status=TrailRecord.Status.COMPLETED,
+                            user=user
+                        )
+                        .values("trail_id")
+                        .distinct()
+                        .count()
+                    )
+
+                    # Each badge level requires 5 gardens.
+                    #
+                    # 0-4 gardens   = level 0
+                    # 5-9 gardens   = level 1
+                    # 10-14 gardens = level 2
+                    # 15-19 gardens = level 3
+                    # 20-24 gardens = level 4
+                    # 25+ gardens   = level 5
+                    current_badge_level = min(
+                        5,
+                        completed_garden_count // 5
+                    )
+
+                    for index, badge_level in enumerate(
+                        badge_levels,
+                        start=1
+                    ):
+                        category_name = (
+                            badge_level.category.category
+                        )
+
+                        # Level requirements:
+                        # 1 = 5 gardens
+                        # 2 = 10 gardens
+                        # 3 = 15 gardens
+                        # 4 = 20 gardens
+                        # 5 = 25 gardens
+                        required_gardens = (
+                            index * 5
+                        )
+
+                        level_passed = (
+                            completed_garden_count
+                            >= required_gardens
+                        )
+
+                        remaining_gardens = max(
+                            required_gardens
+                            - completed_garden_count,
+                            0
+                        )
+
+                        serialized_badge = (
+                            BadgesLevelSerializer(
+                                badge_level,
+                                context={
+                                    "request": request
+                                }
+                            ).data
+                        )
+
+                        badge_item = {
+                            "level": index,
+                            "badge": serialized_badge,
+                            "status": level_passed,
+                            "required_gardens": required_gardens,
+                            "completed_gardens": completed_garden_count,
                         }
-                    ).data
-                )
 
-                badge_item = {
-                    "level": index,
-                    "badge": serialized_badge,
-                    "status": level_passed,
-                    "required_steps": required_steps,
-                }
+                        if level_passed:
 
-                if level_passed:
-                    badge_item["message"] = (
-                        f"You have passed the "
-                        f"{category_name} level."
-                    )
-                else:
-                    badge_item[
-                        "remaining_steps_to_pass_this_level"
-                    ] = remaining_steps
+                            badge_item["message"] = (
+                                f"You have passed the "
+                                f"{category_name} level."
+                            )
 
-                    badge_item["message"] = (
-                        f"Complete {remaining_steps} more "
-                        f"step(s) to pass the "
-                        f"{category_name} level."
-                    )
+                        else:
 
-                badge_data.append(badge_item)
+                            badge_item[
+                                "remaining_gardens_to_pass_this_level"
+                            ] = remaining_gardens
+
+                            badge_item["message"] = (
+                                f"Complete {remaining_gardens} more "
+                                f"garden trail(s) to pass the "
+                                f"{category_name} level."
+                            )
+
+                        badge_data.append(
+                            badge_item
+                        )
 
         # ---------------------------------------------------------
         # SUGGESTED NEXT STEP
@@ -292,12 +388,15 @@ class GetUserTrailRecord(APIView):
             "reward_awarded": (
                 trail_record.reward_awarded
             ),
+            "reward": RewardsSerializer(
+                trail_record.trail.reward
+            ).data if trail_record.trail.reward else None,
 
             # Numeric current badge level.
             "badge_level": trail_record.badge_level,
 
             # Detailed list of all badge levels.
-            "badge_levels": badge_data,
+            "badge_levels": badge_data if badge_data else None,
 
             "completed_steps_count": (
                 trail_record.completed_steps_count
