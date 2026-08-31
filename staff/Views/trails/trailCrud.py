@@ -37,7 +37,6 @@ class TrailCrud(viewsets.ModelViewSet):
                 serializer.data
             )
 
-
             response.data.update({
                 "trails_count": queryset.count() or 0,
                 "inactive_trails_count": queryset.exclude(is_active=True).count() or 0,
