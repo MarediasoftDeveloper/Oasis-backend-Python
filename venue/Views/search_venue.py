@@ -20,7 +20,7 @@ class SearchVenueAPI(generics.ListAPIView):
     serializer_class = VenueInfoSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['venue_name']
-    queryset = Venue_Info.objects.all()    
+    queryset = Venue_Info.objects.filter(status='approved').order_by('-add_to_popular', 'venue_name')   
     pagination_class = StandardResultsSetPagination
 
 
