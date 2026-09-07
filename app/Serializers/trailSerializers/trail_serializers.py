@@ -18,7 +18,8 @@ from venue.models.badges import Badges
 class TrailSerializer(serializers.ModelSerializer):
     created_by = CustomerProfileSerializer(
         source="created_by.customer_profile",
-        read_only=True)
+        read_only=True
+    )
 
     reward = RewardsSerializer(read_only=True)
     badge = BadgesSerializer(
@@ -95,22 +96,17 @@ class TrailSerializer(serializers.ModelSerializer):
             "reward_points",
             getattr(self.instance, "reward_points", 0)
         )
-
-        if reward is not None and reward_points > 0:
-            raise serializers.ValidationError({
-                "error": "A trail cannot provide both a reward and reward points."
-            })
-
+       
         if reward is None and reward_points == 0:
             raise serializers.ValidationError({
                 "error": "Select a reward or provide reward points."
             })
+            
 
         return attrs
 
     def create(self, validated_data):
         request = self.context.get("request")
-
         if (
             request is None
             or not request.user.is_authenticated
@@ -126,9 +122,24 @@ class TrailSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         badge = validated_data.pop("badge", None)
+        reward = validated_data.pop("reward", None)
+        reward_points = validated_data.pop("reward_points", 0)
+        print("validated_data", reward_points)
+
 
         for field, value in validated_data.items():
             setattr(instance, field, value)
+
+
+        if reward is not None and reward_points == 0:
+            instance.reward = reward
+            instance.reward_points = 0
+        elif reward_points > 0 and reward is None:
+            instance.reward_points = reward_points
+            instance.reward = reward
+        else:
+            instance.reward = None
+            instance.reward_points = 0
 
         if badge is not None:
             instance.badge = badge
