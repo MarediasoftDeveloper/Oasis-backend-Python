@@ -43,6 +43,7 @@ from .Views.venue_specific_users import VenueSpecificUser, VenueSpecificUserActi
 from .Views.protected_route_api import ProtectedRouteAPI
 from rest_framework.routers import DefaultRouter
 
+
 router = DefaultRouter()
 router.register(r'badges-category', Badges_Category_Crud, basename='badge_category-crud')
 router.register(r'badges', Badges_Crud, basename='badges-crud')

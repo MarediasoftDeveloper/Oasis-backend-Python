@@ -199,7 +199,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'oasis.wsgi.application'
 
-QR_BASE_URL = "https://api.venue-myoasis.co.nz/"  # Replace with your actual base URL for QR codes
+QR_BASE_URL = "https://api.venue-myoasis.co.nz"  # Replace with your actual base URL for QR codes
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
