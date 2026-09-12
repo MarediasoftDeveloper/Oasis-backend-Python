@@ -81,7 +81,8 @@ class ChallengeAchieverSerializer(serializers.ModelSerializer):
             current_day = timezone.localdate().weekday()
             # print(current_day)
            
-            allowed_days = challenge.specify_weekdays
+            allowed_days = challenge.specify_weekdays or []
+        
             if current_day not in allowed_days:
                 # Convert allowed day numbers to names
                 day_names = [calendar.day_name[day] for day in allowed_days]
