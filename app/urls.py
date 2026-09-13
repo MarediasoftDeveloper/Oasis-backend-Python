@@ -59,7 +59,7 @@ from .Views.referral_code_view import ReferrlCodeUseView
 from .Views.facebook_signin import Facebook_Signup
 from .Views.events_badge_progress import EventBadgeProgressView
 from app.Views.eventParticipatingVenuesAppView import EventParticipatingVenuesAppView
-from app.Views.wellknown.wellKnown import assetlinks, apple_app_site_association
+
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -162,15 +162,7 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('', include(router.urls)),  #  Include DRF ViewSet routes
 
-    # well-known paths for Android and iOS app association
-   path(
-        ".well-known/assetlinks.json",
-        assetlinks,
-    ),
-    path(
-        ".well-known/apple-app-site-association",
-        apple_app_site_association,
-    ),
+   
 
     #redirection paths for trail and challenge scans
     path(
