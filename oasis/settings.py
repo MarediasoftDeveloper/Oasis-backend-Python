@@ -408,7 +408,7 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 
 CRONJOBS = [
-    ('0 18 * * 1', 'app.cron.send_daily_notification')
+    ('0 17 * * 1', 'app.cron.send_daily_notification')
 ]
 
 
