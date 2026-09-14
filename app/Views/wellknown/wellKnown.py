@@ -6,9 +6,9 @@ from django.http import JsonResponse
 ANDROID_PACKAGE_NAME = "com.myoasis.app"
 
 ANDROID_SHA256_FINGERPRINT = (
-   "ED:37:C5:2B:1A:ab:71:02:"
+   "ED:37:C5:2B:1A:AB:71:02:"
    "24:C5:B1:99:37:2E:45:D0:"
-   "F2:DC:D5:47:C0:95:CD:2A:"
+   "F2:DC:D5:47:C0:95:cd:2A:"
    "07:8A:3F:D8:3B:BE:10:B0"
 )
 
