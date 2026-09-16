@@ -19,6 +19,18 @@ class TrailStep(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
 
+    instructions = models.TextField(
+            null=True,
+            blank=True
+    )
+    historical_information = models.TextField(
+        null=True,
+        blank=True
+    )
+    additional_info = models.TextField(
+        null=True,
+        blank=True
+    )
     featured_image = models.ImageField(
         upload_to="trail_steps/",
         null=True,

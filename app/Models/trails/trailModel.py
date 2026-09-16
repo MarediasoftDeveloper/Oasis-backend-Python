@@ -48,7 +48,7 @@ class Trail(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
     is_garden = models.BooleanField(default=False)
-
+    hide_pins_from_map = models.BooleanField(default=False)
     
 
     def __str__(self):

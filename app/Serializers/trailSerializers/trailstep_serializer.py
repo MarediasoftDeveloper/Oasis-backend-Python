@@ -27,6 +27,9 @@ class TrailStepSerializer(serializers.ModelSerializer):
             "trail_id",
             "title",
             "description",
+            "instructions",
+            "historical_information",
+            "additional_info",
             "featured_image",
             "pin_image",
             "longitude",
@@ -130,6 +133,9 @@ class TrailStepSerializerStaff(serializers.ModelSerializer):
             "trail_id",
             "title",
             "description",
+            "instructions",
+            "historical_information",
+            "additional_info",
             "featured_image",
             "pin_image",
             "longitude",
@@ -218,7 +224,6 @@ class TrailStepSerializerStaff(serializers.ModelSerializer):
 
 class TrailStepSerializerForMap(serializers.ModelSerializer):
     
-
     class Meta:
         model = TrailStep
         fields = [
