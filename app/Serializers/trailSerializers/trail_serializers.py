@@ -184,7 +184,7 @@ class TrailGetSerializer(serializers.ModelSerializer):
             "created_at",
             "is_active",
             "is_garden",
-            "hide_pins_from_map"
+            "hide_pins_from_map",
             "steps_count",
             # User-specific trail progress
             "started",
