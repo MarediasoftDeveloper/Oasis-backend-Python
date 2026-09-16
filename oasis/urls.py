@@ -19,6 +19,8 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+from app.Views.wellknown.wellKnown import apple_app_site_association, assetlinks
+
 
 
 urlpatterns = [
@@ -27,6 +29,15 @@ urlpatterns = [
     path('oasis/api/venue/', include('venue.urls')),
     path('oasis/api/staff/', include('staff.urls')),
     path('oasis/api/organiser/', include('organisers.urls')),
+     # well-known paths for Android and iOS app association
+    path(
+        ".well-known/assetlinks.json",
+        assetlinks,
+    ),
+    path(
+        ".well-known/apple-app-site-association",
+        apple_app_site_association,
+    ),
 ]
 
 

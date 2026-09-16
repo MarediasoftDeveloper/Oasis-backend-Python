@@ -21,6 +21,7 @@ from app.Views.trials.GetUsertrailRecord import GetUserTrailRecord
 from app.Views.trials.UsertrialRecordSave import UserTrailRecordSave
 from app.Views.trials.trailListView import TrailViewSet
 from app.Views.trials.trailStepsforMap import TrailStepsMap
+from app.Views.wellknown.redirection_views import challenge_scan_link, trail_scan_link
 from .Views import create_customer, oasis_home, update_customer, use_referral_code
 from .Views.email.send_and_validate_email import Validate_mail
 from .Views import google_signup , login, logout, send_invite, rewards_get_retrieve, update_customer_info, raffles_get_retrieve, venue_menu_list
@@ -160,4 +161,20 @@ urlpatterns = [
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('', include(router.urls)),  #  Include DRF ViewSet routes
+
+   
+
+    #redirection paths for trail and challenge scans
+    path(
+        "scan/trails/<str:code>/",
+        trail_scan_link,
+        name="trail-scan-link"
+        ),
+    path(
+        "scan/challenges/<str:code>/",
+        challenge_scan_link,
+        name="challenge-scan-link",
+    ),
+
+
 ]   
