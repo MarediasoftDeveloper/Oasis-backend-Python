@@ -52,4 +52,5 @@ class TrailStepsMap(APIView):
         serialized_data = Serializer.data    
         return Response(serialized_data, status=200)
 
-      
+
+

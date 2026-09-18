@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from app.Views.events_filters import EventFilters
 from app.Views.trials.GetUsertrailRecord import GetUserTrailRecord
 from app.Views.trials.UsertrialRecordSave import UserTrailRecordSave
 from app.Views.trials.trailListView import TrailViewSet
@@ -151,6 +152,7 @@ urlpatterns = [
     path('notifications/', NotificationsListView.as_view(), name="notifications"),   
 
     path('event-badges-progress/', EventBadgeProgressView.as_view(), name="EventBadgeProgress"),    
+    path('event-filters/', EventFilters.as_view(), name="EventFilters"),    
     path('event-participants/<int:id>/', EventParticipatingVenuesAppView.as_view(), name='event-participants'),
 
     #trails path 
@@ -162,7 +164,6 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('', include(router.urls)),  #  Include DRF ViewSet routes
 
-   
 
     #redirection paths for trail and challenge scans
     path(
