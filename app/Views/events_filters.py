@@ -18,6 +18,7 @@ class EventFilters(APIView):
         data = request.data
 
         start_date = data.get("start_date")
+        category_id = data.get("category_id")
         
         events = Events.objects.filter(status__in=["upcoming", 'live'])
 
@@ -40,15 +41,19 @@ class EventFilters(APIView):
                 )
             )
 
-            serializer = EventAppSerializer(
-                events,
-                many=True
+        if category_id:
+            events = events.filter(
+                category__id=category_id
             )
 
-            return Response(
-                serializer.data
-            )  
+        serializer = EventAppSerializer(
+            events,
+            many=True
+        )
 
-        return Response({"message" : "No events found for this specific date or day!"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            serializer.data
+        )  
+
 
     
