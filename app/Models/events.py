@@ -32,7 +32,7 @@ class EventCategory(models.Model):
 
 class Events(models.Model):
     title = models.CharField(max_length=300)
-    description = models.CharField(max_length=3000)
+    description = models.CharField(max_length=5000)
     image = models.ImageField(upload_to='uploads/events')
     location = models.CharField(max_length=500, null=True, blank=True)
     event_start_date = models.DateTimeField()
