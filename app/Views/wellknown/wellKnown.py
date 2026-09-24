@@ -56,6 +56,12 @@ def apple_app_site_association(request):
                                 "/": "/oasis/api/scan/challenges/*",
                                 "comment": "Venue MyOasis challenge QR links",
                             },
+                            {
+                                "/": "/oasis/open/",
+                                "comment": (
+                                    "Open Venue MyOasis app"
+                                ),
+                            },
                         ],
                     }
                 ]

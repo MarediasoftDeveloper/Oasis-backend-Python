@@ -19,6 +19,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+from app.Views.wellknown.redirection_views import open_app_link
 from app.Views.wellknown.wellKnown import apple_app_site_association, assetlinks
 
 
@@ -37,6 +38,11 @@ urlpatterns = [
     path(
         ".well-known/apple-app-site-association",
         apple_app_site_association,
+    ),
+    path(
+        "oasis/open/",
+        open_app_link,
+        name="open-app-link"
     ),
 ]
 

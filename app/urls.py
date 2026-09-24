@@ -17,6 +17,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from app.Views.EventsImport.events_import import ImportEventsAPIView
+from app.Views.EventsImport.get_all_events import GetAllEvents
 from app.Views.events_filters import EventFilters
 from app.Views.trials.GetUsertrailRecord import GetUserTrailRecord
 from app.Views.trials.UsertrialRecordSave import UserTrailRecordSave
@@ -158,6 +160,8 @@ urlpatterns = [
     #trails path 
     path('trails-record/<int:trail_id>/', GetUserTrailRecord.as_view(), name="get-user-trail-record"),    
     path('trails-steps-map/', TrailStepsMap.as_view(), name="trails-steps-map"),    
+
+
     
    
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
@@ -175,7 +179,6 @@ urlpatterns = [
         "scan/challenges/<str:code>/",
         challenge_scan_link,
         name="challenge-scan-link",
-    ),
-
+    ),  
 
 ]   

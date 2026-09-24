@@ -12,3 +12,5 @@ organisers/migrations
 *.pyc
 accounts
 payments
+staff/migrations
+app/Views/EventsImport
