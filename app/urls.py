@@ -17,8 +17,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from app.Views.EventsImport.events_import import ImportEventsAPIView
-from app.Views.EventsImport.get_all_events import GetAllEvents
+# from app.Views.EventsImport.events_import import ImportEventsAPIView
+# from app.Views.EventsImport.get_all_events import GetAllEvents
 from app.Views.events_filters import EventFilters
 from app.Views.trials.GetUsertrailRecord import GetUserTrailRecord
 from app.Views.trials.UsertrialRecordSave import UserTrailRecordSave
