@@ -62,6 +62,13 @@ class TrailRecordStepsStaff(generics.ListAPIView):
                 "step_records",
                 "step_records__step",
             )
+            .annotate(
+            scan_points_awarded=Coalesce(
+                Sum("step_records__points_awarded"),
+                Value(0),
+                output_field=IntegerField(),
+            )
+            )
             .order_by("-started_at")
         )
 
@@ -69,6 +76,7 @@ class TrailRecordStepsStaff(generics.ListAPIView):
         queryset = self.filter_queryset(
             self.get_queryset()
         )
+        print("Queryset:", queryset)  # Debugging line to print the queryset
 
         # Remove ordering when this queryset is used as a subquery.
         trail_record_ids = (
@@ -80,6 +88,7 @@ class TrailRecordStepsStaff(generics.ListAPIView):
         step_records = TrailStepRecord.objects.filter(
             trail_record_id__in=trail_record_ids
         )
+       
 
         # =========================================================
         # MAIN TRAIL-RECORD STATISTICS
@@ -616,7 +625,6 @@ class TrailRecordStepsStaff(generics.ListAPIView):
         # =========================================================
         # PAGINATED RESPONSE
         # =========================================================
-
         page = self.paginate_queryset(queryset)
 
         if page is not None:

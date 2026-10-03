@@ -29,8 +29,11 @@ from django.db.models import Count, Sum, OuterRef, Subquery, Prefetch
 from rest_framework import generics, filters
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
+from app.Models.trails.trailStepsRecord import TrailStepRecord
 from app.Views.utils.fcm import send_push_notification
+from app.Serializers.trailSerializers.trailsteprecord_serializer import TrailStepRecordSerializer
 from django.db import transaction
+
 
 def format_number_ui(value):
     value = float(value)
@@ -148,6 +151,7 @@ class UserRetrieveAPI(generics.RetrieveAPIView):
             )
             .order_by('-customer__date_joined')
         )
+
     
 
     def retrieve(self, request, *args, **kwargs):
@@ -167,6 +171,12 @@ class UserRetrieveAPI(generics.RetrieveAPIView):
         recent_raffles = Raffles_Entry.objects.filter(
             user=customer.customer
         ).order_by('-joined_at')
+
+        recent_trails_activity = TrailStepRecord.objects.filter(
+            trail_record__user=customer.customer
+        ).order_by('-completed_at')
+        
+
 
         data = CustomerProfileSerializerStaff(customer).data
         
@@ -189,6 +199,12 @@ class UserRetrieveAPI(generics.RetrieveAPIView):
             recent_raffles, many=True
         ).data
 
+        data['customer_trails_activity'] = TrailStepRecordSerializer(
+            recent_trails_activity, many=True
+        ).data
+
+        
+
         data['scan_dict'] = {
             "count": recent_scans.count(),
             "total_win_points": recent_scans.aggregate(
@@ -205,6 +221,10 @@ class UserRetrieveAPI(generics.RetrieveAPIView):
             )["total_spent_points"] or 0, "total_win_points": recent_raffles.aggregate(
                 total_rewarded_points=Sum("raffle__rewarded_points")
             )["total_rewarded_points"] or 0}
+        
+        data['trails_dict'] = {"count":recent_trails_activity.count(), "total_win_points": recent_trails_activity.aggregate(
+                total_win_points=Sum("points_awarded")
+            )["total_win_points"] or 0}
 
         return Response(data)
 

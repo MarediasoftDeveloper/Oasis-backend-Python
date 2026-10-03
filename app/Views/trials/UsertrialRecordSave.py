@@ -1366,7 +1366,7 @@ class UserTrailRecordSave(viewsets.GenericViewSet):
         if trail.badge_id is not None:
 
             badge_levels = list(
-                trail.badge.levels.all()
+                trail.badge.levels.all().order_by("points_per_task")
             )
 
             # ==================================================

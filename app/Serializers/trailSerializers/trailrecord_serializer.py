@@ -50,6 +50,7 @@ class TrailRecordSerializer(serializers.ModelSerializer):
         source="get_status_display",
         read_only=True
     )
+    scan_points_awarded = serializers.IntegerField(read_only=True)
 
     started = serializers.BooleanField(read_only=True)
     completed = serializers.BooleanField(read_only=True)
@@ -84,6 +85,7 @@ class TrailRecordSerializer(serializers.ModelSerializer):
             "completed_at",
             "points_awarded",
             "reward_awarded",
+            "scan_points_awarded",
         ]
 
         read_only_fields = [

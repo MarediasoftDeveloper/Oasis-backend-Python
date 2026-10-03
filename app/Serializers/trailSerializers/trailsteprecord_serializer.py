@@ -82,6 +82,7 @@ class TrailStepRecordSerializer(serializers.ModelSerializer):
             "flagged",
             "qr_verified",
             "completed_at",
+            "points_awarded",
             "flagged_at",
         ]
 
